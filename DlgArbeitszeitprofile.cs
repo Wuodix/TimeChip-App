@@ -20,11 +20,6 @@ namespace TimeChip_App_1._0
             m_lbxArbeitszeitprofile.DataSource = m_arbeitsprofilliste;
 
             UpdateCMBX();
-
-            ClsTag Tag = new ClsTag("test1",new TimeSpan(7, 30, 0), new TimeSpan(18, 00, 0), new TimeSpan(12, 30, 0), new TimeSpan(15, 00, 0), new TimeSpan(8,0,0), new TimeSpan(2, 30, 0));
-
-            ClsArbeitsprofil Test = new ClsArbeitsprofil("hi",Tag, Tag, Tag, Tag, Tag, Tag, Tag, 5, false);
-            m_arbeitsprofilliste.Add(Test);
         }
         private void m_btnTage_Click(object sender, EventArgs e)
         {
@@ -107,6 +102,7 @@ namespace TimeChip_App_1._0
             try
             {
                 int Urlaub = Convert.ToInt32(m_tbxUrlaub.Text);
+                //In Datenbank eintragen dann erst erstellen (in Data Provider), weil man daher erst die richtige Id bekommt
                 ClsArbeitsprofil neu = new ClsArbeitsprofil(m_tbxName.Text, m_cmbxMontag.SelectedItem as ClsTag, m_cmbxDienstag.SelectedItem as ClsTag, m_cmbxMittwoch.SelectedItem as ClsTag, m_cmbxDonnerstag.SelectedItem as ClsTag, m_cmbxFreitag.SelectedItem as ClsTag, m_cmbxSamstag.SelectedItem as ClsTag, m_cmbxSonntag.SelectedItem as ClsTag, Urlaub, m_cbGleitzeit.Checked);
                 m_arbeitsprofilliste.Add(neu);
                 m_arbeitsprofilliste.ResetBindings();

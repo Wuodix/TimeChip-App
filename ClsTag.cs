@@ -11,9 +11,8 @@ namespace TimeChip_App_1._0
         private TimeSpan m_arbeitsbeginn, m_arbeitsende, m_pausenbeginn, m_pausenende, m_arbeitszeit, m_pausendauer;
         private string m_name;
         private int m_ID;
-        private static int m_zaehler = 1;
 
-        public ClsTag(string Name, TimeSpan Arbeitsbeginn, TimeSpan Arbeitsende, TimeSpan Pausenbeginn, TimeSpan Pausenende, TimeSpan Arbeitszeit, TimeSpan Pausendauer)
+        public ClsTag(int ID, string Name, TimeSpan Arbeitsbeginn, TimeSpan Arbeitsende, TimeSpan Pausenbeginn, TimeSpan Pausenende, TimeSpan Arbeitszeit, TimeSpan Pausendauer)
         {
             m_name = Name;
             m_arbeitsbeginn = Arbeitsbeginn;
@@ -22,11 +21,9 @@ namespace TimeChip_App_1._0
             m_pausenende = Pausenende;
             m_arbeitszeit = Arbeitszeit;
             m_pausendauer = Pausendauer;
-
-            m_ID = m_zaehler;
-            m_zaehler++;
+            m_ID = ID;
         }
-        
+
         public string Name { get { return m_name; } set { m_name = value; } }
         public TimeSpan Arbeitsbeginn { get { return m_arbeitsbeginn; } set { m_arbeitsbeginn = value; } }
         public TimeSpan Arbeitsende { get { return m_arbeitsende; } set { m_arbeitsende = value; } }

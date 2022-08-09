@@ -13,14 +13,14 @@ namespace TimeChip_App_1._0
     public partial class DlgTag : Form
     {
         static BindingList<ClsTag> m_tagesliste = new BindingList<ClsTag>();
-        private bool Fehler;
+        private bool m_fehler;
         public DlgTag()
         {
             InitializeComponent();
 
             m_lbxTage.DataSource = m_tagesliste;
 
-            Fehler = false;
+            m_fehler = false;
             /*
             TimeSpan time = new TimeSpan(7, 30, 0);
             ClsTag tag = new ClsTag("hi", time, time, time, time, time, time);
@@ -44,12 +44,12 @@ namespace TimeChip_App_1._0
         private void m_btnErstellen_Click(object sender, EventArgs e)
         {
             ClsTag neu = new ClsTag(m_tbxName.Text, StringToTimeSpan(m_tbxArbeitsbeginn.Text), StringToTimeSpan(m_tbxArbeitsende.Text), StringToTimeSpan(m_tbxPausenbeginn.Text), StringToTimeSpan(m_tbxPausenende.Text), StringToTimeSpan(m_tbxArbeitszeit.Text), StringToTimeSpan(m_tbxPausendauer.Text));
-            if(Fehler == false)
+            if(m_fehler == false)
             {
                 m_tagesliste.Add(neu);
                 m_tagesliste.ResetBindings();
             }
-            Fehler = false;
+            m_fehler = false;
         }
 
         private void m_btnAuswählen_Click(object sender, EventArgs e)
@@ -98,10 +98,10 @@ namespace TimeChip_App_1._0
             }
             catch
             {
-                if(Fehler == false)
+                if(m_fehler == false)
                 {
                     MessageBox.Show("Bitte die Uhrzeiten im Format Stunden:Minuten eingeben!");
-                    Fehler = true;
+                    m_fehler = true;
                 }
             }
             return temp;
