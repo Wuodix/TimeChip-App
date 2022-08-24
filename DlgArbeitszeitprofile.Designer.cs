@@ -58,6 +58,7 @@ namespace TimeChip_App_1._0
             this.m_btnNeu = new System.Windows.Forms.Button();
             this.m_btnAktualisieren = new System.Windows.Forms.Button();
             this.m_btnAuswählen = new System.Windows.Forms.Button();
+            this.m_btnLöschen = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -214,7 +215,7 @@ namespace TimeChip_App_1._0
             // 
             this.m_cmbxSonntag.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.m_cmbxSonntag.FormattingEnabled = true;
-            this.m_cmbxSonntag.Location = new System.Drawing.Point(321, 272);
+            this.m_cmbxSonntag.Location = new System.Drawing.Point(321, 273);
             this.m_cmbxSonntag.Name = "m_cmbxSonntag";
             this.m_cmbxSonntag.Size = new System.Drawing.Size(176, 24);
             this.m_cmbxSonntag.TabIndex = 29;
@@ -223,7 +224,7 @@ namespace TimeChip_App_1._0
             // 
             this.m_cmbxSamstag.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.m_cmbxSamstag.FormattingEnabled = true;
-            this.m_cmbxSamstag.Location = new System.Drawing.Point(321, 234);
+            this.m_cmbxSamstag.Location = new System.Drawing.Point(321, 235);
             this.m_cmbxSamstag.Name = "m_cmbxSamstag";
             this.m_cmbxSamstag.Size = new System.Drawing.Size(176, 24);
             this.m_cmbxSamstag.TabIndex = 28;
@@ -232,7 +233,7 @@ namespace TimeChip_App_1._0
             // 
             this.m_cmbxFreitag.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.m_cmbxFreitag.FormattingEnabled = true;
-            this.m_cmbxFreitag.Location = new System.Drawing.Point(321, 196);
+            this.m_cmbxFreitag.Location = new System.Drawing.Point(321, 197);
             this.m_cmbxFreitag.Name = "m_cmbxFreitag";
             this.m_cmbxFreitag.Size = new System.Drawing.Size(176, 24);
             this.m_cmbxFreitag.TabIndex = 27;
@@ -241,7 +242,7 @@ namespace TimeChip_App_1._0
             // 
             this.m_cmbxDonnerstag.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.m_cmbxDonnerstag.FormattingEnabled = true;
-            this.m_cmbxDonnerstag.Location = new System.Drawing.Point(321, 158);
+            this.m_cmbxDonnerstag.Location = new System.Drawing.Point(321, 159);
             this.m_cmbxDonnerstag.Name = "m_cmbxDonnerstag";
             this.m_cmbxDonnerstag.Size = new System.Drawing.Size(176, 24);
             this.m_cmbxDonnerstag.TabIndex = 26;
@@ -250,7 +251,7 @@ namespace TimeChip_App_1._0
             // 
             this.m_cmbxMittwoch.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.m_cmbxMittwoch.FormattingEnabled = true;
-            this.m_cmbxMittwoch.Location = new System.Drawing.Point(321, 120);
+            this.m_cmbxMittwoch.Location = new System.Drawing.Point(321, 121);
             this.m_cmbxMittwoch.Name = "m_cmbxMittwoch";
             this.m_cmbxMittwoch.Size = new System.Drawing.Size(176, 24);
             this.m_cmbxMittwoch.TabIndex = 25;
@@ -259,7 +260,7 @@ namespace TimeChip_App_1._0
             // 
             this.m_cmbxDienstag.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.m_cmbxDienstag.FormattingEnabled = true;
-            this.m_cmbxDienstag.Location = new System.Drawing.Point(319, 82);
+            this.m_cmbxDienstag.Location = new System.Drawing.Point(319, 83);
             this.m_cmbxDienstag.Name = "m_cmbxDienstag";
             this.m_cmbxDienstag.Size = new System.Drawing.Size(181, 24);
             this.m_cmbxDienstag.TabIndex = 24;
@@ -309,7 +310,7 @@ namespace TimeChip_App_1._0
             // 
             this.m_cmbxMontag.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.m_cmbxMontag.FormattingEnabled = true;
-            this.m_cmbxMontag.Location = new System.Drawing.Point(319, 44);
+            this.m_cmbxMontag.Location = new System.Drawing.Point(319, 45);
             this.m_cmbxMontag.Name = "m_cmbxMontag";
             this.m_cmbxMontag.Size = new System.Drawing.Size(181, 24);
             this.m_cmbxMontag.TabIndex = 23;
@@ -346,9 +347,9 @@ namespace TimeChip_App_1._0
             // m_btnErstellen
             // 
             this.m_btnErstellen.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.m_btnErstellen.Location = new System.Drawing.Point(479, 406);
+            this.m_btnErstellen.Location = new System.Drawing.Point(386, 406);
             this.m_btnErstellen.Name = "m_btnErstellen";
-            this.m_btnErstellen.Size = new System.Drawing.Size(269, 47);
+            this.m_btnErstellen.Size = new System.Drawing.Size(178, 47);
             this.m_btnErstellen.TabIndex = 21;
             this.m_btnErstellen.Text = "Erstellen";
             this.m_btnErstellen.UseVisualStyleBackColor = true;
@@ -359,7 +360,7 @@ namespace TimeChip_App_1._0
             this.m_btnNeu.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_btnNeu.Location = new System.Drawing.Point(202, 406);
             this.m_btnNeu.Name = "m_btnNeu";
-            this.m_btnNeu.Size = new System.Drawing.Size(269, 47);
+            this.m_btnNeu.Size = new System.Drawing.Size(178, 47);
             this.m_btnNeu.TabIndex = 22;
             this.m_btnNeu.Text = "Neu";
             this.m_btnNeu.UseVisualStyleBackColor = true;
@@ -387,11 +388,23 @@ namespace TimeChip_App_1._0
             this.m_btnAuswählen.UseVisualStyleBackColor = true;
             this.m_btnAuswählen.Click += new System.EventHandler(this.m_btnAuswählen_Click);
             // 
+            // m_btnLöschen
+            // 
+            this.m_btnLöschen.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.m_btnLöschen.Location = new System.Drawing.Point(570, 406);
+            this.m_btnLöschen.Name = "m_btnLöschen";
+            this.m_btnLöschen.Size = new System.Drawing.Size(178, 47);
+            this.m_btnLöschen.TabIndex = 25;
+            this.m_btnLöschen.Text = "Löschen";
+            this.m_btnLöschen.UseVisualStyleBackColor = true;
+            this.m_btnLöschen.Click += new System.EventHandler(this.m_btnLöschen_Click);
+            // 
             // DlgArbeitszeitprofile
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(757, 511);
+            this.Controls.Add(this.m_btnLöschen);
             this.Controls.Add(this.m_btnAuswählen);
             this.Controls.Add(this.m_btnAktualisieren);
             this.Controls.Add(this.m_btnNeu);
@@ -440,5 +453,6 @@ namespace TimeChip_App_1._0
         private System.Windows.Forms.Button m_btnNeu;
         private System.Windows.Forms.Button m_btnAktualisieren;
         private System.Windows.Forms.Button m_btnAuswählen;
+        private System.Windows.Forms.Button m_btnLöschen;
     }
 }

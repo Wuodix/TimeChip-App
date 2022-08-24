@@ -8,15 +8,16 @@ namespace TimeChip_App_1._0
 {
     class ClsMitarbeiter
     {
-        int m_nummer;
+        int m_id, m_mitarbeiternummmer; //Id ist von der Datenbank zugewiesen, Mitarbeiternummer wird vom Arduino zugewiesen
         private string m_vorname, m_nachname;
         private DateTime m_arbeitsbeginn; //Tag an dem der Mitarbeiter in der Firma angefangen hat
         private TimeSpan m_überstunden, m_urlaub;
         private ClsArbeitsprofil m_arbeitszeitprofil;
 
-        public ClsMitarbeiter(int Nummer, string Vorname, string Nachname, ClsArbeitsprofil Arbeitszeitprofil, DateTime Arbeitsbeginn, TimeSpan Urlaub, TimeSpan Überstunden)
+        public ClsMitarbeiter(int ID, int Mitarbeiternummer, string Vorname, string Nachname, ClsArbeitsprofil Arbeitszeitprofil, DateTime Arbeitsbeginn, TimeSpan Urlaub, TimeSpan Überstunden)
         {
-            m_nummer = Nummer;
+            m_id = ID;
+            m_mitarbeiternummmer = Mitarbeiternummer;
             m_vorname = Vorname;
             m_nachname = Nachname;
             m_arbeitszeitprofil = Arbeitszeitprofil;
@@ -31,11 +32,12 @@ namespace TimeChip_App_1._0
         public TimeSpan Überstunden { get { return m_überstunden; } set { m_überstunden = value; } }
         public TimeSpan Urlaub { get { return m_urlaub; } set { m_urlaub = value; } }
         public DateTime Arbeitsbeginn { get { return m_arbeitsbeginn; } set { m_arbeitsbeginn = value; } }
-        public int Nummer { get { return m_nummer; } set { m_nummer = value; } }
+        public int ID { get { return m_id; } set { m_id = value; } }
+        public int Mitarbeiternummer { get { return m_mitarbeiternummmer; } set { m_mitarbeiternummmer = value; } }
 
         public override string ToString()
         {
-            return m_nummer + " - " + m_vorname + " - " + m_nachname;
+            return m_mitarbeiternummmer + " - " + m_vorname + " - " + m_nachname;
         }
     }
 }

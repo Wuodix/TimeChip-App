@@ -20,10 +20,8 @@ namespace TimeChip_App_1._0
             InitializeComponent();
 
             m_lbxMitarbeiter.DataSource = m_mitarbeiterliste;
-            TimeSpan time = new TimeSpan(7, 30, 0);
-            ClsTag tag = new ClsTag("test2",time, time, time, time, time, time);
-            ClsArbeitsprofil test = new ClsArbeitsprofil("test", tag, tag, tag, tag, tag, tag, tag, 5, true);
-            m_mitarbeiterliste.Add(new ClsMitarbeiter("Julian", "Wildt", test, new DateTime(2021,12,31)));
+
+            UpdateMtbtrList();
         }
 
         private void m_btnNeu_Click(object sender, EventArgs e)
@@ -34,7 +32,8 @@ namespace TimeChip_App_1._0
             neu.Name = "Neu";
             if (neu.ShowDialog() == DialogResult.OK)
             {
-                m_mitarbeiterliste.Add(new ClsMitarbeiter(neu.Vorname, neu.Nachname, neu.Arbeitzeitprofil, neu.Arbeitsbeginn));
+                DataProvider.InsertMitarbeiter(1,neu.Vorname, neu.Nachname, neu.Arbeitsbeginn, new TimeSpan(0), neu.Arbeitzeitprofil, new TimeSpan(0));
+                UpdateMtbtrList();
             }
         }
 
@@ -60,24 +59,39 @@ namespace TimeChip_App_1._0
 
             if (Bearbeiten.ShowDialog() == DialogResult.OK)
             {
+                ClsMitarbeiter oldmtbtr = zubearbeitender;
                 zubearbeitender.Vorname = Bearbeiten.Vorname;
                 zubearbeitender.Nachname = Bearbeiten.Nachname;
                 zubearbeitender.Arbeitsbeginn = Bearbeiten.Arbeitsbeginn;
                 zubearbeitender.Arbeitszeitprofil = Bearbeiten.Arbeitzeitprofil;
 
+                DataProvider.UpdateMitarbeiter(zubearbeitender);
                 m_mitarbeiterliste.ResetBindings();
             }
         }
 
         private void m_btnLöschen_Click(object sender, EventArgs e)
         {
-            m_mitarbeiterliste.Remove(m_mitarbeiterliste.ElementAt<ClsMitarbeiter>(m_lbxMitarbeiter.SelectedIndex));
+            DataProvider.DeleteMitarbeiter(m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter);
+            UpdateMtbtrList();
         }
 
         private void m_btnarbeitsprofil_Click(object sender, EventArgs e)
         {
             DlgArbeitszeitprofile arbeitszeitprofile = new DlgArbeitszeitprofile();
             arbeitszeitprofile.ShowDialog();
+        }
+
+        private void UpdateMtbtrList()
+        {
+            m_mitarbeiterliste.Clear();
+
+            foreach(ClsMitarbeiter mtbtr in DataProvider.SelectAllMitarbeiter())
+            {
+                m_mitarbeiterliste.Add(mtbtr);
+            }
+
+            m_mitarbeiterliste.ResetBindings();
         }
     }
 }

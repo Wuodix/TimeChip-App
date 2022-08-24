@@ -31,7 +31,7 @@ namespace TimeChip_App_1._0
         {
             this.m_btnAuswählen = new System.Windows.Forms.Button();
             this.m_btnNeu = new System.Windows.Forms.Button();
-            this.m_btnErstellen = new System.Windows.Forms.Button();
+            this.m_btnLöschen = new System.Windows.Forms.Button();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.m_tbxPausendauer = new System.Windows.Forms.TextBox();
             this.m_tbxArbeitszeit = new System.Windows.Forms.TextBox();
@@ -51,6 +51,7 @@ namespace TimeChip_App_1._0
             this.m_btnOK = new System.Windows.Forms.Button();
             this.m_lbxTage = new System.Windows.Forms.ListBox();
             this.m_btnAktualisieren = new System.Windows.Forms.Button();
+            this.m_btnErstellen = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -70,22 +71,22 @@ namespace TimeChip_App_1._0
             this.m_btnNeu.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_btnNeu.Location = new System.Drawing.Point(212, 406);
             this.m_btnNeu.Name = "m_btnNeu";
-            this.m_btnNeu.Size = new System.Drawing.Size(200, 47);
+            this.m_btnNeu.Size = new System.Drawing.Size(138, 47);
             this.m_btnNeu.TabIndex = 30;
             this.m_btnNeu.Text = "Neu";
             this.m_btnNeu.UseVisualStyleBackColor = true;
             this.m_btnNeu.Click += new System.EventHandler(this.m_btnNeu_Click);
             // 
-            // m_btnErstellen
+            // m_btnLöschen
             // 
-            this.m_btnErstellen.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.m_btnErstellen.Location = new System.Drawing.Point(418, 406);
-            this.m_btnErstellen.Name = "m_btnErstellen";
-            this.m_btnErstellen.Size = new System.Drawing.Size(200, 47);
-            this.m_btnErstellen.TabIndex = 29;
-            this.m_btnErstellen.Text = "Erstellen";
-            this.m_btnErstellen.UseVisualStyleBackColor = true;
-            this.m_btnErstellen.Click += new System.EventHandler(this.m_btnErstellen_Click);
+            this.m_btnLöschen.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.m_btnLöschen.Location = new System.Drawing.Point(491, 406);
+            this.m_btnLöschen.Name = "m_btnLöschen";
+            this.m_btnLöschen.Size = new System.Drawing.Size(129, 47);
+            this.m_btnLöschen.TabIndex = 29;
+            this.m_btnLöschen.Text = "Löschen";
+            this.m_btnLöschen.UseVisualStyleBackColor = true;
+            this.m_btnLöschen.Click += new System.EventHandler(this.m_btnLöschen_Click);
             // 
             // tableLayoutPanel1
             // 
@@ -297,15 +298,27 @@ namespace TimeChip_App_1._0
             this.m_btnAktualisieren.UseVisualStyleBackColor = true;
             this.m_btnAktualisieren.Click += new System.EventHandler(this.m_btnAktualisieren_Click);
             // 
+            // m_btnErstellen
+            // 
+            this.m_btnErstellen.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.m_btnErstellen.Location = new System.Drawing.Point(356, 406);
+            this.m_btnErstellen.Name = "m_btnErstellen";
+            this.m_btnErstellen.Size = new System.Drawing.Size(129, 47);
+            this.m_btnErstellen.TabIndex = 33;
+            this.m_btnErstellen.Text = "Erstellen";
+            this.m_btnErstellen.UseVisualStyleBackColor = true;
+            this.m_btnErstellen.Click += new System.EventHandler(this.m_btnErstellen_Click);
+            // 
             // DlgTag
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(670, 516);
+            this.Controls.Add(this.m_btnErstellen);
             this.Controls.Add(this.m_btnAktualisieren);
             this.Controls.Add(this.m_btnAuswählen);
             this.Controls.Add(this.m_btnNeu);
-            this.Controls.Add(this.m_btnErstellen);
+            this.Controls.Add(this.m_btnLöschen);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.m_btnAbbrechen);
             this.Controls.Add(this.m_btnOK);
@@ -322,7 +335,7 @@ namespace TimeChip_App_1._0
 
         private System.Windows.Forms.Button m_btnAuswählen;
         private System.Windows.Forms.Button m_btnNeu;
-        private System.Windows.Forms.Button m_btnErstellen;
+        private System.Windows.Forms.Button m_btnLöschen;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label10;
@@ -342,5 +355,6 @@ namespace TimeChip_App_1._0
         private System.Windows.Forms.TextBox m_tbxArbeitsende;
         private System.Windows.Forms.TextBox m_tbxArbeitsbeginn;
         private System.Windows.Forms.Button m_btnAktualisieren;
+        private System.Windows.Forms.Button m_btnErstellen;
     }
 }
