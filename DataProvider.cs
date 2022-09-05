@@ -10,7 +10,7 @@ namespace TimeChip_App_1._0
 {
     internal class DataProvider
     {
-        private static string connectionString = "SERVER=localhost;DATABASE=apotheke_time_chip;UID=root;"; //Passwortacc hinzufügen (Datenschutz)
+        private static string connectionString = "SERVER=localhost;DATABASE=apotheke_time_chip;UID=root;";
 
         /*
         public static bool OpenConnection()
@@ -47,7 +47,7 @@ namespace TimeChip_App_1._0
 
             MySqlCommand cmd = new MySqlCommand(query);
             cmd.Parameters.AddWithValue("buchungst", buchungstyp.ToString());
-            cmd.Parameters.AddWithValue("zeit", zeit.ToString("dd.MM.yy HH:mm:ss"));
+            cmd.Parameters.AddWithValue("zeit", zeit.ToString("dd.MM.yyyy-HH:mm:ss"));
             cmd.Parameters.AddWithValue("mitarbeiternr", mitarbeiternr);
 
             ExecuteNonQuery(cmd);
@@ -97,7 +97,7 @@ namespace TimeChip_App_1._0
         }
         public static ClsMitarbeiter InsertMitarbeiter(int mitarbeiternummer, string vorname, string nachname, DateTime arbeitsbeginn, TimeSpan überstunden, ClsArbeitsprofil abzp, TimeSpan urlaub)
         {
-            string query = "INSERT INTO mitarbeiter (Mitarbeiternummmer, Vorname, Nachname, Arbeitsbeginn, Überstunden, Arbeitszeitprofil, Urlaub) VALUES(" +
+            string query = "INSERT INTO mitarbeiter (Mitarbeiternummer, Vorname, Nachname, Arbeitsbeginn, Überstunden, Arbeitszeitprofil, Urlaub) VALUES(" +
                 "@mitarbeiternr, @vorname, @nachname, @arbeitsbeginn, @überstunden, @arbeitszeitp, @urlaub)";
 
             MySqlCommand cmd = new MySqlCommand(query);
@@ -109,9 +109,21 @@ namespace TimeChip_App_1._0
             cmd.Parameters.AddWithValue("arbeitszeitp", abzp.ID);
             cmd.Parameters.AddWithValue("urlaub", urlaub);
 
-            ExecuteNonQuery(query);
+            ExecuteNonQuery(cmd);
 
             return new ClsMitarbeiter(SelectAllMitarbeiter().Last().ID, mitarbeiternummer, vorname, nachname, abzp, arbeitsbeginn, urlaub, überstunden);
+        }
+        public static ClsFingerprintRFID InsertFingerRFIDUID(int FingerprintID, string RFIDUID)
+        {
+            string query = "INSERT INTO fingerprintrfid (Fingerprint, RFIDUID) VALUES (@fingerprint, @uid)";
+            
+            MySqlCommand cmd = new MySqlCommand(query);
+            cmd.Parameters.AddWithValue("fingerprint", FingerprintID);
+            cmd.Parameters.AddWithValue("uid", RFIDUID);
+
+            ExecuteNonQuery(cmd);
+
+            return new ClsFingerprintRFID(SelectAllFingerprintRFID().Last().ID, RFIDUID, FingerprintID);
         }
 
         public static List<ClsBuchung> SelectAllBuchungen()
@@ -129,7 +141,7 @@ namespace TimeChip_App_1._0
                 while (reader.Read())
                 {
                     ClsBuchung buchung = new ClsBuchung(reader.GetInt16("Buchungsnummer"),
-                        reader.GetInt16("Mitarbeiternummer"), reader.GetDateTime("Zeit"),
+                        reader.GetInt16("Mitarbeiternummer"), StringToDateTime(reader.GetString("Zeit")),
                         StringToBuchungstyp(reader.GetString("Buchungstyp")));
                     list.Add(buchung);
                 }
@@ -162,7 +174,7 @@ namespace TimeChip_App_1._0
                 }
 
                 cmd.Dispose();
-                reader.Close();
+                reader.Dispose();
             }
 
             return list;
@@ -192,7 +204,7 @@ namespace TimeChip_App_1._0
                 }
 
                 cmd.Dispose();
-                reader.Close();
+                reader.Dispose();
             }
 
             return list;
@@ -221,7 +233,61 @@ namespace TimeChip_App_1._0
                 }
 
                 cmd.Dispose();
-                reader.Close();
+                reader.Dispose();
+            }
+
+            return list;
+        }
+        public static List<ClsFingerprintRFID> SelectAllFingerprintRFID()
+        {
+            List<ClsFingerprintRFID> list = new List<ClsFingerprintRFID>();
+
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+
+                string query = "SELECT * FROM fingerprintrfid";
+
+                MySqlCommand cmd = new MySqlCommand(query, conn);
+                MySqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    ClsFingerprintRFID fingerprintRFID = new ClsFingerprintRFID(reader.GetInt32("ID"), reader.GetString("RFIDUID"), reader.GetInt32("Fingerprint"));
+
+                    list.Add(fingerprintRFID);
+                }
+
+                cmd.Dispose();
+                reader.Dispose();
+            }
+
+            return list;
+        }
+
+        public static List<ClsBuchung> SelectBuchungen(int Mitarbeiternr)
+        {
+            List<ClsBuchung> list = new List<ClsBuchung>();
+
+            string query = "SELECT * FROM buchungen WHERE Mitarbeiternummer=" + Mitarbeiternr;
+
+            using(MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+                
+                MySqlCommand cmd = new MySqlCommand(query, conn);
+                MySqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    ClsBuchung buchung = new ClsBuchung(reader.GetInt32("Buchungsnummer"), reader.GetInt32("Mitarbeiternummer"),
+                        StringToDateTime(reader.GetString("Zeit")), StringToBuchungstyp(reader.GetString("Buchungstyp")));
+
+                    list.Add(buchung);
+                }
+
+                cmd.Dispose();
+                reader.Dispose();
             }
 
             return list;
@@ -233,9 +299,9 @@ namespace TimeChip_App_1._0
 
             MySqlCommand cmd = new MySqlCommand(query);
             cmd.Parameters.AddWithValue("mitarbeiternr", Buchung.Mitarbeiternummer);
-            cmd.Parameters.AddWithValue("zeit", Buchung.Zeit.ToString("dd.MM.yy HH:mm:ss"));
-            cmd.Parameters.AddWithValue("Buchungstyp", Buchung.Buchungstyp.ToString());
-            cmd.Parameters.AddWithValue("Buchungsnummer", Buchung.Buchungsnummer);
+            cmd.Parameters.AddWithValue("zeit", Buchung.Zeit.ToString("dd.MM.yyyy-HH:mm:ss"));
+            cmd.Parameters.AddWithValue("buchungst", Buchung.Buchungstyp.ToString());
+            cmd.Parameters.AddWithValue("buchungsnr", Buchung.Buchungsnummer);
 
             return ExecuteNonQuery(cmd);
         }
@@ -278,7 +344,7 @@ namespace TimeChip_App_1._0
         }
         public static int UpdateMitarbeiter(ClsMitarbeiter Mtbtr)
         {
-            string query = "UPDATE mitarbeiter SET Vorname=@vorname, Nachname=@nachname, @Arbeitszeitprofil=@abzp, Arbeitsbeginn=@abbeginn, Urlaub=@urlaub, " +
+            string query = "UPDATE mitarbeiter SET Vorname=@vorname, Nachname=@nachname, Arbeitszeitprofil=@abzp, Arbeitsbeginn=@abbeginn, Urlaub=@urlaub, " +
                 "Überstunden=@überstunden WHERE ID=@id";
 
             MySqlCommand cmd = new MySqlCommand(query);
@@ -289,6 +355,17 @@ namespace TimeChip_App_1._0
             cmd.Parameters.AddWithValue("urlaub", Mtbtr.Urlaub);
             cmd.Parameters.AddWithValue("überstunden", Mtbtr.Überstunden);
             cmd.Parameters.AddWithValue("id", Mtbtr.ID);
+
+            return ExecuteNonQuery(cmd);
+        }
+        public static int UpdateFingerprintRFID(ClsFingerprintRFID fingerprintRFID)
+        {
+            string query = "UPDATE fingerprintrfid SET Fingerprint=@finger, RFIDUID=@uid WHERE ID=@id";
+
+            MySqlCommand cmd = new MySqlCommand(query);
+            cmd.Parameters.AddWithValue("finger", fingerprintRFID.Fingerprint);
+            cmd.Parameters.AddWithValue("uid", fingerprintRFID.RFIDUID);
+            cmd.Parameters.AddWithValue("id", fingerprintRFID.ID);
 
             return ExecuteNonQuery(cmd);
         }
@@ -315,6 +392,21 @@ namespace TimeChip_App_1._0
         {
             string query = "DELETE FROM mitarbeiter WHERE ID=" + mtbtr.ID;
 
+            int Result = ExecuteNonQuery(query);
+            Result += DeleteFingerprintRFID(mtbtr.Mitarbeiternummer);
+
+            return Result;
+        }
+        public static int DeleteFingerprintRFID(ClsFingerprintRFID fingerprintRFID)
+        {
+            string query = "DELETE FROM fingerprintrfid WHERE ID=" + fingerprintRFID.ID;
+
+            return ExecuteNonQuery(query);
+        }
+        public static int DeleteFingerprintRFID(int Fingerprint)
+        {
+            string query = "DELETE FROM fingerprintrfid WHERE Fingerprint=" + Fingerprint;
+
             return ExecuteNonQuery(query);
         }
 
@@ -322,24 +414,17 @@ namespace TimeChip_App_1._0
         //Helper Funktionen
         private static DateTime StringToDateTime(string dt)
         {
-            //"%d.%m.%Y %H:%M:%S"
+            //"%d.%m.%Y-%H:%M:%S"
 
             string[] split1 = dt.Split('.');
             string Day = split1[0];
             string Month = split1[1];
-            string[] split2 = split1[2].Split(' ');
+            string[] split2 = split1[2].Split('-');
             string Year = split2[0];
             string[] split3 = split2[1].Split(':');
             string Hour = split3[0];
             string Minute = split3[1];
             string Second = split3[2];
-
-            Debug.WriteLine(Day);
-            Debug.WriteLine(Month);
-            Debug.WriteLine(Year);
-            Debug.WriteLine(Hour);
-            Debug.WriteLine(Minute);
-            Debug.WriteLine(Second);
 
             int day = Convert.ToInt32(Day);
             int month = Convert.ToInt32(Month);

@@ -100,6 +100,12 @@
     <Compile Include="ClsArbeitsprofil.cs" />
     <Compile Include="ClsMitarbeiter.cs" />
     <Compile Include="ClsTag.cs" />
+    <Compile Include="DlgBuchung.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DlgBuchung.Designer.cs">
+      <DependentUpon>DlgBuchung.cs</DependentUpon>
+    </Compile>
     <Compile Include="DlgMitarbeiter.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -112,6 +118,7 @@
     <Compile Include="DlgTag.Designer.cs">
       <DependentUpon>DlgTag.cs</DependentUpon>
     </Compile>
+    <Compile Include="ClsFingerprintRFID.cs" />
     <Compile Include="FrmHaupt.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -122,6 +129,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="DlgArbeitszeitprofile.resx">
       <DependentUpon>DlgArbeitszeitprofile.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DlgBuchung.resx">
+      <DependentUpon>DlgBuchung.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="DlgMitarbeiter.resx">
       <DependentUpon>DlgMitarbeiter.cs</DependentUpon>

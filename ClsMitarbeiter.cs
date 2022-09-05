@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TimeChip_App_1._0
 {
-    class ClsMitarbeiter
+    public class ClsMitarbeiter
     {
         int m_id, m_mitarbeiternummmer; //Id ist von der Datenbank zugewiesen, Mitarbeiternummer wird vom Arduino zugewiesen
         private string m_vorname, m_nachname;

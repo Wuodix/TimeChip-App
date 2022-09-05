@@ -30,5 +30,10 @@ namespace TimeChip_App_1._0
         public int Mitarbeiternummer { get { return m_mitarbeiternummer; } set { m_mitarbeiternummer = value; } }
         public DateTime Zeit { get { return m_zeit; } set { m_zeit = value; } }
         public Buchungstyp Buchungstyp { get { return m_buchungstyp; } set { m_buchungstyp = value; } }
+
+        public override string ToString()
+        {
+            return Zeit.TimeOfDay.ToString() + " - " + Buchungstyp.ToString();
+        }
     }
 }

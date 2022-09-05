@@ -13,7 +13,7 @@ namespace TimeChip_App_1._0
 {
     public partial class DlgArbeitszeitprofile : Form
     {
-        private BindingList<ClsArbeitsprofil> m_arbeitsprofilliste = new BindingList<ClsArbeitsprofil>();
+        static BindingList<ClsArbeitsprofil> m_arbeitsprofilliste = new BindingList<ClsArbeitsprofil>();
         public DlgArbeitszeitprofile()
         {
             InitializeComponent();
@@ -23,6 +23,9 @@ namespace TimeChip_App_1._0
             UpdateCMBX();
             UpdateAbzpList();
         }
+
+        public static BindingList<ClsArbeitsprofil> ArbeitsprofilListe { get { return m_arbeitsprofilliste; } set { m_arbeitsprofilliste = value; } }
+
         private void m_btnTage_Click(object sender, EventArgs e)
         {
             DlgTag Tag = new DlgTag();
