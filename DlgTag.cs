@@ -105,7 +105,7 @@ namespace TimeChip_App_1._0
             {
                 if(m_fehler == false)
                 {
-                    MessageBox.Show("Bitte die Uhrzeiten im Format Stunden:Minuten eingeben!");
+                    MessageBox.Show("Bitte die Uhrzeiten im Format HH:MM eingeben!");
                     m_fehler = true;
                 }
             }

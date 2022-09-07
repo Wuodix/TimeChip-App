@@ -26,6 +26,9 @@ namespace TimeChip_App_1._0
             m_lbxMitarbeiter.SelectedIndex = 1;
 
             UpdateLbxBuchungen();
+            
+            //ClsBerechnung.NächsteBerechnung = new DateTime(2022,9,6,0,0,0);
+            ClsBerechnung.Berechnung(false);
         }
 
         public static BindingList<ClsMitarbeiter> Mitarbeiterliste { get { return m_mitarbeiterliste; } set { m_mitarbeiterliste = value; } }
@@ -125,13 +128,13 @@ namespace TimeChip_App_1._0
         {
             if (m_lbxMitarbeiter.SelectedItem != null)
             {
-                List<ClsBuchung> Buchungen = DataProvider.SelectBuchungen((m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Mitarbeiternummer);
+                List<ClsBuchung> Buchungen = DataProvider.SelectBuchungen((m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Mitarbeiternummer, m_cldKalender.SelectionStart);
 
-                List<ClsBuchung> Buchungen2 = Buchungen.FindAll(x => x.Zeit.Date.Equals(m_cldKalender.SelectionStart));
+                //List<ClsBuchung> Buchungen2 = Buchungen.FindAll(x => x.Zeit.Date.Equals(m_cldKalender.SelectionStart));
 
                 m_lbxBuchungen.Items.Clear();
 
-                m_lbxBuchungen.Items.AddRange(Buchungen2.ToArray());
+                m_lbxBuchungen.Items.AddRange(Buchungen.ToArray());
             }
         }
 
@@ -149,7 +152,9 @@ namespace TimeChip_App_1._0
 
             if (dlgBuchung.ShowDialog() == DialogResult.OK) 
             {
-                DataProvider.InsertBuchung(dlgBuchung.Buchungstyp, dlgBuchung.GetDateTime(), dlgBuchung.Mitarbeiter.Mitarbeiternummer);
+                DataProvider.InsertBuchung(dlgBuchung.Buchungstyp, dlgBuchung.GetDateTime(), dlgBuchung.Mitarbeiter.Mitarbeiternummer, "buchungen_temp");
+
+                ClsBerechnung.Berechnung(true);
 
                 UpdateLbxBuchungen();
             }
@@ -177,6 +182,7 @@ namespace TimeChip_App_1._0
                     zubearbeiten.Mitarbeiternummer = dlgBuchung.Mitarbeiter.Mitarbeiternummer;
 
                     DataProvider.UpdateBuchung(zubearbeiten);
+                    ClsBerechnung.Berechnung(true);
 
                     UpdateLbxBuchungen();
                 }
@@ -185,7 +191,8 @@ namespace TimeChip_App_1._0
 
         private void m_btnBuchungLöschen_Click(object sender, EventArgs e)
         {
-            DataProvider.DeleteBuchung(m_lbxBuchungen.SelectedItem as ClsBuchung);
+            DataProvider.DeleteBuchung(m_lbxBuchungen.SelectedItem as ClsBuchung, "buchungen");
+            ClsBerechnung.Berechnung(true);
             UpdateLbxBuchungen();
         }
     }

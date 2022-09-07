@@ -78,12 +78,13 @@ namespace TimeChip_App_1._0
             // 
             // m_dtpTime
             // 
-            this.m_dtpTime.Format = System.Windows.Forms.DateTimePickerFormat.Time;
-            this.m_dtpTime.Location = new System.Drawing.Point(368, 71);
+            this.m_dtpTime.CustomFormat = "HH:MM";
+            this.m_dtpTime.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.m_dtpTime.Location = new System.Drawing.Point(377, 71);
             this.m_dtpTime.Margin = new System.Windows.Forms.Padding(2);
             this.m_dtpTime.Name = "m_dtpTime";
             this.m_dtpTime.ShowUpDown = true;
-            this.m_dtpTime.Size = new System.Drawing.Size(67, 20);
+            this.m_dtpTime.Size = new System.Drawing.Size(58, 20);
             this.m_dtpTime.TabIndex = 7;
             // 
             // label5
@@ -183,7 +184,6 @@ namespace TimeChip_App_1._0
 
         private System.Windows.Forms.Label m_lblTitel;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.DateTimePicker m_dtpTime;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Button m_btnOK;
         private System.Windows.Forms.Button m_btnCancel;
@@ -192,5 +192,6 @@ namespace TimeChip_App_1._0
         private System.Windows.Forms.DateTimePicker m_dtpDate;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ComboBox m_cmbxBTyp;
+        private System.Windows.Forms.DateTimePicker m_dtpTime;
     }
 }

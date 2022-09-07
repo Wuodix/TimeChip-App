@@ -41,18 +41,25 @@ namespace TimeChip_App_1._0
         }
         */
 
-        public static ClsBuchung InsertBuchung(Buchungstyp buchungstyp, DateTime zeit, int mitarbeiternr)
+        public static ClsBuchung InsertBuchung(Buchungstyp buchungstyp, DateTime zeit, int mitarbeiternr, string Table)
         {
-            string query = "INSERT INTO buchungen (Buchungstyp, Zeit, Mitarbeiternummer) VALUES (@buchungst, @zeit, @mitarbeiternr)";
+            string query = "INSERT INTO `" + Table + "` (`Buchungstyp`, `Zeit`, `Mitarbeiternummer`) VALUES(@buchungst, @zeit, @mitarbeiternr)";
 
             MySqlCommand cmd = new MySqlCommand(query);
             cmd.Parameters.AddWithValue("buchungst", buchungstyp.ToString());
-            cmd.Parameters.AddWithValue("zeit", zeit.ToString("dd.MM.yyyy-HH:mm:ss"));
+            if(Table == "buchungen")
+            {
+                cmd.Parameters.AddWithValue("zeit", zeit);
+            }
+            else
+            {
+                cmd.Parameters.AddWithValue("zeit", zeit.ToString("dd.MM.yyyy-HH:mm:ss"));
+            }
             cmd.Parameters.AddWithValue("mitarbeiternr", mitarbeiternr);
 
             ExecuteNonQuery(cmd);
 
-            return new ClsBuchung(SelectAllBuchungen().Last().Buchungsnummer, mitarbeiternr, zeit, buchungstyp);
+            return new ClsBuchung(SelectAllBuchungen(Table).Last().Buchungsnummer, mitarbeiternr, zeit, buchungstyp);
         }
         public static ClsTag InsertTag(string name, TimeSpan arbeitsbeginn, TimeSpan arbeitsende, TimeSpan arbeitszeit, TimeSpan pausenbeginn, TimeSpan pausenende, TimeSpan pausendauer)
         {
@@ -126,22 +133,32 @@ namespace TimeChip_App_1._0
             return new ClsFingerprintRFID(SelectAllFingerprintRFID().Last().ID, RFIDUID, FingerprintID);
         }
 
-        public static List<ClsBuchung> SelectAllBuchungen()
+        public static List<ClsBuchung> SelectAllBuchungen(string Table)
         {
             List<ClsBuchung> list = new List<ClsBuchung>();
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
                 
-                string query = "SELECT * FROM buchungen";
+                string query = "SELECT * FROM " + Table;
 
                 MySqlCommand cmd = new MySqlCommand(query, conn);
                 MySqlDataReader reader = cmd.ExecuteReader();
 
                 while (reader.Read())
                 {
+                    DateTime datetime;
+                    if(Table == "buchungen")
+                    {
+                        datetime = reader.GetDateTime("Zeit");
+                    }
+                    else
+                    {
+                        datetime = StringToDateTime(reader.GetString("Zeit"));
+                    }
+                    
                     ClsBuchung buchung = new ClsBuchung(reader.GetInt16("Buchungsnummer"),
-                        reader.GetInt16("Mitarbeiternummer"), StringToDateTime(reader.GetString("Zeit")),
+                        reader.GetInt16("Mitarbeiternummer"), datetime,
                         StringToBuchungstyp(reader.GetString("Buchungstyp")));
                     list.Add(buchung);
                 }
@@ -265,23 +282,31 @@ namespace TimeChip_App_1._0
             return list;
         }
 
-        public static List<ClsBuchung> SelectBuchungen(int Mitarbeiternr)
+        public static List<ClsBuchung> SelectBuchungen(int Mitarbeiternr, DateTime date)
         {
             List<ClsBuchung> list = new List<ClsBuchung>();
 
-            string query = "SELECT * FROM buchungen WHERE Mitarbeiternummer=" + Mitarbeiternr;
+            string query = "SELECT * FROM buchungen WHERE Mitarbeiternummer=@mtbtrnr AND (Zeit BETWEEN @zeit1 AND @zeit2)";
 
             using(MySqlConnection conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
                 
                 MySqlCommand cmd = new MySqlCommand(query, conn);
+
+                DateTime dt1 = new DateTime(date.Year, date.Month, date.Day, 0, 0, 0);
+                DateTime dt2 = new DateTime(date.Year, date.Month, date.Day, 23, 59, 59);
+
+                cmd.Parameters.AddWithValue("mtbtrnr", Mitarbeiternr);
+                cmd.Parameters.AddWithValue("zeit1", dt1);
+                cmd.Parameters.AddWithValue("zeit2", dt2);
+
                 MySqlDataReader reader = cmd.ExecuteReader();
 
                 while (reader.Read())
                 {
                     ClsBuchung buchung = new ClsBuchung(reader.GetInt32("Buchungsnummer"), reader.GetInt32("Mitarbeiternummer"),
-                        StringToDateTime(reader.GetString("Zeit")), StringToBuchungstyp(reader.GetString("Buchungstyp")));
+                        reader.GetDateTime("Zeit"), StringToBuchungstyp(reader.GetString("Buchungstyp")));
 
                     list.Add(buchung);
                 }
@@ -295,15 +320,11 @@ namespace TimeChip_App_1._0
 
         public static int UpdateBuchung(ClsBuchung Buchung)
         {
-            string query = "UPDATE buchungen SET Mitarbeiternummer=@mitarbeiternr, Zeit=@zeit, Buchungstyp=@buchungst WHERE Buchungsnummer=@buchungsnr";
+            int Result = DeleteBuchung(Buchung, "buchungen");
 
-            MySqlCommand cmd = new MySqlCommand(query);
-            cmd.Parameters.AddWithValue("mitarbeiternr", Buchung.Mitarbeiternummer);
-            cmd.Parameters.AddWithValue("zeit", Buchung.Zeit.ToString("dd.MM.yyyy-HH:mm:ss"));
-            cmd.Parameters.AddWithValue("buchungst", Buchung.Buchungstyp.ToString());
-            cmd.Parameters.AddWithValue("buchungsnr", Buchung.Buchungsnummer);
+            InsertBuchung(Buchung.Buchungstyp, Buchung.Zeit, Buchung.Mitarbeiternummer, "buchungen_temp");
 
-            return ExecuteNonQuery(cmd);
+            return Result;
         }
         public static int UpdateTag(ClsTag Tag)
         {
@@ -370,9 +391,9 @@ namespace TimeChip_App_1._0
             return ExecuteNonQuery(cmd);
         }
 
-        public static int DeleteBuchung(ClsBuchung buchung)
+        public static int DeleteBuchung(ClsBuchung buchung, string Table)
         {
-            string query = "DELETE FROM buchungen WHERE Buchungsnummer=" + buchung.Buchungsnummer;
+            string query = "DELETE FROM " + Table + " WHERE Buchungsnummer=" + buchung.Buchungsnummer;
 
             return ExecuteNonQuery(query);
         }
