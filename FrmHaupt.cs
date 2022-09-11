@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml;
 
 namespace TimeChip_App_1._0
 {
@@ -26,9 +27,11 @@ namespace TimeChip_App_1._0
             m_lbxMitarbeiter.SelectedIndex = 1;
 
             UpdateLbxBuchungen();
-            
-            //ClsBerechnung.NächsteBerechnung = new DateTime(2022,9,6,0,0,0);
-            ClsBerechnung.Berechnung(false);
+
+            ClsBerechnung.Berechnen();
+
+            UpdateCldKalender();
+            UpdateDataView();
         }
 
         public static BindingList<ClsMitarbeiter> Mitarbeiterliste { get { return m_mitarbeiterliste; } set { m_mitarbeiterliste = value; } }
@@ -128,13 +131,16 @@ namespace TimeChip_App_1._0
         {
             if (m_lbxMitarbeiter.SelectedItem != null)
             {
-                List<ClsBuchung> Buchungen = DataProvider.SelectBuchungen((m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Mitarbeiternummer, m_cldKalender.SelectionStart);
+                List<ClsBuchung> Buchungen = DataProvider.SelectAllBuchungenFromDay((m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Mitarbeiternummer, m_cldKalender.SelectionStart);
 
                 //List<ClsBuchung> Buchungen2 = Buchungen.FindAll(x => x.Zeit.Date.Equals(m_cldKalender.SelectionStart));
 
                 m_lbxBuchungen.Items.Clear();
 
                 m_lbxBuchungen.Items.AddRange(Buchungen.ToArray());
+
+                UpdateCldKalender();
+                UpdateDataView();
             }
         }
 
@@ -152,9 +158,9 @@ namespace TimeChip_App_1._0
 
             if (dlgBuchung.ShowDialog() == DialogResult.OK) 
             {
-                DataProvider.InsertBuchung(dlgBuchung.Buchungstyp, dlgBuchung.GetDateTime(), dlgBuchung.Mitarbeiter.Mitarbeiternummer, "buchungen_temp");
+                DataProvider.InsertBuchung(dlgBuchung.Buchungstyp, dlgBuchung.GetDateTime(), dlgBuchung.Mitarbeiter.Mitarbeiternummer);
 
-                ClsBerechnung.Berechnung(true);
+                ClsBerechnung.Berechnen(dlgBuchung.GetDateTime(), m_mitarbeiterliste.ToList().Find(x => x.Mitarbeiternummer.Equals(mitarbeiter.Mitarbeiternummer)));
 
                 UpdateLbxBuchungen();
             }
@@ -182,7 +188,7 @@ namespace TimeChip_App_1._0
                     zubearbeiten.Mitarbeiternummer = dlgBuchung.Mitarbeiter.Mitarbeiternummer;
 
                     DataProvider.UpdateBuchung(zubearbeiten);
-                    ClsBerechnung.Berechnung(true);
+                    ClsBerechnung.Berechnen(zubearbeiten.Zeit, m_mitarbeiterliste.ToList().Find(x => x.Mitarbeiternummer.Equals(zubearbeiten.Mitarbeiternummer)));
 
                     UpdateLbxBuchungen();
                 }
@@ -191,9 +197,137 @@ namespace TimeChip_App_1._0
 
         private void m_btnBuchungLöschen_Click(object sender, EventArgs e)
         {
-            DataProvider.DeleteBuchung(m_lbxBuchungen.SelectedItem as ClsBuchung, "buchungen");
-            ClsBerechnung.Berechnung(true);
+            ClsBuchung buchung = m_lbxBuchungen.SelectedItem as ClsBuchung;
+            DataProvider.DeleteBuchung(buchung, "buchungen");
+
+            ClsBerechnung.Berechnen(buchung.Zeit, m_mitarbeiterliste.ToList().Find(x => x.Mitarbeiternummer.Equals(buchung.Mitarbeiternummer)));
             UpdateLbxBuchungen();
+        }
+
+        private void UpdateCldKalender()
+        {
+            List<DateTime> BoldedDates = new List<DateTime>();
+
+            ClsAusgewerteter_Tag tag = DataProvider.SelectLastAusgewerteterTag();
+
+            for (int i = 1; i<=DateTime.DaysInMonth(m_cldKalender.SelectionStart.Year, m_cldKalender.SelectionStart.Month); i++)
+            {
+                if(tag.Date.CompareTo(new DateTime(m_cldKalender.SelectionStart.Year, m_cldKalender.SelectionStart.Month, i)) > 0)
+                {
+                    ClsAusgewerteter_Tag tag1 = DataProvider.SelectAusgewerteterTag(new DateTime(m_cldKalender.SelectionStart.Year, m_cldKalender.SelectionStart.Month, i), (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Mitarbeiternummer);
+
+                    if (tag1 == null)
+                    {
+                        switch (new DateTime(m_cldKalender.SelectionStart.Year, m_cldKalender.SelectionStart.Month, i).DayOfWeek)
+                        {
+                            case DayOfWeek.Monday:
+                                if (new TimeSpan(0).Ticks <= (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Arbeitszeitprofil.Montag.Arbeitszeit.Ticks)
+                                {
+                                    BoldedDates.Add(new DateTime(m_cldKalender.SelectionStart.Year, m_cldKalender.SelectionStart.Month, i));
+                                }
+                                break;
+                            case DayOfWeek.Tuesday:
+                                if (new TimeSpan(0).Ticks <= (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Arbeitszeitprofil.Dienstag.Arbeitszeit.Ticks)
+                                {
+                                    BoldedDates.Add(new DateTime(m_cldKalender.SelectionStart.Year, m_cldKalender.SelectionStart.Month, i));
+                                }
+                                break;
+                            case DayOfWeek.Wednesday:
+                                if (new TimeSpan(0).Ticks <= (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Arbeitszeitprofil.Mittwoch.Arbeitszeit.Ticks)
+                                {
+                                    BoldedDates.Add(new DateTime(m_cldKalender.SelectionStart.Year, m_cldKalender.SelectionStart.Month, i));
+                                }
+                                break;
+                            case DayOfWeek.Thursday:
+                                if (new TimeSpan(0).Ticks <= (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Arbeitszeitprofil.Donnerstag.Arbeitszeit.Ticks)
+                                {
+                                    BoldedDates.Add(new DateTime(m_cldKalender.SelectionStart.Year, m_cldKalender.SelectionStart.Month, i));
+                                }
+                                break;
+                            case DayOfWeek.Friday:
+                                if (new TimeSpan(0).Ticks <= (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Arbeitszeitprofil.Freitag.Arbeitszeit.Ticks)
+                                {
+                                    BoldedDates.Add(new DateTime(m_cldKalender.SelectionStart.Year, m_cldKalender.SelectionStart.Month, i));
+                                }
+                                break;
+                            case DayOfWeek.Saturday:
+                                if (new TimeSpan(0).Ticks <= (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Arbeitszeitprofil.Samstag.Arbeitszeit.Ticks)
+                                {
+                                    BoldedDates.Add(new DateTime(m_cldKalender.SelectionStart.Year, m_cldKalender.SelectionStart.Month, i));
+                                }
+                                break;
+                            case DayOfWeek.Sunday:
+                                if (new TimeSpan(0).Ticks <= (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Arbeitszeitprofil.Sonntag.Arbeitszeit.Ticks)
+                                {
+                                    BoldedDates.Add(new DateTime(m_cldKalender.SelectionStart.Year, m_cldKalender.SelectionStart.Month, i));
+                                }
+                                break;
+                        }
+                    }
+                }
+            }
+            m_cldKalender.BoldedDates = BoldedDates.ToArray();
+
+        }
+
+        private void UpdateDataView()
+        {
+            if(m_lbxMitarbeiter.SelectedItems != null)
+            {
+                DateTime SelectedDay = m_cldKalender.SelectionStart;
+                ClsMitarbeiter mitarbeiter = m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter;
+
+                m_lblUrlaub.Text = mitarbeiter.Urlaub.ToString();
+
+                m_lblSoll.Text = ClsBerechnung.GetSollArbeitszeit(SelectedDay, mitarbeiter).ToString(@"hh\:mm");
+
+                ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(SelectedDay, mitarbeiter.Mitarbeiternummer);
+
+                if(tag != null)
+                {
+                    m_lblIst.Text = tag.Arbeitszeit.ToString(@"hh\:mm");
+                }
+                else
+                {
+                    m_lblIst.Text = "00:00";
+                }
+            }
+        }
+
+        private void m_btnEntschuldigt_Click(object sender, EventArgs e)
+        {
+            ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(m_cldKalender.SelectionStart, (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Mitarbeiternummer);
+            if (tag != null)
+            {
+                int alterStatus = tag.Status;
+                tag.Status = 1;
+
+                ClsBerechnung.TagesStatusÄnderung(tag, alterStatus);
+            }
+        }
+
+        private void m_btnUrlaub_Click(object sender, EventArgs e)
+        {
+            ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(m_cldKalender.SelectionStart, (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Mitarbeiternummer);
+            if (tag != null)
+            {
+                int alterStatus = tag.Status;
+                tag.Status = 2;
+
+                ClsBerechnung.TagesStatusÄnderung(tag, alterStatus);
+            }
+        }
+
+        private void m_btnUnentschuldigt_Click(object sender, EventArgs e)
+        {
+            ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(m_cldKalender.SelectionStart, (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Mitarbeiternummer);
+            if (tag != null)
+            {
+                int alterStatus = tag.Status;
+                tag.Status = 0;
+
+                ClsBerechnung.TagesStatusÄnderung(tag, alterStatus);
+            }
         }
     }
 }

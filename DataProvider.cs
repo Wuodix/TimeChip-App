@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using MySql.Data.MySqlClient;
 
 namespace TimeChip_App_1._0
@@ -41,25 +45,18 @@ namespace TimeChip_App_1._0
         }
         */
 
-        public static ClsBuchung InsertBuchung(Buchungstyp buchungstyp, DateTime zeit, int mitarbeiternr, string Table)
+        public static ClsBuchung InsertBuchung(Buchungstyp buchungstyp, DateTime zeit, int mitarbeiternr)
         {
-            string query = "INSERT INTO `" + Table + "` (`Buchungstyp`, `Zeit`, `Mitarbeiternummer`) VALUES(@buchungst, @zeit, @mitarbeiternr)";
+            string query = "INSERT INTO `buchungen` (`Buchungstyp`, `Zeit`, `Mitarbeiternummer`) VALUES(@buchungst, @zeit, @mitarbeiternr)";
 
             MySqlCommand cmd = new MySqlCommand(query);
             cmd.Parameters.AddWithValue("buchungst", buchungstyp.ToString());
-            if(Table == "buchungen")
-            {
-                cmd.Parameters.AddWithValue("zeit", zeit);
-            }
-            else
-            {
-                cmd.Parameters.AddWithValue("zeit", zeit.ToString("dd.MM.yyyy-HH:mm:ss"));
-            }
+            cmd.Parameters.AddWithValue("zeit", zeit);
             cmd.Parameters.AddWithValue("mitarbeiternr", mitarbeiternr);
 
             ExecuteNonQuery(cmd);
 
-            return new ClsBuchung(SelectAllBuchungen(Table).Last().Buchungsnummer, mitarbeiternr, zeit, buchungstyp);
+            return new ClsBuchung(SelectAllBuchungenFromDay(mitarbeiternr, zeit).Last().Buchungsnummer, mitarbeiternr, zeit, buchungstyp);
         }
         public static ClsTag InsertTag(string name, TimeSpan arbeitsbeginn, TimeSpan arbeitsende, TimeSpan arbeitszeit, TimeSpan pausenbeginn, TimeSpan pausenende, TimeSpan pausendauer)
         {
@@ -131,6 +128,27 @@ namespace TimeChip_App_1._0
             ExecuteNonQuery(cmd);
 
             return new ClsFingerprintRFID(SelectAllFingerprintRFID().Last().ID, RFIDUID, FingerprintID);
+        }
+        public static ClsAusgewerteter_Tag InsertAusgewerteterTag(DateTime date, int Mitarbeiternummer, TimeSpan Arbeitszeit, int Status)
+        {
+            if(SelectAusgewerteterTag(date,Mitarbeiternummer) == null)
+            {
+                string query = "INSERT INTO ausgewertete_tage (Datum, Mitarbeiternummer, Arbeitszeit, Status) VALUES (@date, @mtbtrnr, @abzeit, @status)";
+
+                MySqlCommand cmd = new MySqlCommand(query);
+                cmd.Parameters.AddWithValue("date", date);
+                cmd.Parameters.AddWithValue("mtbtrnr", Mitarbeiternummer);
+                cmd.Parameters.AddWithValue("abzeit", Arbeitszeit);
+                cmd.Parameters.AddWithValue("status", Status);
+
+                ExecuteNonQuery(cmd);
+            }
+            else
+            {
+                UpdateAusgewerteterTag(date, Mitarbeiternummer, Arbeitszeit, Status);
+            }
+
+            return new ClsAusgewerteter_Tag(SelectAusgewerteterTag(date, Mitarbeiternummer).ID, Mitarbeiternummer, Arbeitszeit, date, Status);
         }
 
         public static List<ClsBuchung> SelectAllBuchungen(string Table)
@@ -282,7 +300,7 @@ namespace TimeChip_App_1._0
             return list;
         }
 
-        public static List<ClsBuchung> SelectBuchungen(int Mitarbeiternr, DateTime date)
+        public static List<ClsBuchung> SelectAllBuchungenFromDay(int Mitarbeiternr, DateTime date)
         {
             List<ClsBuchung> list = new List<ClsBuchung>();
 
@@ -317,14 +335,71 @@ namespace TimeChip_App_1._0
 
             return list;
         }
+        public static ClsAusgewerteter_Tag SelectAusgewerteterTag(DateTime date, int Mitarbeiternr)
+        {
+            List<ClsAusgewerteter_Tag> list = new List<ClsAusgewerteter_Tag>();
+
+            string query = "SELECT * FROM ausgewertete_tage WHERE Datum=@date AND Mitarbeiternummer=@mtbtrnr";
+
+            using(MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+
+                MySqlCommand cmd = new MySqlCommand(query, conn);
+
+                cmd.Parameters.AddWithValue("date", date);
+                cmd.Parameters.AddWithValue("mtbtrnr", Mitarbeiternr);
+
+                MySqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    ClsAusgewerteter_Tag ausgewerteterTag = new ClsAusgewerteter_Tag(reader.GetInt32("ID"), reader.GetInt32("Mitarbeiternummer"),
+                        reader.GetTimeSpan("Arbeitszeit"), reader.GetDateTime("Datum"), reader.GetInt32("Status"));
+
+                    list.Add(ausgewerteterTag);
+                }
+            }
+
+            return list.FirstOrDefault();
+        }
+        public static ClsAusgewerteter_Tag SelectLastAusgewerteterTag()
+        {
+            List<ClsAusgewerteter_Tag> list = new List<ClsAusgewerteter_Tag>();
+
+            string query = "SELECT * FROM ausgewertete_tage WHERE ID=(SELECT max(ID) FROM ausgewertete_tage)";
+
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+
+                MySqlCommand cmd = new MySqlCommand(query, conn);
+
+                MySqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    ClsAusgewerteter_Tag ausgewerteterTag = new ClsAusgewerteter_Tag(reader.GetInt32("ID"), reader.GetInt32("Mitarbeiternummer"),
+                        reader.GetTimeSpan("Arbeitszeit"), reader.GetDateTime("Datum"), reader.GetInt32("Status"));
+
+                    list.Add(ausgewerteterTag);
+                }
+            }
+
+            return list.FirstOrDefault();
+        }
 
         public static int UpdateBuchung(ClsBuchung Buchung)
         {
-            int Result = DeleteBuchung(Buchung, "buchungen");
+            string query = "UPDATE buchungen SET Mitarbeiternummer=@mtbtrnr, Buchungstyp=@btyp, Zeit=@zeit WHERE Buchungsnummer=@bnr";
 
-            InsertBuchung(Buchung.Buchungstyp, Buchung.Zeit, Buchung.Mitarbeiternummer, "buchungen_temp");
+            MySqlCommand cmd = new MySqlCommand(query);
+            cmd.Parameters.AddWithValue("mtbtrnr", Buchung.Mitarbeiternummer);
+            cmd.Parameters.AddWithValue("btyp", Buchung.Buchungstyp);
+            cmd.Parameters.AddWithValue("zeit", Buchung.Zeit);
+            cmd.Parameters.AddWithValue("bnr", Buchung.Buchungsnummer);
 
-            return Result;
+            return ExecuteNonQuery(cmd);
         }
         public static int UpdateTag(ClsTag Tag)
         {
@@ -390,6 +465,31 @@ namespace TimeChip_App_1._0
 
             return ExecuteNonQuery(cmd);
         }
+        public static int UpdateAusgewerteterTag(DateTime date, int Mitarbeiternummer, TimeSpan Arbeitszeit, int Status)
+        {
+            string query = "UPDATE ausgewertete_tage SET Datum=@date, Mitarbeiternummer=@mbtrnr, Arbeitszeit=@abzeit, Status=@status WHERE Datum=@date AND Mitarbeiternummer=@mbtrnr";
+
+            MySqlCommand cmd = new MySqlCommand(query);
+            cmd.Parameters.AddWithValue("date", date);
+            cmd.Parameters.AddWithValue("mbtrnr", Mitarbeiternummer);
+            cmd.Parameters.AddWithValue("abzeit", Arbeitszeit);
+            cmd.Parameters.AddWithValue("status", Status);
+
+            return ExecuteNonQuery(cmd);
+        }
+        public static int UpdateAusgewerteterTag(ClsAusgewerteter_Tag tag)
+        {
+            string query = "UPDATE ausgewertete_tage SET Datum=@date, Mitarbeiternummer=@mbtrnr, Arbeitszeit=@abzeit, Status=@status WHERE ID=@id";
+
+            MySqlCommand cmd = new MySqlCommand(query);
+            cmd.Parameters.AddWithValue("date", tag.Date);
+            cmd.Parameters.AddWithValue("mbtrnr", tag.MitarbeiterNummer);
+            cmd.Parameters.AddWithValue("abzeit", tag.Arbeitszeit);
+            cmd.Parameters.AddWithValue("status", tag.Status);
+            cmd.Parameters.AddWithValue("id", tag.ID);
+
+            return ExecuteNonQuery(cmd);
+        }
 
         public static int DeleteBuchung(ClsBuchung buchung, string Table)
         {
@@ -412,6 +512,8 @@ namespace TimeChip_App_1._0
         public static int DeleteMitarbeiter(ClsMitarbeiter mtbtr)
         {
             string query = "DELETE FROM mitarbeiter WHERE ID=" + mtbtr.ID;
+
+            //Alle Buchungen des Mitarbeiters löschen
 
             int Result = ExecuteNonQuery(query);
             Result += DeleteFingerprintRFID(mtbtr.Mitarbeiternummer);
@@ -497,6 +599,44 @@ namespace TimeChip_App_1._0
             }
 
             return result;
+        }
+
+        public static string SendRecieveHTTP(string text)
+        {
+            byte[] data = Encoding.UTF8.GetBytes(text + "\n\r\n");
+            string URL = "http://192.168.1.205/", responseContent;
+
+            WebRequest webRequest = WebRequest.Create(URL);
+            webRequest.Method = "POST";
+            webRequest.ContentLength = data.Length;
+            webRequest.Timeout = 1000;
+            long time = DateTime.Now.Millisecond;
+
+            try
+            {
+                using (Stream strm = webRequest.GetRequestStream())
+                {
+                    strm.Write(data, 0, data.Length);
+                }
+
+                using (WebResponse response = webRequest.GetResponse())
+                {
+                    using (Stream strm = response.GetResponseStream())
+                    {
+                        using (StreamReader sr99 = new StreamReader(strm))
+                        {
+                            responseContent = sr99.ReadToEnd();
+                        }
+                    }
+                }
+
+                return responseContent;
+            }
+            catch
+            {
+                MessageBox.Show("Der Arduino kann leider nicht erreicht werden!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return "-1";
+            }
         }
     }
 }

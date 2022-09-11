@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -88,9 +89,15 @@ namespace TimeChip_App_1._0
             Aktualisieren.Arbeitszeit = StringToTimeSpan(m_tbxArbeitszeit.Text);
             Aktualisieren.Pausendauer = StringToTimeSpan(m_tbxPausendauer.Text);
 
-            DataProvider.UpdateTag(Aktualisieren);
+            Debug.WriteLine(Aktualisieren.Arbeitsbeginn.Ticks);
 
-            m_tagesliste.ResetBindings();
+            if(m_fehler == false)
+            {
+                DataProvider.UpdateTag(Aktualisieren);
+
+                m_tagesliste.ResetBindings();
+            }
+            else { m_fehler = false; }
         }
 
         private TimeSpan StringToTimeSpan(string str)

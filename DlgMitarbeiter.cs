@@ -15,8 +15,6 @@ namespace TimeChip_App_1._0
 {
     public partial class DlgMitarbeiter : Form
     {
-        string URL = "http://192.168.1.205/";
-        string responseContent = "";
         int m_mitarbeiternummer;
         bool m_finger = false, m_bearbeiten = false;
 
@@ -60,35 +58,35 @@ namespace TimeChip_App_1._0
                     }
                 }
 
-                SendRecieveHTTP("Finger" + m_mitarbeiternummer);
+                string responseContent = DataProvider.SendRecieveHTTP("Finger" + m_mitarbeiternummer);
 
                 if (responseContent.Contains("Finger-hinzugefuegt"))
                 {
                     if (!m_bearbeiten)
                     {
-                        MessageBox.Show("Der Finger wurde erfolgreich hinzugefügt!");
+                        MessageBox.Show("Der Finger wurde erfolgreich hinzugefügt!", "Erfolg", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         m_finger = true;
                     }
                     else
                     {
-                        MessageBox.Show("Der Finger wurde erfolgreich geändert!");
+                        MessageBox.Show("Der Finger wurde erfolgreich geändert!", "Erfolg", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
                 else if (responseContent.Contains("Finger-nicht-hinzugefuegt"))
                 {
                     if (!m_bearbeiten)
                     {
-                        MessageBox.Show("Der Finger konnte leider nicht hinzugefügt werden!");
+                        MessageBox.Show("Der Finger konnte leider nicht hinzugefügt werden!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                     else
                     {
-                        MessageBox.Show("Der Finger konnte leider nicht geändert werden!");
+                        MessageBox.Show("Der Finger konnte leider nicht geändert werden!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }
             }
             else
             {
-                MessageBox.Show("Es wurde bereits ein Finger hinzugefügt.");
+                MessageBox.Show("Es wurde bereits ein Finger hinzugefügt.", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -96,7 +94,7 @@ namespace TimeChip_App_1._0
         {
             if (m_bearbeiten || m_finger)
             {
-                SendRecieveHTTP("Card");
+                string responseContent = DataProvider.SendRecieveHTTP("Card");
 
                 if (responseContent.Contains("CardUID:"))
                 {
@@ -106,14 +104,14 @@ namespace TimeChip_App_1._0
                     {
                         DataProvider.InsertFingerRFIDUID(m_mitarbeiternummer, parts[1]);
 
-                        MessageBox.Show("Karte wurde erfolgreich hinzugefügt.");
+                        MessageBox.Show("Karte wurde erfolgreich hinzugefügt.", "Erfolg", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     else
                     {
                         ClsFingerprintRFID finger = DataProvider.SelectAllFingerprintRFID().Last(x => x.Fingerprint.Equals(m_mitarbeiternummer));
                         DataProvider.UpdateFingerprintRFID(new ClsFingerprintRFID(finger.ID, parts[1], m_mitarbeiternummer));
 
-                        MessageBox.Show("Karte wurde erfolgreich geändert.");
+                        MessageBox.Show("Karte wurde erfolgreich geändert.", "Erfolg", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
 
                     
@@ -121,32 +119,7 @@ namespace TimeChip_App_1._0
             }
             else
             {
-                MessageBox.Show("Speichern Sie bitte zuerst einen Finger ein");
-            }
-        }
-
-        void SendRecieveHTTP(string text)
-        {
-            byte[] data = Encoding.UTF8.GetBytes(text + "\n\r\n");
-            
-            WebRequest webRequest = WebRequest.Create(URL);
-            webRequest.Method = "POST";
-            webRequest.ContentLength = data.Length;
-
-            using (Stream strm = webRequest.GetRequestStream())
-            {
-                strm.Write(data, 0, data.Length);
-            }
-
-            using (WebResponse response = webRequest.GetResponse())
-            {
-                using (Stream strm = response.GetResponseStream())
-                {
-                    using (StreamReader sr99 = new StreamReader(strm))
-                    {
-                        responseContent = sr99.ReadToEnd();
-                    }
-                }
+                MessageBox.Show("Speichern Sie bitte zuerst einen Finger ein", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
     }
