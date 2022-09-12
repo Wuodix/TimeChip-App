@@ -277,7 +277,8 @@ namespace TimeChip_App_1._0
                 DateTime SelectedDay = m_cldKalender.SelectionStart;
                 ClsMitarbeiter mitarbeiter = m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter;
 
-                m_lblUrlaub.Text = mitarbeiter.Urlaub.ToString();
+                m_lblUrlaub.Text = mitarbeiter.Urlaub.ToString(@"hh\:mm");
+                m_lblÜberstunden.Text = mitarbeiter.Überstunden.ToString();
 
                 m_lblSoll.Text = ClsBerechnung.GetSollArbeitszeit(SelectedDay, mitarbeiter).ToString(@"hh\:mm");
 
@@ -286,23 +287,40 @@ namespace TimeChip_App_1._0
                 if(tag != null)
                 {
                     m_lblIst.Text = tag.Arbeitszeit.ToString(@"hh\:mm");
+                    switch (tag.Status)
+                    {
+                        case 0:
+                            m_lblTagesstatus.Text = "Zeitausgleich";
+                            break;
+                        case 1:
+                            m_lblTagesstatus.Text = "Krank";
+                            break;
+                        case 2:
+                            m_lblTagesstatus.Text = "Schule";
+                            break;
+                        case 3:
+                            m_lblTagesstatus.Text = "Urlaub";
+                            break;
+                    }
                 }
                 else
                 {
                     m_lblIst.Text = "00:00";
+                    m_lblTagesstatus.Text = "";
                 }
             }
         }
 
-        private void m_btnEntschuldigt_Click(object sender, EventArgs e)
+        private void m_btnSchule_Click(object sender, EventArgs e)
         {
             ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(m_cldKalender.SelectionStart, (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Mitarbeiternummer);
             if (tag != null)
             {
                 int alterStatus = tag.Status;
-                tag.Status = 1;
+                tag.Status = 2;
 
                 ClsBerechnung.TagesStatusÄnderung(tag, alterStatus);
+                UpdateDataView();
             }
         }
 
@@ -312,9 +330,10 @@ namespace TimeChip_App_1._0
             if (tag != null)
             {
                 int alterStatus = tag.Status;
-                tag.Status = 2;
+                tag.Status = 3;
 
                 ClsBerechnung.TagesStatusÄnderung(tag, alterStatus);
+                UpdateDataView();
             }
         }
 
@@ -327,6 +346,20 @@ namespace TimeChip_App_1._0
                 tag.Status = 0;
 
                 ClsBerechnung.TagesStatusÄnderung(tag, alterStatus);
+                UpdateDataView();
+            }
+        }
+
+        private void m_btnKrank_Click(object sender, EventArgs e)
+        {
+            ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(m_cldKalender.SelectionStart, (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Mitarbeiternummer);
+            if (tag != null)
+            {
+                int alterStatus = tag.Status;
+                tag.Status = 1;
+
+                ClsBerechnung.TagesStatusÄnderung(tag, alterStatus);
+                UpdateDataView();
             }
         }
     }

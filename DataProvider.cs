@@ -16,35 +16,6 @@ namespace TimeChip_App_1._0
     {
         private static string connectionString = "SERVER=localhost;DATABASE=apotheke_time_chip;UID=root;";
 
-        /*
-        public static bool OpenConnection()
-        {
-            m_conn = new MySqlConnection(connectionString);
-
-            try
-            {
-                m_conn.Open();
-                return true;
-            }
-            catch(Exception)
-            {
-                return false;
-            }
-        }
-        public static bool CloseConnection()
-        {
-            try
-            {
-                m_conn.Close();
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-        */
-
         public static ClsBuchung InsertBuchung(Buchungstyp buchungstyp, DateTime zeit, int mitarbeiternr)
         {
             string query = "INSERT INTO `buchungen` (`Buchungstyp`, `Zeit`, `Mitarbeiternummer`) VALUES(@buchungst, @zeit, @mitarbeiternr)";

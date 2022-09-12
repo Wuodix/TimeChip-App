@@ -8,7 +8,7 @@ namespace TimeChip_App_1._0
 {
     public class ClsAusgewerteter_Tag
     {
-        int m_id, m_mitarbeiternummer, m_status; //Status: 0 = Aus Überstunden abziehen, 1 = Nichts tun/Entschuldigt, 2 = Urlaub
+        int m_id, m_mitarbeiternummer, m_status; //Status: 0 = Aus Überstunden abziehen, 1 = Krank, 2 = Schule, 3 = Urlaub
         TimeSpan m_arbeitszeit;
         DateTime m_date;
 

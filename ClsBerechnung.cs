@@ -266,15 +266,17 @@ namespace TimeChip_App_1._0
                         case 0:
                             break;
                         case 1:
+                        case 2:
                             //Überstunden wieder hinzufügen (-=: -2h Überstunden wieder hinzufügen --> Überstunden -= -2h)
                             break;
-                        case 2:
+                        case 3:
                             //Überstunden wieder hinzufügen und Urlaub einen Tag abziehen
                             mitarbeiter.Urlaub = mitarbeiter.Urlaub.Subtract(new TimeSpan(8, 0, 0));
                             break;
                     }
                     break;
                 case 1:
+                case 2:
                     switch (tag.Status)
                     {
                         case 0:
@@ -282,27 +284,29 @@ namespace TimeChip_App_1._0
                             mitarbeiter.Überstunden += Überstunden;
                             break;
                         case 1:
-                            break;
                         case 2:
+                            break;
+                        case 3:
                             //Urlaub einen Tag abziehen
                             mitarbeiter.Urlaub = mitarbeiter.Urlaub.Subtract(new TimeSpan(8,0,0));
                             break;
                     }
                     break;
-                case 2:
+                case 3:
                     {
                         switch (tag.Status)
                         {
                             case 0:
                                 //Einen Tag Urlaub hinzufügen und += Überstunden (siehe case 1/0)
-                                mitarbeiter.Urlaub.Add(new TimeSpan(8,0,0));
+                                mitarbeiter.Urlaub = mitarbeiter.Urlaub.Add(new TimeSpan(8,0,0));
                                 mitarbeiter.Überstunden += Überstunden;
                                 break;
                             case 1:
-                                //Einen Tag Urlaub hinzufügen
-                                mitarbeiter.Urlaub.Add(new TimeSpan(8,0,0));
-                                break;
                             case 2:
+                                //Einen Tag Urlaub hinzufügen
+                                mitarbeiter.Urlaub = mitarbeiter.Urlaub.Add(new TimeSpan(8,0,0));
+                                break;
+                            case 3:
                                 break;
                         }
                     }
