@@ -26,12 +26,13 @@ namespace TimeChip_App_1._0
 
             m_lbxMitarbeiter.SelectedIndex = 1;
 
-            UpdateLbxBuchungen();
+            UpdateLbxBuchungen("start");
 
             ClsBerechnung.Berechnen();
+            ClsBerechnung.Urlaubsberechnung();
 
-            UpdateCldKalender();
             UpdateDataView();
+            UpdateCldKalender();
         }
 
         public static BindingList<ClsMitarbeiter> Mitarbeiterliste { get { return m_mitarbeiterliste; } set { m_mitarbeiterliste = value; } }
@@ -49,7 +50,7 @@ namespace TimeChip_App_1._0
             {
                 DataProvider.InsertMitarbeiter(neu.Mitarbeiternummer,neu.Vorname, neu.Nachname, neu.Arbeitsbeginn, new TimeSpan(0), neu.Arbeitzeitprofil, new TimeSpan(0));
                 UpdateMtbtrList();
-                UpdateLbxBuchungen();
+                UpdateLbxBuchungen("neuer Mitarbeiter");
             }
         }
 
@@ -97,7 +98,7 @@ namespace TimeChip_App_1._0
         {
             DataProvider.DeleteMitarbeiter(m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter);
             UpdateMtbtrList();
-            UpdateLbxBuchungen();
+            UpdateLbxBuchungen("Mitarbeiter löschen");
         }
 
         private void m_btnarbeitsprofil_Click(object sender, EventArgs e)
@@ -120,14 +121,14 @@ namespace TimeChip_App_1._0
 
         private void m_lbxMitarbeiterChanged(object sender, EventArgs e)
         {
-            UpdateLbxBuchungen();
+            UpdateLbxBuchungen("Mitarbeiter ausgewählt");
         }
         private void m_cldKalenderChanged(object sender, DateRangeEventArgs e)
         {
-            UpdateLbxBuchungen();
+            UpdateLbxBuchungen("Tag ausgewählt");
         }
 
-        private void UpdateLbxBuchungen()
+        private void UpdateLbxBuchungen(string sender)
         {
             if (m_lbxMitarbeiter.SelectedItem != null)
             {
@@ -139,7 +140,11 @@ namespace TimeChip_App_1._0
 
                 m_lbxBuchungen.Items.AddRange(Buchungen.ToArray());
 
-                UpdateCldKalender();
+                if(sender != "Tag ausgewählt")
+                {
+                    UpdateCldKalender();
+                }
+
                 UpdateDataView();
             }
         }
@@ -162,7 +167,7 @@ namespace TimeChip_App_1._0
 
                 ClsBerechnung.Berechnen(dlgBuchung.GetDateTime(), m_mitarbeiterliste.ToList().Find(x => x.Mitarbeiternummer.Equals(mitarbeiter.Mitarbeiternummer)));
 
-                UpdateLbxBuchungen();
+                UpdateLbxBuchungen("Neue Buchung");
             }
         }
 
@@ -190,7 +195,7 @@ namespace TimeChip_App_1._0
                     DataProvider.UpdateBuchung(zubearbeiten);
                     ClsBerechnung.Berechnen(zubearbeiten.Zeit, m_mitarbeiterliste.ToList().Find(x => x.Mitarbeiternummer.Equals(zubearbeiten.Mitarbeiternummer)));
 
-                    UpdateLbxBuchungen();
+                    UpdateLbxBuchungen("Buchung bearbeiten");
                 }
             }
         }
@@ -201,7 +206,7 @@ namespace TimeChip_App_1._0
             DataProvider.DeleteBuchung(buchung, "buchungen");
 
             ClsBerechnung.Berechnen(buchung.Zeit, m_mitarbeiterliste.ToList().Find(x => x.Mitarbeiternummer.Equals(buchung.Mitarbeiternummer)));
-            UpdateLbxBuchungen();
+            UpdateLbxBuchungen("Buchung löschen");
         }
 
         private void UpdateCldKalender()
@@ -264,10 +269,12 @@ namespace TimeChip_App_1._0
                                 break;
                         }
                     }
+                    else
+                    {
+                    }
                 }
             }
             m_cldKalender.BoldedDates = BoldedDates.ToArray();
-
         }
 
         private void UpdateDataView()

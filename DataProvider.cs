@@ -504,6 +504,60 @@ namespace TimeChip_App_1._0
             return ExecuteNonQuery(query);
         }
 
+        public static void Log(string log)
+        {
+            string name = @"Logs\logs" + DateTime.Now.Date.ToString();
+            StreamWriter sw;
+            if (File.Exists(name))
+            {
+                sw = new StreamWriter(name, true);
+            }
+            else
+            {
+                sw = new StreamWriter(name, false);
+            }
+
+            sw.WriteLine(log);
+
+            sw.Close();
+            sw.Dispose();
+        }
+
+        public static void WriteDateToCSV(List<string> strings)
+        {
+            using (StreamWriter sw = new StreamWriter(@"Logs\date.csv", false))
+            {
+                foreach(string s in strings)
+                {
+                    sw.WriteLine(s);
+                }
+            }
+        }
+
+        public static List<DateTime> ReadDateFromCSV(ref List<int> IDs)
+        {
+            List<DateTime> list = new List<DateTime>();
+            using(StreamReader sr = new StreamReader(@"Logs\date.csv"))
+            {
+                while (!sr.EndOfStream)
+                {
+                    string zeile = sr.ReadLine();
+
+                    string[] teile = zeile.Split(';');
+                    int MitarbeiterID = Convert.ToInt32(teile[0]);
+
+                    string[] teile1 = teile[1].Split('.');
+                    int day = Convert.ToInt32(teile1[0]);
+                    int month = Convert.ToInt32(teile1[1]);
+                    int year = Convert.ToInt32(teile1[2]);
+
+                    IDs.Add(MitarbeiterID);
+                    list.Add(new DateTime(year, month, day, 0, 0, 0));
+                }
+            }
+
+            return list;
+        }
 
         //Helper Funktionen
         private static DateTime StringToDateTime(string dt)

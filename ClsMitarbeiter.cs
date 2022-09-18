@@ -39,5 +39,10 @@ namespace TimeChip_App_1._0
         {
             return m_mitarbeiternummmer + " - " + m_vorname + " - " + m_nachname;
         }
+
+        public string Log()
+        {
+            return Mitarbeiternummer + " - " + Vorname + " - " + Nachname + " - " + Überstunden + " - " + Urlaub;
+        }
     }
 }

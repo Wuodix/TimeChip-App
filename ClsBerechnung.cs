@@ -356,5 +356,58 @@ namespace TimeChip_App_1._0
                     return mitarbeiter.Arbeitszeitprofil.Sonntag.Pausendauer;
             }
         }
+
+        public static void Urlaubsberechnung()
+        {
+            List<ClsMitarbeiter> mitarbeiters = DataProvider.SelectAllMitarbeiter();
+            List<int> MitarbeiterIDs = new List<int>();
+            List<DateTime> dates = DataProvider.ReadDateFromCSV(ref MitarbeiterIDs);
+
+
+            foreach (ClsMitarbeiter mitarbeiter in mitarbeiters)
+            {
+                int IDIndex = MitarbeiterIDs.FindIndex(x => x.Equals(mitarbeiter.ID));
+
+                if(IDIndex == -1)
+                {
+                    mitarbeiter.Urlaub += new TimeSpan(mitarbeiter.Arbeitszeitprofil.Urlaub * 8, 0, 0);
+                    dates.Add(new DateTime(DateTime.Now.Year + 1, DateTime.Now.Month, DateTime.Now.Day));
+                    MitarbeiterIDs.Add(mitarbeiter.ID);
+                }
+                DateTime CompareDate = dates[IDIndex];
+                
+                if(CompareDate.CompareTo(DateTime.Now) < 0)
+                {
+                    mitarbeiter.Urlaub += new TimeSpan(mitarbeiter.Arbeitszeitprofil.Urlaub * 8, 0, 0);
+                    int year = DateTime.Now.Year + 1;
+                    dates[IDIndex] = new DateTime(year, dates[IDIndex].Month, dates[IDIndex].Day);
+                }
+            }
+
+            List<int> Removeindexes = new List<int>();
+            foreach(int ID in MitarbeiterIDs)
+            {
+                int index = mitarbeiters.FindIndex(x => x.ID.Equals(ID));
+
+                if(index == -1)
+                {
+                    Removeindexes.Add(MitarbeiterIDs.FindIndex(x => x.Equals(ID)));
+                }
+            }
+            foreach(int index in Removeindexes)
+            {
+                MitarbeiterIDs.RemoveAt(index);
+                dates.RemoveAt(index);
+            }
+
+            List<string> strings = new List<string>();
+
+            for(int i = 0; i < MitarbeiterIDs.Count; i++)
+            {
+                strings.Add(MitarbeiterIDs[i].ToString() + ";" + dates[i].ToString("dd.MM.yyyy"));
+            }
+
+            DataProvider.WriteDateToCSV(strings);
+        }
     }
 }
