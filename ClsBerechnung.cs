@@ -18,16 +18,17 @@ namespace TimeChip_App_1._0
         public static void Berechnen()
         {
             List<ClsBuchung> buchungen1 = DataProvider.SelectAllBuchungen("buchungen_temp");
-            if (buchungen1.Count > 0)
+            DataProvider.WriteBerechnungsDateToCSV(new DateTime(2022, 09, 03, 05, 22, 3));
+            DateTime lastBerechnung = DataProvider.ReadBerechnungsDateFromCSV();
+            if (lastBerechnung.CompareTo(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0)) < 0)
             {
                 Debug.WriteLine("BERECHNUNG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
-                DateTime compare = new DateTime(buchungen1[0].Zeit.Year, buchungen1[0].Zeit.Month, buchungen1[0].Zeit.Day, 0, 0, 0);
+                DateTime compare = new DateTime(lastBerechnung.Year, lastBerechnung.Month, lastBerechnung.Day, 0, 0, 0);
 
                 // Eine Liste aus Buchungen der einzelnen Tage
                 List<List<ClsBuchung>> TagesBuchungen = new List<List<ClsBuchung>>();
                 List<DateTime> Tage = new List<DateTime>();
-
 
                 while (compare.CompareTo(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0)) < 0)
                 {
@@ -133,7 +134,9 @@ namespace TimeChip_App_1._0
                     i++;
                 }
 
+                DataProvider.WriteBerechnungsDateToCSV(DateTime.Now);
                 
+                /*
                 List<ClsBuchung> buchungen = DataProvider.SelectAllBuchungen("buchungen_temp");
                 foreach (DateTime date in Tage)
                 {
@@ -144,7 +147,8 @@ namespace TimeChip_App_1._0
                         DataProvider.InsertBuchung(buchung.Buchungstyp, buchung.Zeit, buchung.Mitarbeiternummer);
                         DataProvider.DeleteBuchung(buchung, "buchungen_temp");
                     }
-                } 
+                }
+                */
             }
         }
 

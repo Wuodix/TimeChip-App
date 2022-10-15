@@ -9,6 +9,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using MySql.Data.MySqlClient;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Utilities;
 
 namespace TimeChip_App_1._0
 {
@@ -522,7 +524,10 @@ namespace TimeChip_App_1._0
             sw.Close();
             sw.Dispose();
         }
-
+        /// <summary>
+        /// Speichert die MitarbeiterID und den zugehörigen Tag, wann der Urlaub berechnet werden soll
+        /// </summary>
+        /// <param name="strings">Liste aus MtbtrID;Urlaubstag</param>
         public static void WriteDateToCSV(List<string> strings)
         {
             using (StreamWriter sw = new StreamWriter(@"Logs\date.csv", false))
@@ -533,7 +538,11 @@ namespace TimeChip_App_1._0
                 }
             }
         }
-
+        /// <summary>
+        /// Liest Daten von voriger Funktion wieder aus
+        /// </summary>
+        /// <param name="IDs"></param>
+        /// <returns></returns>
         public static List<DateTime> ReadDateFromCSV(ref List<int> IDs)
         {
             List<DateTime> list = new List<DateTime>();
@@ -557,6 +566,30 @@ namespace TimeChip_App_1._0
             }
 
             return list;
+        }
+
+        public static void WriteBerechnungsDateToCSV(DateTime date)
+        {
+            using (StreamWriter sw = new StreamWriter(@"Logs\Berechnungsdate.csv", false))
+            {
+                sw.WriteLine(date.ToString());
+            }
+        }
+
+        public static DateTime ReadBerechnungsDateFromCSV()
+        {
+            DateTime date = new DateTime();
+            using (StreamReader sr = new StreamReader(@"Logs\Berechnungsdate.csv"))
+            {
+                while (!sr.EndOfStream)
+                {
+                    string zeile = sr.ReadLine();
+
+                    date = Convert.ToDateTime(zeile);
+                }
+            }
+
+            return date;
         }
 
         //Helper Funktionen
