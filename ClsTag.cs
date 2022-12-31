@@ -11,8 +11,9 @@ namespace TimeChip_App_1._0
         private TimeSpan m_arbeitsbeginn, m_arbeitsende, m_pausenbeginn, m_pausenende, m_arbeitszeit, m_pausendauer;
         private string m_name;
         private int m_ID;
+        private bool m_pause;
 
-        public ClsTag(int ID, string Name, TimeSpan Arbeitsbeginn, TimeSpan Arbeitsende, TimeSpan Pausenbeginn, TimeSpan Pausenende, TimeSpan Arbeitszeit, TimeSpan Pausendauer)
+        public ClsTag(int ID, string Name, bool Pause, TimeSpan Arbeitsbeginn, TimeSpan Arbeitsende, TimeSpan Pausenbeginn, TimeSpan Pausenende, TimeSpan Arbeitszeit, TimeSpan Pausendauer)
         {
             m_name = Name;
             m_arbeitsbeginn = Arbeitsbeginn;
@@ -22,6 +23,7 @@ namespace TimeChip_App_1._0
             m_arbeitszeit = Arbeitszeit;
             m_pausendauer = Pausendauer;
             m_ID = ID;
+            m_pause = Pause;
         }
 
         public string Name { get { return m_name; } set { m_name = value; } }
@@ -32,6 +34,7 @@ namespace TimeChip_App_1._0
         public TimeSpan Arbeitszeit { get { return m_arbeitszeit; } set { m_arbeitszeit = value; } }
         public TimeSpan Pausendauer { get { return m_pausendauer; } set { m_pausendauer = value; } }
         public int ID { get { return m_ID; } set { m_ID = value; } }
+        public bool Pause { get { return m_pause; } set { m_pause = value; } }
 
         public override string ToString()
         {

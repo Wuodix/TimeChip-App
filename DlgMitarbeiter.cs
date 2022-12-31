@@ -36,7 +36,24 @@ namespace TimeChip_App_1._0
         public string BtnAddCard { get { return m_btnAddCard.Text; } set { m_btnAddCard.Text = value; } }
         public int Mitarbeiternummer { get { return m_mitarbeiternummer; } set { m_mitarbeiternummer = value; } }
         public bool Bearbeiten { get { return m_bearbeiten; } set { m_bearbeiten = value; } }
-        public bool Finger { get { return m_finger; } set { m_finger = value; } }
+
+        public void SetUrlaub(TimeSpan Urlaub)
+        {
+            string minutes = Urlaub.Minutes.ToString();
+            if(Urlaub.Minutes < 10)
+                minutes = "0" + minutes;
+            m_tbxUrlaub.Text = Urlaub.TotalHours.ToString() + ":" + minutes;
+        }
+
+        public TimeSpan GetUrlaub()
+        {
+            string[] teile = m_tbxUrlaub.Text.Split(':');
+
+            int hours = Convert.ToInt32(teile[0]);
+            int minutes = Convert.ToInt32(teile[1]);
+
+            return new TimeSpan(hours, minutes, 0);
+        }
 
         private void m_btnAddFinger_Click(object sender, EventArgs e)
         {
@@ -87,6 +104,24 @@ namespace TimeChip_App_1._0
             else
             {
                 MessageBox.Show("Es wurde bereits ein Finger hinzugefügt.", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        private void m_btnOK_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string[] teile = m_tbxUrlaub.Text.Split(':');
+                int hours = Convert.ToInt32(teile[0]);
+                int minutes = Convert.ToInt32(teile[1]);
+
+                DialogResult = DialogResult.OK;
+                Debug.WriteLine("hi");
+                Close();
+            }
+            catch
+            {
+                MessageBox.Show("Bitte Urlaub im Format Stunden:Minuten eingeben!");
             }
         }
 

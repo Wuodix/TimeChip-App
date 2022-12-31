@@ -34,7 +34,7 @@ namespace TimeChip_App_1._0
             this.m_btnNeuerMitarbeiter = new System.Windows.Forms.Button();
             this.m_btnBearbeiten = new System.Windows.Forms.Button();
             this.m_btnLöschen = new System.Windows.Forms.Button();
-            this.m_btnarbeitsprofil = new System.Windows.Forms.Button();
+            this.m_btnarbeitszeitprofil = new System.Windows.Forms.Button();
             this.m_lbxBuchungen = new System.Windows.Forms.ListBox();
             this.m_btnNeueBuchung = new System.Windows.Forms.Button();
             this.m_btnBuchungBearbeiten = new System.Windows.Forms.Button();
@@ -44,19 +44,19 @@ namespace TimeChip_App_1._0
             this.m_btnUnentschuldigt = new System.Windows.Forms.Button();
             this.m_btnRefresh = new System.Windows.Forms.Button();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.m_lblIst = new System.Windows.Forms.Label();
             this.m_lblSoll = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
             this.m_lblUrlaub = new System.Windows.Forms.Label();
             this.m_btnKrank = new System.Windows.Forms.Button();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.m_lblÜberstunden = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.m_lblTagesstatus = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.m_lblÜberstunden = new System.Windows.Forms.Label();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.SuspendLayout();
@@ -119,16 +119,16 @@ namespace TimeChip_App_1._0
             this.m_btnLöschen.UseVisualStyleBackColor = true;
             this.m_btnLöschen.Click += new System.EventHandler(this.m_btnLöschen_Click);
             // 
-            // m_btnarbeitsprofil
+            // m_btnarbeitszeitprofil
             // 
-            this.m_btnarbeitsprofil.Location = new System.Drawing.Point(9, 10);
-            this.m_btnarbeitsprofil.Margin = new System.Windows.Forms.Padding(2);
-            this.m_btnarbeitsprofil.Name = "m_btnarbeitsprofil";
-            this.m_btnarbeitsprofil.Size = new System.Drawing.Size(295, 49);
-            this.m_btnarbeitsprofil.TabIndex = 6;
-            this.m_btnarbeitsprofil.Text = "Arbeitsprofile";
-            this.m_btnarbeitsprofil.UseVisualStyleBackColor = true;
-            this.m_btnarbeitsprofil.Click += new System.EventHandler(this.m_btnarbeitsprofil_Click);
+            this.m_btnarbeitszeitprofil.Location = new System.Drawing.Point(9, 10);
+            this.m_btnarbeitszeitprofil.Margin = new System.Windows.Forms.Padding(2);
+            this.m_btnarbeitszeitprofil.Name = "m_btnarbeitszeitprofil";
+            this.m_btnarbeitszeitprofil.Size = new System.Drawing.Size(295, 49);
+            this.m_btnarbeitszeitprofil.TabIndex = 6;
+            this.m_btnarbeitszeitprofil.Text = "Arbeitszeitprofile";
+            this.m_btnarbeitszeitprofil.UseVisualStyleBackColor = true;
+            this.m_btnarbeitszeitprofil.Click += new System.EventHandler(this.m_btnLöschen_Click);
             // 
             // m_lbxBuchungen
             // 
@@ -238,17 +238,6 @@ namespace TimeChip_App_1._0
             this.tableLayoutPanel1.Size = new System.Drawing.Size(200, 145);
             this.tableLayoutPanel1.TabIndex = 15;
             // 
-            // label6
-            // 
-            this.label6.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.label6.AutoSize = true;
-            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(45, 63);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(56, 20);
-            this.label6.TabIndex = 13;
-            this.label6.Text = "Urlaub";
-            // 
             // label7
             // 
             this.label7.Anchor = System.Windows.Forms.AnchorStyles.None;
@@ -304,12 +293,23 @@ namespace TimeChip_App_1._0
             this.label2.TabIndex = 1;
             this.label2.Text = "Zeiten";
             // 
+            // label6
+            // 
+            this.label6.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.label6.AutoSize = true;
+            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label6.Location = new System.Drawing.Point(45, 62);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(56, 20);
+            this.label6.TabIndex = 13;
+            this.label6.Text = "Urlaub";
+            // 
             // m_lblUrlaub
             // 
             this.m_lblUrlaub.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.m_lblUrlaub.AutoSize = true;
             this.m_lblUrlaub.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.m_lblUrlaub.Location = new System.Drawing.Point(194, 63);
+            this.m_lblUrlaub.Location = new System.Drawing.Point(194, 62);
             this.m_lblUrlaub.Name = "m_lblUrlaub";
             this.m_lblUrlaub.Size = new System.Drawing.Size(51, 20);
             this.m_lblUrlaub.TabIndex = 4;
@@ -346,6 +346,28 @@ namespace TimeChip_App_1._0
             this.tableLayoutPanel2.Size = new System.Drawing.Size(293, 147);
             this.tableLayoutPanel2.TabIndex = 17;
             // 
+            // m_lblÜberstunden
+            // 
+            this.m_lblÜberstunden.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.m_lblÜberstunden.AutoSize = true;
+            this.m_lblÜberstunden.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.m_lblÜberstunden.Location = new System.Drawing.Point(191, 111);
+            this.m_lblÜberstunden.Name = "m_lblÜberstunden";
+            this.m_lblÜberstunden.Size = new System.Drawing.Size(56, 20);
+            this.m_lblÜberstunden.TabIndex = 15;
+            this.m_lblÜberstunden.Text = "Urlaub";
+            // 
+            // label4
+            // 
+            this.label4.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.Location = new System.Drawing.Point(22, 111);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(102, 20);
+            this.label4.TabIndex = 14;
+            this.label4.Text = "Überstunden";
+            // 
             // label1
             // 
             this.label1.Anchor = System.Windows.Forms.AnchorStyles.None;
@@ -368,28 +390,6 @@ namespace TimeChip_App_1._0
             this.m_lblTagesstatus.TabIndex = 9;
             this.m_lblTagesstatus.Text = "Zeitausgleich";
             // 
-            // label4
-            // 
-            this.label4.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(22, 112);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(102, 20);
-            this.label4.TabIndex = 14;
-            this.label4.Text = "Überstunden";
-            // 
-            // m_lblÜberstunden
-            // 
-            this.m_lblÜberstunden.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.m_lblÜberstunden.AutoSize = true;
-            this.m_lblÜberstunden.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.m_lblÜberstunden.Location = new System.Drawing.Point(191, 112);
-            this.m_lblÜberstunden.Name = "m_lblÜberstunden";
-            this.m_lblÜberstunden.Size = new System.Drawing.Size(56, 20);
-            this.m_lblÜberstunden.TabIndex = 15;
-            this.m_lblÜberstunden.Text = "Urlaub";
-            // 
             // FrmHaupt
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -406,7 +406,7 @@ namespace TimeChip_App_1._0
             this.Controls.Add(this.m_btnBuchungBearbeiten);
             this.Controls.Add(this.m_btnNeueBuchung);
             this.Controls.Add(this.m_lbxBuchungen);
-            this.Controls.Add(this.m_btnarbeitsprofil);
+            this.Controls.Add(this.m_btnarbeitszeitprofil);
             this.Controls.Add(this.m_btnLöschen);
             this.Controls.Add(this.m_btnBearbeiten);
             this.Controls.Add(this.m_btnNeuerMitarbeiter);
@@ -430,7 +430,7 @@ namespace TimeChip_App_1._0
         private System.Windows.Forms.Button m_btnNeuerMitarbeiter;
         private System.Windows.Forms.Button m_btnBearbeiten;
         private System.Windows.Forms.Button m_btnLöschen;
-        private System.Windows.Forms.Button m_btnarbeitsprofil;
+        private System.Windows.Forms.Button m_btnarbeitszeitprofil;
         private System.Windows.Forms.ListBox m_lbxBuchungen;
         private System.Windows.Forms.Button m_btnNeueBuchung;
         private System.Windows.Forms.Button m_btnBuchungBearbeiten;

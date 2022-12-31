@@ -14,7 +14,7 @@ using Org.BouncyCastle.Utilities;
 
 namespace TimeChip_App_1._0
 {
-    internal class DataProvider
+    public class DataProvider
     {
         private static string connectionString = "SERVER=localhost;DATABASE=apotheke_time_chip;UID=root;";
 
@@ -31,10 +31,10 @@ namespace TimeChip_App_1._0
 
             return new ClsBuchung(SelectAllBuchungenFromDay(mitarbeiternr, zeit).Last().Buchungsnummer, mitarbeiternr, zeit, buchungstyp);
         }
-        public static ClsTag InsertTag(string name, TimeSpan arbeitsbeginn, TimeSpan arbeitsende, TimeSpan arbeitszeit, TimeSpan pausenbeginn, TimeSpan pausenende, TimeSpan pausendauer)
+        public static ClsTag InsertTag(string name, TimeSpan arbeitsbeginn, TimeSpan arbeitsende, TimeSpan arbeitszeit, TimeSpan pausenbeginn, TimeSpan pausenende, TimeSpan pausendauer, bool pause)
         {
-            string query = "INSERT INTO tage (Name, Arbeitsbeginn, Arbeitsende, Arbeitszeit, Pausenbeginn, Pausenende, Pausendauer) VALUES (@name,  @abbeginn, " +
-                "@abende, @abzeit, @pbeginn, @pende, @pdauer)";
+            string query = "INSERT INTO tage (Name, Arbeitsbeginn, Arbeitsende, Arbeitszeit, Pausenbeginn, Pausenende, Pausendauer, Pause) VALUES (@name,  @abbeginn, " +
+                "@abende, @abzeit, @pbeginn, @pende, @pdauer, @pause)";
 
             
             MySqlCommand cmd = new MySqlCommand(query);
@@ -45,15 +45,16 @@ namespace TimeChip_App_1._0
             cmd.Parameters.AddWithValue("pbeginn", pausenbeginn);
             cmd.Parameters.AddWithValue("pende", pausenende);
             cmd.Parameters.AddWithValue("pdauer", pausendauer);
+            cmd.Parameters.AddWithValue("pause", pause);
             
             ExecuteNonQuery(cmd);
 
-            return new ClsTag(SelectAllTage().Last().ID, name, arbeitsbeginn, arbeitsende, pausenbeginn, pausenende, arbeitszeit, pausendauer);
+            return new ClsTag(SelectAllTage().Last().ID, name, pause, arbeitsbeginn, arbeitsende, pausenbeginn, pausenende, arbeitszeit, pausendauer);
         }
-        public static ClsArbeitsprofil InsertArbeitszeitprofil(string name, ClsTag montag, ClsTag dienstag, ClsTag mittwoch, ClsTag donnerstag, ClsTag freitag, ClsTag samstag, ClsTag sonntag, int urlaub, bool gleitzeit)
+        public static ClsArbeitsprofil InsertArbeitszeitprofil(string name, ClsTag montag, ClsTag dienstag, ClsTag mittwoch, ClsTag donnerstag, ClsTag freitag, ClsTag samstag, ClsTag sonntag, bool gleitzeit)
         {
             string query = "INSERT INTO arbeitszeitprofile (Name, Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag, Sonntag, Urlaub, Gleitzeit)" +
-                "VALUES(@name, @montag, @dienstag, @mittwoch, @donnerstag, @freitag, @samstag, @sonntag, @urlaub, @gleitzeit)";
+                "VALUES(@name, @montag, @dienstag, @mittwoch, @donnerstag, @freitag, @samstag, @sonntag, @gleitzeit)";
 
             MySqlCommand cmd = new MySqlCommand(query);
             cmd.Parameters.AddWithValue("name", name);
@@ -64,13 +65,12 @@ namespace TimeChip_App_1._0
             cmd.Parameters.AddWithValue("freitag", freitag.ID);
             cmd.Parameters.AddWithValue("samstag", samstag.ID);
             cmd.Parameters.AddWithValue("sonntag", sonntag.ID);
-            cmd.Parameters.AddWithValue("urlaub", urlaub);
             cmd.Parameters.AddWithValue("gleitzeit", gleitzeit);
 
 
             ExecuteNonQuery(cmd);
 
-            return new ClsArbeitsprofil(SelectAllArbeitszeitprofil().Last().ID, name, montag, dienstag, mittwoch, donnerstag, freitag, samstag, sonntag, urlaub, gleitzeit);
+            return new ClsArbeitsprofil(SelectAllArbeitszeitprofil().Last().ID, name, montag, dienstag, mittwoch, donnerstag, freitag, samstag, sonntag, gleitzeit);
         }
         public static ClsMitarbeiter InsertMitarbeiter(int mitarbeiternummer, string vorname, string nachname, DateTime arbeitsbeginn, TimeSpan überstunden, ClsArbeitsprofil abzp, TimeSpan urlaub)
         {
@@ -159,6 +159,41 @@ namespace TimeChip_App_1._0
             }
             return list;
         }
+        public static List<ClsBuchung> SelectAllBuchungenFromMtbtr(ClsMitarbeiter mtbtr, string Table)
+        {
+            List<ClsBuchung> list = new List<ClsBuchung>();
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+
+                string query = "SELECT * FROM " + Table + " WHERE Mitarbeiternummer=" + mtbtr.Mitarbeiternummer;
+
+                MySqlCommand cmd = new MySqlCommand(query, conn);
+                MySqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    DateTime datetime;
+                    if (Table == "buchungen")
+                    {
+                        datetime = reader.GetDateTime("Zeit");
+                    }
+                    else
+                    {
+                        datetime = StringToDateTime(reader.GetString("Zeit"));
+                    }
+
+                    ClsBuchung buchung = new ClsBuchung(reader.GetInt16("Buchungsnummer"),
+                        reader.GetInt16("Mitarbeiternummer"), datetime,
+                        StringToBuchungstyp(reader.GetString("Buchungstyp")));
+                    list.Add(buchung);
+                }
+
+                cmd.Dispose();
+                reader.Close();
+            }
+            return list;
+        }
         public static List<ClsTag> SelectAllTage()
         {
             List<ClsTag> list = new List<ClsTag>();
@@ -174,7 +209,8 @@ namespace TimeChip_App_1._0
 
                 while (reader.Read())
                 {
-                    ClsTag Tag = new ClsTag(reader.GetInt16("ID"), reader.GetString("Name"), reader.GetTimeSpan("Arbeitsbeginn"),
+                    ClsTag Tag = new ClsTag(reader.GetInt16("ID"), reader.GetString("Name"), reader.GetBoolean("Pause"), 
+                        reader.GetTimeSpan("Arbeitsbeginn"),
                         reader.GetTimeSpan("Arbeitsende"), reader.GetTimeSpan("Pausenbeginn"),
                         reader.GetTimeSpan("Pausenende"), reader.GetTimeSpan("Arbeitszeit"),
                         reader.GetTimeSpan("Pausendauer"));
@@ -200,14 +236,14 @@ namespace TimeChip_App_1._0
                 MySqlCommand cmd = new MySqlCommand(query, conn);
                 MySqlDataReader reader = cmd.ExecuteReader();
 
-                List<ClsTag> Tage = DlgTag.Tagesliste.ToList();
+                List<ClsTag> Tage = SelectAllTage();
                 while (reader.Read())
                 {
                     ClsArbeitsprofil arbeitsprofil = new ClsArbeitsprofil(reader.GetInt16("ID"), reader.GetString("Name"),
                         Tage.Find(x => x.ID == reader.GetInt16("Montag")), Tage.Find(x => x.ID == reader.GetInt16("Dienstag")),
                         Tage.Find(x => x.ID == reader.GetInt16("Mittwoch")), Tage.Find(x => x.ID == reader.GetInt16("Donnerstag")),
                         Tage.Find(x => x.ID == reader.GetInt16("Freitag")), Tage.Find(x => x.ID == reader.GetInt16("Samstag")),
-                        Tage.Find(x => x.ID == reader.GetInt16("Sonntag")), reader.GetInt16("Urlaub"), reader.GetBoolean("Gleitzeit"));
+                        Tage.Find(x => x.ID == reader.GetInt16("Sonntag")), reader.GetBoolean("Gleitzeit"));
                     list.Add(arbeitsprofil);
                 }
 
@@ -361,6 +397,31 @@ namespace TimeChip_App_1._0
 
             return list.FirstOrDefault();
         }
+        public static List<ClsAusgewerteter_Tag> SelectAusgewerteteTage(ClsMitarbeiter mtbtr)
+        {
+            List<ClsAusgewerteter_Tag> list = new List<ClsAusgewerteter_Tag>();
+
+            string query = "SELECT * FROM ausgewertete_tage WHERE Mitarbeiternummer=" + mtbtr.Mitarbeiternummer;
+
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+
+                MySqlCommand cmd = new MySqlCommand(query, conn);
+
+                MySqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    ClsAusgewerteter_Tag ausgewerteterTag = new ClsAusgewerteter_Tag(reader.GetInt32("ID"), reader.GetInt32("Mitarbeiternummer"),
+                        reader.GetTimeSpan("Arbeitszeit"), reader.GetDateTime("Datum"), reader.GetInt32("Status"));
+
+                    list.Add(ausgewerteterTag);
+                }
+            }
+
+            return list;
+        }
 
         public static int UpdateBuchung(ClsBuchung Buchung)
         {
@@ -394,7 +455,7 @@ namespace TimeChip_App_1._0
         public static int UpdateArbeitszeitprofil(ClsArbeitsprofil Abzp)
         {
             string query = "UPDATE arbeitszeitprofile SET Name=@name, Montag=@mo, Dienstag=@di, Mittwoch=@mi, Donnerstag=@do, Freitag=@fr, Samstag=@sa, " +
-                "Sonntag=@so, Urlaub=@urlaub, Gleitzeit=@gleitzeit WHERE ID=@id";
+                "Sonntag=@so, Gleitzeit=@gleitzeit WHERE ID=@id";
 
             MySqlCommand cmd = new MySqlCommand(query);
             cmd.Parameters.AddWithValue("name", Abzp.Name);
@@ -405,7 +466,6 @@ namespace TimeChip_App_1._0
             cmd.Parameters.AddWithValue("fr", Abzp.Freitag.ID);
             cmd.Parameters.AddWithValue("sa", Abzp.Samstag.ID);
             cmd.Parameters.AddWithValue("so", Abzp.Sonntag.ID);
-            cmd.Parameters.AddWithValue("urlaub", Abzp.Urlaub);
             cmd.Parameters.AddWithValue("gleitzeit", Abzp.Gleitzeit);
             cmd.Parameters.AddWithValue("id", Abzp.ID);
 
@@ -487,6 +547,22 @@ namespace TimeChip_App_1._0
             string query = "DELETE FROM mitarbeiter WHERE ID=" + mtbtr.ID;
 
             //Alle Buchungen des Mitarbeiters löschen
+            List<ClsAusgewerteter_Tag> ausgewTage = SelectAusgewerteteTage(mtbtr);
+            List<ClsBuchung> buchungen_temp = SelectAllBuchungenFromMtbtr(mtbtr, "buchungen_temp");
+            List<ClsBuchung> buchungen = SelectAllBuchungenFromMtbtr(mtbtr, "buchungen");
+
+            foreach(ClsAusgewerteter_Tag tag in ausgewTage)
+            {
+                DeleteAusgewerteterTag(tag);
+            }
+            foreach(ClsBuchung buchung in buchungen_temp)
+            {
+                DeleteBuchung(buchung, "buchungen_temp");
+            }
+            foreach(ClsBuchung buchung in buchungen)
+            {
+                DeleteBuchung(buchung, "buchungen");
+            }
 
             int Result = ExecuteNonQuery(query);
             Result += DeleteFingerprintRFID(mtbtr.Mitarbeiternummer);
@@ -502,6 +578,12 @@ namespace TimeChip_App_1._0
         public static int DeleteFingerprintRFID(int Fingerprint)
         {
             string query = "DELETE FROM fingerprintrfid WHERE Fingerprint=" + Fingerprint;
+
+            return ExecuteNonQuery(query);
+        }
+        public static int DeleteAusgewerteterTag(ClsAusgewerteter_Tag tag)
+        {
+            string query = "DELETE FROM ausgewertete_tage WHERE ID=" + tag.ID;
 
             return ExecuteNonQuery(query);
         }

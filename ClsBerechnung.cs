@@ -1,4 +1,5 @@
 ﻿using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Tls;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -18,8 +19,11 @@ namespace TimeChip_App_1._0
         public static void Berechnen()
         {
             List<ClsBuchung> buchungen1 = DataProvider.SelectAllBuchungen("buchungen_temp");
-            DataProvider.WriteBerechnungsDateToCSV(new DateTime(2022, 09, 03, 05, 22, 3));
+            //TEMP
+            DataProvider.WriteBerechnungsDateToCSV(new DateTime(2022, 12, 19, 00, 00, 01));
+
             DateTime lastBerechnung = DataProvider.ReadBerechnungsDateFromCSV();
+
             if (lastBerechnung.CompareTo(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0)) < 0)
             {
                 Debug.WriteLine("BERECHNUNG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
@@ -30,6 +34,7 @@ namespace TimeChip_App_1._0
                 List<List<ClsBuchung>> TagesBuchungen = new List<List<ClsBuchung>>();
                 List<DateTime> Tage = new List<DateTime>();
 
+                //Es werden alle Tage gesucht, die berechnet werden müssen
                 while (compare.CompareTo(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0)) < 0)
                 {
                     Debug.WriteLine(compare.ToString());
@@ -59,7 +64,7 @@ namespace TimeChip_App_1._0
                             {
                                 case Buchungstyp.Kommen:
                                     TimeSpan Arbeitsbeginn = GetArbeitsbeginnOfDayOfWeek(buchung.Zeit, mitarbeiter);
-                                    if (buchung.Zeit.CompareTo(new DateTime(buchung.Zeit.Year, buchung.Zeit.Month, buchung.Zeit.Day, Arbeitsbeginn.Hours, Arbeitsbeginn.Minutes, 0)) < 0 && first && mitarbeiter.Arbeitszeitprofil.Gleitzeit == false)
+                                    if (buchung.Zeit.CompareTo(new DateTime(buchung.Zeit.Year, buchung.Zeit.Month, buchung.Zeit.Day, Arbeitsbeginn.Hours, Arbeitsbeginn.Minutes, 0)) < 0 && Arbeitsbeginn.Hours != 0)
                                     {
                                         temp = new DateTime(buchung.Zeit.Year, buchung.Zeit.Month, buchung.Zeit.Day, Arbeitsbeginn.Hours, Arbeitsbeginn.Minutes, 0);
                                         Debug.WriteLine("HI");
@@ -71,55 +76,65 @@ namespace TimeChip_App_1._0
                                 case Buchungstyp.Gehen:
                                     if (first || temp.Ticks == 1) { break; }
                                     TimeSpan Arbeitsende = GetArbeitsendeOfDayOfWeek(buchung.Zeit, mitarbeiter);
-                                    if(buchung.Zeit.CompareTo(new DateTime(buchung.Zeit.Year, buchung.Zeit.Month, buchung.Zeit.Day, Arbeitsende.Hours, Arbeitsende.Minutes, 0)) > 0 && mitarbeiter.Arbeitszeitprofil.Gleitzeit == false)
+                                    if(buchung.Zeit.CompareTo(new DateTime(buchung.Zeit.Year, buchung.Zeit.Month, buchung.Zeit.Day, Arbeitsende.Hours, Arbeitsende.Minutes, 0)) > 0 && Arbeitsende.Hours != 0)
                                     {
-                                        Arbeitszeit += new TimeSpan(new TimeSpan(Arbeitsende.Hours, Arbeitsende.Minutes, 0).Ticks - temp.Ticks);
-                                        temp = new DateTime(1);
-                                        break;
+                                        Arbeitszeit += new TimeSpan(new TimeSpan(Arbeitsende.Hours, Arbeitsende.Minutes, 0).Ticks - temp.TimeOfDay.Ticks);
                                     }
-                                    Arbeitszeit += new TimeSpan(buchung.Zeit.Ticks - temp.Ticks);
+                                    else
+                                    {
+                                        Arbeitszeit += new TimeSpan(buchung.Zeit.Ticks - temp.Ticks);
+                                    }
+
                                     Debug.WriteLine("Erste Zeit: " + temp);
                                     Debug.WriteLine("Zweite Zeit: " + buchung.Zeit);
                                     Debug.WriteLine("Durchrechnen Arbeitszeit: " + Arbeitszeit);
                                     temp = new DateTime(1);
                                     break;
                             }
+
                             first = false;
                         }
 
                         Debug.WriteLine("Arbeitszeit vor Pause Abzug: " + Arbeitszeit.ToString());
-                        TimeSpan Überstunden = mitarbeiter.Überstunden;
+                        TimeSpan Überstunden = new TimeSpan(0);
 
-                        switch (Tage[i].DayOfWeek)
+                        //Pausenabzug
+                        bool pauseberechnet = false;
+                        if (GetPauseOfDayOfWeek(Tage[i], mitarbeiter))
                         {
-                            case DayOfWeek.Monday:
-                                Arbeitszeit -= mitarbeiter.Arbeitszeitprofil.Montag.Pausendauer;
-                                Überstunden = Arbeitszeit - mitarbeiter.Arbeitszeitprofil.Montag.Arbeitszeit;
-                                break;
-                            case DayOfWeek.Tuesday:
-                                Arbeitszeit -= mitarbeiter.Arbeitszeitprofil.Dienstag.Pausendauer;
-                                Überstunden = Arbeitszeit - mitarbeiter.Arbeitszeitprofil.Dienstag.Arbeitszeit;
-                                break;
-                            case DayOfWeek.Wednesday:
-                                Arbeitszeit -= mitarbeiter.Arbeitszeitprofil.Mittwoch.Pausendauer;
-                                Überstunden = Arbeitszeit - mitarbeiter.Arbeitszeitprofil.Mittwoch.Arbeitszeit;
-                                break;
-                            case DayOfWeek.Thursday:
-                                Arbeitszeit -= mitarbeiter.Arbeitszeitprofil.Donnerstag.Pausendauer;
-                                Überstunden = Arbeitszeit - mitarbeiter.Arbeitszeitprofil.Donnerstag.Arbeitszeit;
-                                break;
-                            case DayOfWeek.Friday:
-                                Arbeitszeit -= mitarbeiter.Arbeitszeitprofil.Freitag.Pausendauer;
-                                Überstunden = Arbeitszeit - mitarbeiter.Arbeitszeitprofil.Freitag.Arbeitszeit;
-                                break;
-                            case DayOfWeek.Saturday:
-                                Arbeitszeit -= mitarbeiter.Arbeitszeitprofil.Samstag.Pausendauer;
-                                Überstunden = Arbeitszeit - mitarbeiter.Arbeitszeitprofil.Samstag.Arbeitszeit;
-                                break;
-                            case DayOfWeek.Sunday:
-                                Arbeitszeit -= mitarbeiter.Arbeitszeitprofil.Sonntag.Pausendauer;
-                                Überstunden = Arbeitszeit - mitarbeiter.Arbeitszeitprofil.Sonntag.Arbeitszeit;
-                                break;
+                            if (buchungen3.Count != 0)
+                            {
+                                //Erste Buchung liegt vor Pausenbeginn
+                                if (buchungen3[0].Zeit.TimeOfDay.CompareTo(GetPausenbeginnOfDayOfWeek(Tage[i], mitarbeiter)) < 0)
+                                {
+                                    //Letzte Buchung liegt nach Pausenende
+                                    if (buchungen3.LastOrDefault().Zeit.TimeOfDay.CompareTo(GetPausenendeOfDayOfWeek(Tage[i], mitarbeiter)) > 0)
+                                    {
+                                        Arbeitszeit -= GetSollPausendauer(Tage[i], mitarbeiter);
+                                        Überstunden = Arbeitszeit - GetSollArbeitszeit(Tage[i], mitarbeiter);
+
+                                        pauseberechnet = true;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                pauseberechnet = true;
+                            }
+                        }
+                        else
+                        {
+                            pauseberechnet = true;
+                        }
+
+                        if (!pauseberechnet)
+                        {
+                            //Wenn nicht: Zeit, die letze Buchung nach Pausenbeginn liegt, als Pausendauer abziehen
+                            TimeSpan Pausendauer = buchungen3.LastOrDefault().Zeit.TimeOfDay.Subtract(GetPausenbeginnOfDayOfWeek(Tage[i], mitarbeiter));
+                            Debug.WriteLine("Pause bei schleißige Mitarbeiter");
+
+                            Arbeitszeit -= Pausendauer;
+                            Überstunden = Arbeitszeit - GetSollArbeitszeit(Tage[i], mitarbeiter);
                         }
 
                         Debug.WriteLine("Arbeitszeit nach Pause Abzug: " + Arbeitszeit.ToString());
@@ -152,51 +167,6 @@ namespace TimeChip_App_1._0
             }
         }
 
-        private static TimeSpan GetArbeitsbeginnOfDayOfWeek(DateTime date, ClsMitarbeiter mitarbeiter)
-        {
-            switch (date.DayOfWeek)
-            {
-                case DayOfWeek.Monday:
-                    return mitarbeiter.Arbeitszeitprofil.Montag.Arbeitsbeginn;
-                case DayOfWeek.Tuesday:
-                    return mitarbeiter.Arbeitszeitprofil.Dienstag.Arbeitsbeginn;
-                case DayOfWeek.Wednesday:
-                    return mitarbeiter.Arbeitszeitprofil.Mittwoch.Arbeitsbeginn;
-                case DayOfWeek.Thursday:
-                    return mitarbeiter.Arbeitszeitprofil.Donnerstag.Arbeitsbeginn;
-                case DayOfWeek.Friday:
-                    return mitarbeiter.Arbeitszeitprofil.Freitag.Arbeitsbeginn;
-                case DayOfWeek.Saturday:
-                    return mitarbeiter.Arbeitszeitprofil.Samstag.Arbeitsbeginn;
-                case DayOfWeek.Sunday:
-                    return mitarbeiter.Arbeitszeitprofil.Sonntag.Arbeitsbeginn;
-            }
-
-            return new TimeSpan(0);
-        }
-        private static TimeSpan GetArbeitsendeOfDayOfWeek(DateTime date, ClsMitarbeiter mitarbeiter)
-        {
-            switch (date.DayOfWeek)
-            {
-                case DayOfWeek.Monday:
-                    return mitarbeiter.Arbeitszeitprofil.Montag.Arbeitsende;
-                case DayOfWeek.Tuesday:
-                    return mitarbeiter.Arbeitszeitprofil.Dienstag.Arbeitsende;
-                case DayOfWeek.Wednesday:
-                    return mitarbeiter.Arbeitszeitprofil.Mittwoch.Arbeitsende;
-                case DayOfWeek.Thursday:
-                    return mitarbeiter.Arbeitszeitprofil.Donnerstag.Arbeitsende;
-                case DayOfWeek.Friday:
-                    return mitarbeiter.Arbeitszeitprofil.Freitag.Arbeitsende;
-                case DayOfWeek.Saturday:
-                    return mitarbeiter.Arbeitszeitprofil.Samstag.Arbeitsende;
-                case DayOfWeek.Sunday:
-                    return mitarbeiter.Arbeitszeitprofil.Sonntag.Arbeitsende;
-            }
-
-            return new TimeSpan(0);
-        }
-
         public static void Berechnen(DateTime day, ClsMitarbeiter mtbtr)
         {
             List<ClsBuchung> buchungen = DataProvider.SelectAllBuchungenFromDay(mtbtr.Mitarbeiternummer, day);
@@ -214,7 +184,7 @@ namespace TimeChip_App_1._0
                 {
                     case Buchungstyp.Kommen:
                         TimeSpan Arbeitsbeginn = GetArbeitsbeginnOfDayOfWeek(buchung.Zeit, mtbtr);
-                        if (buchung.Zeit.CompareTo(new DateTime(buchung.Zeit.Year, buchung.Zeit.Month, buchung.Zeit.Day, Arbeitsbeginn.Hours, Arbeitsbeginn.Minutes, 0)) < 0 && first && mtbtr.Arbeitszeitprofil.Gleitzeit == false)
+                        if (buchung.Zeit.CompareTo(new DateTime(buchung.Zeit.Year, buchung.Zeit.Month, buchung.Zeit.Day, Arbeitsbeginn.Hours, Arbeitsbeginn.Minutes, 0)) < 0 && Arbeitsbeginn.Hours != 0)
                         {
                             temp = new DateTime(buchung.Zeit.Year, buchung.Zeit.Month, buchung.Zeit.Day, Arbeitsbeginn.Hours, Arbeitsbeginn.Minutes, 0);
                             Debug.WriteLine("HI");
@@ -226,27 +196,66 @@ namespace TimeChip_App_1._0
                     case Buchungstyp.Gehen:
                         if (first || temp.Ticks == 1) { break; }
                         TimeSpan Arbeitsende = GetArbeitsendeOfDayOfWeek(buchung.Zeit, mtbtr);
-                        if (buchung.Zeit.CompareTo(new DateTime(buchung.Zeit.Year, buchung.Zeit.Month, buchung.Zeit.Day, Arbeitsende.Hours, Arbeitsende.Minutes, 0)) > 0 && mtbtr.Arbeitszeitprofil.Gleitzeit == false)
+                        if (buchung.Zeit.CompareTo(new DateTime(buchung.Zeit.Year, buchung.Zeit.Month, buchung.Zeit.Day, Arbeitsende.Hours, Arbeitsende.Minutes, 0)) > 0 && Arbeitsende.Hours != 0)
                         {
-                            Arbeitszeit += new TimeSpan(new TimeSpan(Arbeitsende.Hours, Arbeitsende.Minutes, 0).Ticks - temp.Ticks);
-                            temp = new DateTime(1);
-                            break;
+                            Arbeitszeit += new TimeSpan(new TimeSpan(Arbeitsende.Hours, Arbeitsende.Minutes, 0).Ticks - temp.TimeOfDay.Ticks);
                         }
-                        Arbeitszeit += new TimeSpan(buchung.Zeit.Ticks - temp.Ticks);
+                        else
+                        {
+                            Arbeitszeit += new TimeSpan(buchung.Zeit.Ticks - temp.Ticks);
+                        }
+
                         Debug.WriteLine("Erste Zeit: " + temp);
                         Debug.WriteLine("Zweite Zeit: " + buchung.Zeit);
                         Debug.WriteLine("Durchrechnen Arbeitszeit: " + Arbeitszeit);
                         temp = new DateTime(1);
                         break;
                 }
+
                 first = false;
             }
 
             Debug.WriteLine("Arbeitszeit vor Pause Abzug: " + Arbeitszeit.ToString());
-            TimeSpan Überstunden = mtbtr.Überstunden;
+            TimeSpan Überstunden = new TimeSpan(0);
 
-            Arbeitszeit -= GetSollPausendauer(day, mtbtr);
-            Überstunden = Arbeitszeit - GetSollArbeitszeit(day, mtbtr);
+            //Pausenabzug
+            bool pauseberechnet = false;
+            if (GetPauseOfDayOfWeek(day, mtbtr))
+            {
+                if (buchungen.Count != 0)
+                {
+                    //Erste Buchung liegt vor Pausenbeginn
+                    if (buchungen[0].Zeit.TimeOfDay.CompareTo(GetPausenbeginnOfDayOfWeek(day, mtbtr)) < 0)
+                    {
+                        //Letzte Buchung liegt nach Pausenende
+                        if (buchungen.LastOrDefault().Zeit.TimeOfDay.CompareTo(GetPausenendeOfDayOfWeek(day, mtbtr)) > 0)
+                        {
+                            Arbeitszeit -= GetSollPausendauer(day, mtbtr);
+                            Überstunden = Arbeitszeit - GetSollArbeitszeit(day, mtbtr);
+
+                            pauseberechnet = true;
+                        }
+                    }
+                }
+                else
+                {
+                    pauseberechnet = true;
+                }
+            }
+            else
+            {
+                pauseberechnet = true;
+            }
+
+            if (!pauseberechnet)
+            {
+                //Wenn nicht: Zeit, die letze Buchung nach Pausenbeginn liegt, als Pausendauer abziehen
+                TimeSpan Pausendauer = buchungen.LastOrDefault().Zeit.TimeOfDay.Subtract(GetPausenbeginnOfDayOfWeek(day, mtbtr));
+                Debug.WriteLine("Pause bei schleißige mtbtr");
+
+                Arbeitszeit -= Pausendauer;
+                Überstunden = Arbeitszeit - GetSollArbeitszeit(day, mtbtr);
+            }
 
             Debug.WriteLine("Arbeitszeit nach Pause Abzug: " + Arbeitszeit.ToString());
             Debug.WriteLine("Überstunden: " + Überstunden.ToString());
@@ -261,6 +270,13 @@ namespace TimeChip_App_1._0
         {
             ClsMitarbeiter mitarbeiter = FrmHaupt.Mitarbeiterliste.ToList().Find(x => x.Mitarbeiternummer.Equals(tag.MitarbeiterNummer));
             TimeSpan Überstunden = tag.Arbeitszeit - GetSollArbeitszeit(tag.Date, mitarbeiter);
+            //Status Codes:
+            //0 = Überstunden
+            //1 = Krank
+            //2 = Schule
+            //3 = Urlaub
+
+            //In case 1: Steht nichts, da es immer das Gleiche macht, wie case 2: Deshalb steht dort nicht mal ein break
             switch (alterStatus)
             {
                 case 0:
@@ -276,6 +292,7 @@ namespace TimeChip_App_1._0
                         case 3:
                             //Überstunden wieder hinzufügen und Urlaub einen Tag abziehen
                             mitarbeiter.Urlaub = mitarbeiter.Urlaub.Subtract(new TimeSpan(8, 0, 0));
+                            Debug.WriteLine(mitarbeiter.Urlaub);
                             break;
                     }
                     break;
@@ -301,7 +318,7 @@ namespace TimeChip_App_1._0
                         switch (tag.Status)
                         {
                             case 0:
-                                //Einen Tag Urlaub hinzufügen und += Überstunden (siehe case 1/0)
+                                //Einen Tag Urlaub hinzufügen und += Überstunden
                                 mitarbeiter.Urlaub = mitarbeiter.Urlaub.Add(new TimeSpan(8,0,0));
                                 mitarbeiter.Überstunden += Überstunden;
                                 break;
@@ -320,47 +337,12 @@ namespace TimeChip_App_1._0
             DataProvider.UpdateAusgewerteterTag(tag);
         }
 
-        public static TimeSpan GetSollArbeitszeit(DateTime date, ClsMitarbeiter mitarbeiter)
-        {
-            switch (date.DayOfWeek)
-            {
-                case DayOfWeek.Monday:
-                    return mitarbeiter.Arbeitszeitprofil.Montag.Arbeitszeit;
-                case DayOfWeek.Tuesday:
-                    return mitarbeiter.Arbeitszeitprofil.Dienstag.Arbeitszeit;
-                case DayOfWeek.Wednesday:
-                    return mitarbeiter.Arbeitszeitprofil.Mittwoch.Arbeitszeit;
-                case DayOfWeek.Thursday:
-                    return mitarbeiter.Arbeitszeitprofil.Donnerstag.Arbeitszeit;
-                case DayOfWeek.Friday:
-                    return mitarbeiter.Arbeitszeitprofil.Freitag.Arbeitszeit;
-                case DayOfWeek.Saturday:
-                    return mitarbeiter.Arbeitszeitprofil.Samstag.Arbeitszeit;
-                default:
-                    return mitarbeiter.Arbeitszeitprofil.Sonntag.Arbeitszeit;
-            }
-        }
-        private static TimeSpan GetSollPausendauer(DateTime date, ClsMitarbeiter mitarbeiter)
-        {
-            switch (date.DayOfWeek)
-            {
-                case DayOfWeek.Monday:
-                    return mitarbeiter.Arbeitszeitprofil.Montag.Pausendauer;
-                case DayOfWeek.Tuesday:
-                    return mitarbeiter.Arbeitszeitprofil.Dienstag.Pausendauer;
-                case DayOfWeek.Wednesday:
-                    return mitarbeiter.Arbeitszeitprofil.Mittwoch.Pausendauer;
-                case DayOfWeek.Thursday:
-                    return mitarbeiter.Arbeitszeitprofil.Donnerstag.Pausendauer;
-                case DayOfWeek.Friday:
-                    return mitarbeiter.Arbeitszeitprofil.Freitag.Pausendauer;
-                case DayOfWeek.Saturday:
-                    return mitarbeiter.Arbeitszeitprofil.Samstag.Pausendauer;
-                default:
-                    return mitarbeiter.Arbeitszeitprofil.Sonntag.Pausendauer;
-            }
-        }
 
+
+        /// <summary>
+        /// Berechnet bei Bedarf den jährlichen Urlaub eines Mitarbeiters
+        /// Wird nicht verwendet, da die Urlaubsberechnung nicht allgemeingültig ist und daher von Hand vollzogen wird
+        /// </summary>
         public static void Urlaubsberechnung()
         {
             List<ClsMitarbeiter> mitarbeiters = DataProvider.SelectAllMitarbeiter();
@@ -374,17 +356,21 @@ namespace TimeChip_App_1._0
 
                 if(IDIndex == -1)
                 {
-                    mitarbeiter.Urlaub += new TimeSpan(mitarbeiter.Arbeitszeitprofil.Urlaub * 8, 0, 0);
-                    dates.Add(new DateTime(DateTime.Now.Year + 1, DateTime.Now.Month, DateTime.Now.Day));
+                    //mitarbeiter.Urlaub += new TimeSpan(mitarbeiter.Arbeitszeitprofil.Urlaub * 8, 0, 0);
+                    dates.Add(new DateTime(DateTime.Now.Year + 1, mitarbeiter.Arbeitsbeginn.Month, mitarbeiter.Arbeitsbeginn.Day));
                     MitarbeiterIDs.Add(mitarbeiter.ID);
                 }
-                DateTime CompareDate = dates[IDIndex];
-                
-                if(CompareDate.CompareTo(DateTime.Now) < 0)
+                else
                 {
-                    mitarbeiter.Urlaub += new TimeSpan(mitarbeiter.Arbeitszeitprofil.Urlaub * 8, 0, 0);
-                    int year = DateTime.Now.Year + 1;
-                    dates[IDIndex] = new DateTime(year, dates[IDIndex].Month, dates[IDIndex].Day);
+                    DateTime CompareDate = dates[IDIndex];
+
+                    if (CompareDate.CompareTo(DateTime.Now) < 0)
+                    {
+                        //mitarbeiter.Urlaub += new TimeSpan(mitarbeiter.Arbeitszeitprofil.Urlaub * 8, 0, 0);
+                        int year = DateTime.Now.Year + 1;
+                        dates[IDIndex] = new DateTime(year, dates[IDIndex].Month, dates[IDIndex].Day);
+                    }
+
                 }
             }
 
@@ -412,6 +398,161 @@ namespace TimeChip_App_1._0
             }
 
             DataProvider.WriteDateToCSV(strings);
+        }
+
+        public static TimeSpan GetSollArbeitszeit(DateTime date, ClsMitarbeiter mitarbeiter)
+        {
+            switch (date.DayOfWeek)
+            {
+                case DayOfWeek.Monday:
+                    return mitarbeiter.Arbeitszeitprofil.Montag.Arbeitszeit;
+                case DayOfWeek.Tuesday:
+                    return mitarbeiter.Arbeitszeitprofil.Dienstag.Arbeitszeit;
+                case DayOfWeek.Wednesday:
+                    return mitarbeiter.Arbeitszeitprofil.Mittwoch.Arbeitszeit;
+                case DayOfWeek.Thursday:
+                    return mitarbeiter.Arbeitszeitprofil.Donnerstag.Arbeitszeit;
+                case DayOfWeek.Friday:
+                    return mitarbeiter.Arbeitszeitprofil.Freitag.Arbeitszeit;
+                case DayOfWeek.Saturday:
+                    return mitarbeiter.Arbeitszeitprofil.Samstag.Arbeitszeit;
+                case DayOfWeek.Sunday:
+                    return mitarbeiter.Arbeitszeitprofil.Sonntag.Arbeitszeit;
+                default:
+                    return new TimeSpan(0);
+            }
+        }
+        private static TimeSpan GetSollPausendauer(DateTime date, ClsMitarbeiter mitarbeiter)
+        {
+            switch (date.DayOfWeek)
+            {
+                case DayOfWeek.Monday:
+                    return mitarbeiter.Arbeitszeitprofil.Montag.Pausendauer;
+                case DayOfWeek.Tuesday:
+                    return mitarbeiter.Arbeitszeitprofil.Dienstag.Pausendauer;
+                case DayOfWeek.Wednesday:
+                    return mitarbeiter.Arbeitszeitprofil.Mittwoch.Pausendauer;
+                case DayOfWeek.Thursday:
+                    return mitarbeiter.Arbeitszeitprofil.Donnerstag.Pausendauer;
+                case DayOfWeek.Friday:
+                    return mitarbeiter.Arbeitszeitprofil.Freitag.Pausendauer;
+                case DayOfWeek.Saturday:
+                    return mitarbeiter.Arbeitszeitprofil.Samstag.Pausendauer;
+                case DayOfWeek.Sunday:
+                    return mitarbeiter.Arbeitszeitprofil.Sonntag.Pausendauer;
+                default:
+                    return new TimeSpan(0);
+            }
+        }
+        private static TimeSpan GetPausenbeginnOfDayOfWeek(DateTime date, ClsMitarbeiter mitarbeiter)
+        {
+            switch (date.DayOfWeek)
+            {
+                case DayOfWeek.Monday:
+                    return mitarbeiter.Arbeitszeitprofil.Montag.Pausenbeginn;
+                case DayOfWeek.Tuesday:
+                    return mitarbeiter.Arbeitszeitprofil.Dienstag.Pausenbeginn;
+                case DayOfWeek.Wednesday:
+                    return mitarbeiter.Arbeitszeitprofil.Mittwoch.Pausenbeginn;
+                case DayOfWeek.Thursday:
+                    return mitarbeiter.Arbeitszeitprofil.Donnerstag.Pausenbeginn;
+                case DayOfWeek.Friday:
+                    return mitarbeiter.Arbeitszeitprofil.Freitag.Pausenbeginn;
+                case DayOfWeek.Saturday:
+                    return mitarbeiter.Arbeitszeitprofil.Samstag.Pausenbeginn;
+                case DayOfWeek.Sunday:
+                    return mitarbeiter.Arbeitszeitprofil.Sonntag.Pausenbeginn;
+                default:
+                    return new TimeSpan(0);
+            }
+        }
+        private static TimeSpan GetPausenendeOfDayOfWeek(DateTime date, ClsMitarbeiter mitarbeiter)
+        {
+            switch (date.DayOfWeek)
+            {
+                case DayOfWeek.Monday:
+                    return mitarbeiter.Arbeitszeitprofil.Montag.Pausenende;
+                case DayOfWeek.Tuesday:
+                    return mitarbeiter.Arbeitszeitprofil.Dienstag.Pausenende;
+                case DayOfWeek.Wednesday:
+                    return mitarbeiter.Arbeitszeitprofil.Mittwoch.Pausenende;
+                case DayOfWeek.Thursday:
+                    return mitarbeiter.Arbeitszeitprofil.Donnerstag.Pausenende;
+                case DayOfWeek.Friday:
+                    return mitarbeiter.Arbeitszeitprofil.Freitag.Pausenende;
+                case DayOfWeek.Saturday:
+                    return mitarbeiter.Arbeitszeitprofil.Samstag.Pausenende;
+                case DayOfWeek.Sunday:
+                    return mitarbeiter.Arbeitszeitprofil.Sonntag.Pausenende;
+                default:
+                    return new TimeSpan(0);
+            }
+        }
+        private static TimeSpan GetArbeitsbeginnOfDayOfWeek(DateTime date, ClsMitarbeiter mitarbeiter)
+        {
+            switch (date.DayOfWeek)
+            {
+                case DayOfWeek.Monday:
+                    return mitarbeiter.Arbeitszeitprofil.Montag.Arbeitsbeginn;
+                case DayOfWeek.Tuesday:
+                    return mitarbeiter.Arbeitszeitprofil.Dienstag.Arbeitsbeginn;
+                case DayOfWeek.Wednesday:
+                    return mitarbeiter.Arbeitszeitprofil.Mittwoch.Arbeitsbeginn;
+                case DayOfWeek.Thursday:
+                    return mitarbeiter.Arbeitszeitprofil.Donnerstag.Arbeitsbeginn;
+                case DayOfWeek.Friday:
+                    return mitarbeiter.Arbeitszeitprofil.Freitag.Arbeitsbeginn;
+                case DayOfWeek.Saturday:
+                    return mitarbeiter.Arbeitszeitprofil.Samstag.Arbeitsbeginn;
+                case DayOfWeek.Sunday:
+                    return mitarbeiter.Arbeitszeitprofil.Sonntag.Arbeitsbeginn;
+                default:
+                    return new TimeSpan(0);
+            }
+        }
+        private static TimeSpan GetArbeitsendeOfDayOfWeek(DateTime date, ClsMitarbeiter mitarbeiter)
+        {
+            switch (date.DayOfWeek)
+            {
+                case DayOfWeek.Monday:
+                    return mitarbeiter.Arbeitszeitprofil.Montag.Arbeitsende;
+                case DayOfWeek.Tuesday:
+                    return mitarbeiter.Arbeitszeitprofil.Dienstag.Arbeitsende;
+                case DayOfWeek.Wednesday:
+                    return mitarbeiter.Arbeitszeitprofil.Mittwoch.Arbeitsende;
+                case DayOfWeek.Thursday:
+                    return mitarbeiter.Arbeitszeitprofil.Donnerstag.Arbeitsende;
+                case DayOfWeek.Friday:
+                    return mitarbeiter.Arbeitszeitprofil.Freitag.Arbeitsende;
+                case DayOfWeek.Saturday:
+                    return mitarbeiter.Arbeitszeitprofil.Samstag.Arbeitsende;
+                case DayOfWeek.Sunday:
+                    return mitarbeiter.Arbeitszeitprofil.Sonntag.Arbeitsende;
+                default:
+                    return new TimeSpan(0);
+            }
+        }
+        private static bool GetPauseOfDayOfWeek(DateTime date, ClsMitarbeiter mitarbeiter)
+        {
+            switch (date.DayOfWeek)
+            {
+                case DayOfWeek.Monday:
+                    return mitarbeiter.Arbeitszeitprofil.Montag.Pause;
+                case DayOfWeek.Tuesday:
+                    return mitarbeiter.Arbeitszeitprofil.Dienstag.Pause;
+                case DayOfWeek.Wednesday:
+                    return mitarbeiter.Arbeitszeitprofil.Mittwoch.Pause;
+                case DayOfWeek.Thursday:
+                    return mitarbeiter.Arbeitszeitprofil.Donnerstag.Pause;
+                case DayOfWeek.Friday:
+                    return mitarbeiter.Arbeitszeitprofil.Freitag.Pause;
+                case DayOfWeek.Saturday:
+                    return mitarbeiter.Arbeitszeitprofil.Samstag.Pause;
+                case DayOfWeek.Sunday:
+                    return mitarbeiter.Arbeitszeitprofil.Sonntag.Pause;
+                default:
+                    return false;
+            }
         }
     }
 }

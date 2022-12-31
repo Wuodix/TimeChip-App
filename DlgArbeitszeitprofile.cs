@@ -48,7 +48,6 @@ namespace TimeChip_App_1._0
             m_cmbxFreitag.SelectedItem = DlgTag.Tagesliste[DlgTag.Tagesliste.IndexOf(Auswählen.Freitag)];
             m_cmbxSamstag.SelectedItem = DlgTag.Tagesliste[DlgTag.Tagesliste.IndexOf(Auswählen.Samstag)];
             m_cmbxSonntag.SelectedItem = DlgTag.Tagesliste[DlgTag.Tagesliste.IndexOf(Auswählen.Sonntag)];
-            m_tbxUrlaub.Text = Auswählen.Urlaub.ToString();
             m_cbGleitzeit.Checked = Auswählen.Gleitzeit;
         }
 
@@ -64,14 +63,6 @@ namespace TimeChip_App_1._0
             Aktualisieren.Freitag = m_cmbxFreitag.SelectedItem as ClsTag;
             Aktualisieren.Samstag = m_cmbxSamstag.SelectedItem as ClsTag;
             Aktualisieren.Sonntag = m_cmbxSonntag.SelectedItem as ClsTag;
-            try
-            {
-                Aktualisieren.Urlaub = Convert.ToInt32(m_tbxUrlaub.Text);
-            }
-            catch
-            {
-                MessageBox.Show("Bitte Urlaub als Zahl eingeben");
-            }
             Aktualisieren.Gleitzeit = m_cbGleitzeit.Checked;
 
             DataProvider.UpdateArbeitszeitprofil(Aktualisieren);
@@ -101,7 +92,7 @@ namespace TimeChip_App_1._0
                 DataProvider.InsertArbeitszeitprofil(m_tbxName.Text, m_cmbxMontag.SelectedItem as ClsTag,
                     m_cmbxDienstag.SelectedItem as ClsTag, m_cmbxMittwoch.SelectedItem as ClsTag,
                     m_cmbxDonnerstag.SelectedItem as ClsTag, m_cmbxFreitag.SelectedItem as ClsTag,
-                    m_cmbxSamstag.SelectedItem as ClsTag, m_cmbxSonntag.SelectedItem as ClsTag, Urlaub, m_cbGleitzeit.Checked);
+                    m_cmbxSamstag.SelectedItem as ClsTag, m_cmbxSonntag.SelectedItem as ClsTag, m_cbGleitzeit.Checked);
                 UpdateAbzpList();
             }
             catch

@@ -29,7 +29,6 @@ namespace TimeChip_App_1._0
             UpdateLbxBuchungen();
 
             ClsBerechnung.Berechnen();
-            ClsBerechnung.Urlaubsberechnung();
 
             UpdateDataView();
             UpdateCldKalender();
@@ -48,7 +47,7 @@ namespace TimeChip_App_1._0
             neu.Bearbeiten = false;
             if (neu.ShowDialog() == DialogResult.OK)
             {
-                DataProvider.InsertMitarbeiter(neu.Mitarbeiternummer,neu.Vorname, neu.Nachname, neu.Arbeitsbeginn, new TimeSpan(0), neu.Arbeitzeitprofil, new TimeSpan(0));
+                DataProvider.InsertMitarbeiter(neu.Mitarbeiternummer,neu.Vorname, neu.Nachname, neu.Arbeitsbeginn, new TimeSpan(0), neu.Arbeitzeitprofil, neu.GetUrlaub());
                 UpdateMtbtrList();
                 UpdateLbxBuchungen();
             }
@@ -76,6 +75,7 @@ namespace TimeChip_App_1._0
             Bearbeiten.Arbeitsbeginn = zubearbeitender.Arbeitsbeginn;
             Bearbeiten.Bearbeiten = true;
             Bearbeiten.Mitarbeiternummer = zubearbeitender.Mitarbeiternummer;
+            Bearbeiten.SetUrlaub(zubearbeitender.Urlaub);
 
             List<ClsArbeitsprofil> clsArbeitsprofils = DlgArbeitszeitprofile.ArbeitsprofilListe.ToList();
             ClsArbeitsprofil arbeitsprofil = clsArbeitsprofils.FindLast(x => x.ID.Equals(zubearbeitender.Arbeitszeitprofil.ID));
@@ -88,6 +88,7 @@ namespace TimeChip_App_1._0
                 zubearbeitender.Arbeitsbeginn = Bearbeiten.Arbeitsbeginn;
                 zubearbeitender.Arbeitszeitprofil = Bearbeiten.Arbeitzeitprofil;
                 zubearbeitender.Mitarbeiternummer = Bearbeiten.Mitarbeiternummer;
+                zubearbeitender.Urlaub = Bearbeiten.GetUrlaub();
 
                 DataProvider.UpdateMitarbeiter(zubearbeitender);
                 m_mitarbeiterliste.ResetBindings();
@@ -96,12 +97,15 @@ namespace TimeChip_App_1._0
 
         private void m_btnLöschen_Click(object sender, EventArgs e)
         {
-            DataProvider.DeleteMitarbeiter(m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter);
-            UpdateMtbtrList();
-            UpdateLbxBuchungen();
+            if(MessageBox.Show("Wollen Sie wirklich den Mitarbeiter inklusive aller aufgezeichneten Daten löschen?", "Achtung", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                DataProvider.DeleteMitarbeiter(m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter);
+                UpdateMtbtrList();
+                UpdateLbxBuchungen();
+            }
         }
 
-        private void m_btnarbeitsprofil_Click(object sender, EventArgs e)
+        private void m_btnarbeitszeitprofil_Click(object sender, EventArgs e)
         {
             DlgArbeitszeitprofile arbeitszeitprofile = new DlgArbeitszeitprofile();
             arbeitszeitprofile.ShowDialog();
@@ -198,11 +202,13 @@ namespace TimeChip_App_1._0
 
         private void m_btnBuchungLöschen_Click(object sender, EventArgs e)
         {
-            ClsBuchung buchung = m_lbxBuchungen.SelectedItem as ClsBuchung;
-            DataProvider.DeleteBuchung(buchung, "buchungen");
+            if(MessageBox.Show("Wollen Sie wirklich diese Buchung löschen?", "Achtung", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) == DialogResult.Yes){
+                ClsBuchung buchung = m_lbxBuchungen.SelectedItem as ClsBuchung;
+                DataProvider.DeleteBuchung(buchung, "buchungen");
 
-            ClsBerechnung.Berechnen(buchung.Zeit, m_mitarbeiterliste.ToList().Find(x => x.Mitarbeiternummer.Equals(buchung.Mitarbeiternummer)));
-            UpdateLbxBuchungen();
+                ClsBerechnung.Berechnen(buchung.Zeit, m_mitarbeiterliste.ToList().Find(x => x.Mitarbeiternummer.Equals(buchung.Mitarbeiternummer)));
+                UpdateLbxBuchungen();
+            }
         }
 
         private void UpdateCldKalender()
@@ -210,65 +216,26 @@ namespace TimeChip_App_1._0
             List<DateTime> BoldedDates = new List<DateTime>();
 
             //Statt Select last ausgewerteter Tag, muss ein Tag des ausgewählten Monats selected werden
-            ClsAusgewerteter_Tag tag = DataProvider.SelectLastAusgewerteterTag();
+            DateTime ausgewählter_tag = m_cldKalender.SelectionStart;
+            ClsMitarbeiter mitarbeiter = m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter;
 
-            for (int i = 1; i<=DateTime.DaysInMonth(m_cldKalender.SelectionStart.Year, m_cldKalender.SelectionStart.Month); i++)
+            for (int i = 1; i<=DateTime.DaysInMonth(ausgewählter_tag.Year, ausgewählter_tag.Month); i++)
             {
-                if(tag.Date.CompareTo(new DateTime(m_cldKalender.SelectionStart.Year, m_cldKalender.SelectionStart.Month, i)) > 0)
+                DateTime tag = new DateTime(ausgewählter_tag.Year, ausgewählter_tag.Month, i);
+                if(tag.CompareTo(DateTime.Now) < 0 && tag.CompareTo(mitarbeiter.Arbeitsbeginn) > 0)
                 {
-                    ClsAusgewerteter_Tag tag1 = DataProvider.SelectAusgewerteterTag(new DateTime(m_cldKalender.SelectionStart.Year, m_cldKalender.SelectionStart.Month, i), (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Mitarbeiternummer);
+                    ClsAusgewerteter_Tag tag1 = DataProvider.SelectAusgewerteterTag(tag, mitarbeiter.Mitarbeiternummer);
 
                     if(tag1 != null)
                     {
-                        switch (new DateTime(m_cldKalender.SelectionStart.Year, m_cldKalender.SelectionStart.Month, i).DayOfWeek)
+                        if(tag1.Arbeitszeit.Ticks < ClsBerechnung.GetSollArbeitszeit(tag, mitarbeiter).Ticks)
                         {
-                            case DayOfWeek.Monday:
-                                if (tag1.Arbeitszeit.Ticks <= (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Arbeitszeitprofil.Montag.Arbeitszeit.Ticks)
-                                {
-                                    BoldedDates.Add(new DateTime(m_cldKalender.SelectionStart.Year, m_cldKalender.SelectionStart.Month, i));
-                                }
-                                break;
-                            case DayOfWeek.Tuesday:
-                                if (tag1.Arbeitszeit.Ticks <= (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Arbeitszeitprofil.Dienstag.Arbeitszeit.Ticks)
-                                {
-                                    BoldedDates.Add(new DateTime(m_cldKalender.SelectionStart.Year, m_cldKalender.SelectionStart.Month, i));
-                                }
-                                break;
-                            case DayOfWeek.Wednesday:
-                                if (tag1.Arbeitszeit.Ticks <= (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Arbeitszeitprofil.Mittwoch.Arbeitszeit.Ticks)
-                                {
-                                    BoldedDates.Add(new DateTime(m_cldKalender.SelectionStart.Year, m_cldKalender.SelectionStart.Month, i));
-                                }
-                                break;
-                            case DayOfWeek.Thursday:
-                                if (tag1.Arbeitszeit.Ticks <= (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Arbeitszeitprofil.Donnerstag.Arbeitszeit.Ticks)
-                                {
-                                    BoldedDates.Add(new DateTime(m_cldKalender.SelectionStart.Year, m_cldKalender.SelectionStart.Month, i));
-                                }
-                                break;
-                            case DayOfWeek.Friday:
-                                if (tag1.Arbeitszeit.Ticks <= (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Arbeitszeitprofil.Freitag.Arbeitszeit.Ticks)
-                                {
-                                    BoldedDates.Add(new DateTime(m_cldKalender.SelectionStart.Year, m_cldKalender.SelectionStart.Month, i));
-                                }
-                                break;
-                            case DayOfWeek.Saturday:
-                                if (tag1.Arbeitszeit.Ticks <= (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Arbeitszeitprofil.Samstag.Arbeitszeit.Ticks)
-                                {
-                                    BoldedDates.Add(new DateTime(m_cldKalender.SelectionStart.Year, m_cldKalender.SelectionStart.Month, i));
-                                }
-                                break;
-                            case DayOfWeek.Sunday:
-                                if (tag1.Arbeitszeit.Ticks <= (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Arbeitszeitprofil.Sonntag.Arbeitszeit.Ticks)
-                                {
-                                    BoldedDates.Add(new DateTime(m_cldKalender.SelectionStart.Year, m_cldKalender.SelectionStart.Month, i));
-                                }
-                                break;
+                            BoldedDates.Add(tag);
                         }
                     }
                     else
                     {
-                        BoldedDates.Add(new DateTime(m_cldKalender.SelectionStart.Year, m_cldKalender.SelectionStart.Month, i));
+                        BoldedDates.Add(tag);
                     }
                 }
             }
@@ -282,15 +249,22 @@ namespace TimeChip_App_1._0
                 DateTime SelectedDay = m_cldKalender.SelectionStart;
                 ClsMitarbeiter mitarbeiter = m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter;
 
-                m_lblUrlaub.Text = mitarbeiter.Urlaub.ToString(@"hh\:mm");
+                string urlaub = mitarbeiter.Urlaub.TotalHours.ToString() + ":00";
+                if (mitarbeiter.Urlaub.Hours < 0)
+                    urlaub = "-" + urlaub;
+                Debug.WriteLine(urlaub);
+
+                m_lblUrlaub.Text = urlaub;
                 m_lblÜberstunden.Text = mitarbeiter.Überstunden.ToString();
 
                 m_lblSoll.Text = ClsBerechnung.GetSollArbeitszeit(SelectedDay, mitarbeiter).ToString(@"hh\:mm");
 
                 ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(SelectedDay, mitarbeiter.Mitarbeiternummer);
-
+                
                 if(tag != null)
                 {
+                    Debug.WriteLine(tag.ID);
+                    Debug.WriteLine(tag.Status);
                     m_lblIst.Text = tag.Arbeitszeit.ToString(@"hh\:mm");
                     switch (tag.Status)
                     {

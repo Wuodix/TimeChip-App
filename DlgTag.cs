@@ -14,14 +14,11 @@ namespace TimeChip_App_1._0
     public partial class DlgTag : Form
     {
         static BindingList<ClsTag> m_tagesliste = new BindingList<ClsTag>();
-        private bool m_fehler;
         public DlgTag()
         {
             InitializeComponent();
 
             m_lbxTage.DataSource = m_tagesliste;
-
-            m_fehler = false;
 
             UpdateTagesListe();
         }
@@ -31,12 +28,13 @@ namespace TimeChip_App_1._0
         private void m_btnNeu_Click(object sender, EventArgs e)
         {
             m_tbxName.Text = "";
-            m_tbxArbeitsbeginn.Text = "";
-            m_tbxArbeitsende.Text = "";
-            m_tbxPausenbeginn.Text = "";
-            m_tbxPausenende.Text = "";
-            m_tbxArbeitszeit.Text = "";
-            m_tbxPausendauer.Text = "";
+            m_dtpArbeitsbeginn.Value = DateTime.Today;
+            m_dtpArbeitsende.Value = DateTime.Today;
+            m_dtpPausenbeginn.Value = DateTime.Today;
+            m_dtpPausenende.Value = DateTime.Today;
+            m_dtpArbeitszeit.Value = DateTime.Today;
+            m_dtpPausendauer.Value = DateTime.Today;
+            m_cbPause.Checked = false;
         }
 
         private void m_btnLöschen_Click(object sender, EventArgs e)
@@ -47,20 +45,15 @@ namespace TimeChip_App_1._0
 
         private void m_btnErstellen_Click(object sender, EventArgs e)
         {
-            TimeSpan arbeitsbeginn = StringToTimeSpan(m_tbxArbeitsbeginn.Text);
-            TimeSpan arbeitsende = StringToTimeSpan(m_tbxArbeitsende.Text);
-            TimeSpan pausenbeginn = StringToTimeSpan(m_tbxPausenbeginn.Text);
-            TimeSpan pausenende = StringToTimeSpan(m_tbxPausenende.Text);
-            TimeSpan arbeitszeit = StringToTimeSpan(m_tbxArbeitszeit.Text);
-            TimeSpan pausendauer = StringToTimeSpan(m_tbxPausendauer.Text);
+            TimeSpan arbeitsbeginn = m_dtpArbeitsbeginn.Value.TimeOfDay;
+            TimeSpan arbeitsende = m_dtpArbeitsende.Value.TimeOfDay;
+            TimeSpan pausenbeginn = m_dtpPausenbeginn.Value.TimeOfDay;
+            TimeSpan pausenende = m_dtpPausenende.Value.TimeOfDay;
+            TimeSpan arbeitszeit = m_dtpArbeitszeit.Value.TimeOfDay;
+            TimeSpan pausendauer = m_dtpPausendauer.Value.TimeOfDay;
 
-            if (m_fehler == false)
-            {
-                DataProvider.InsertTag(m_tbxName.Text, arbeitsbeginn, arbeitsende, arbeitszeit, pausenbeginn, pausenende, pausendauer);
-                UpdateTagesListe();
-            }
-            else { m_fehler = false; }
-            
+            DataProvider.InsertTag(m_tbxName.Text, arbeitsbeginn, arbeitsende, arbeitszeit, pausenbeginn, pausenende, pausendauer, m_cbPause.Checked);
+            UpdateTagesListe();
         }
 
         private void m_btnAuswählen_Click(object sender, EventArgs e)
@@ -68,12 +61,13 @@ namespace TimeChip_App_1._0
             ClsTag Auswählen = m_lbxTage.SelectedItem as ClsTag;
 
             m_tbxName.Text = Auswählen.Name;
-            m_tbxArbeitsbeginn.Text = Auswählen.Arbeitsbeginn.ToString(@"hh\:mm");
-            m_tbxArbeitsende.Text = Auswählen.Arbeitsende.ToString(@"hh\:mm");
-            m_tbxPausenbeginn.Text = Auswählen.Pausenbeginn.ToString(@"hh\:mm");
-            m_tbxPausenende.Text = Auswählen.Pausenende.ToString(@"hh\:mm");
-            m_tbxArbeitszeit.Text = Auswählen.Arbeitszeit.ToString(@"hh\:mm");
-            m_tbxPausendauer.Text = Auswählen.Pausendauer.ToString(@"hh\:mm");
+            m_dtpArbeitsbeginn.Value = DateTime.Today.Add(Auswählen.Arbeitsbeginn);
+            m_dtpArbeitsende.Value = DateTime.Today.Add(Auswählen.Arbeitsende);
+            m_dtpPausenbeginn.Value = DateTime.Today.Add(Auswählen.Pausenbeginn);
+            m_dtpPausenende.Value = DateTime.Today.Add(Auswählen.Pausenende);
+            m_dtpArbeitszeit.Value = DateTime.Today.Add(Auswählen.Arbeitszeit);
+            m_dtpPausendauer.Value = DateTime.Today.Add(Auswählen.Pausendauer);
+            m_cbPause.Checked = Auswählen.Pause;
 
         }
 
@@ -82,42 +76,19 @@ namespace TimeChip_App_1._0
             ClsTag Aktualisieren = m_lbxTage.SelectedItem as ClsTag;
 
             Aktualisieren.Name = m_tbxName.Text;
-            Aktualisieren.Arbeitsbeginn = StringToTimeSpan(m_tbxArbeitsbeginn.Text);
-            Aktualisieren.Arbeitsende = StringToTimeSpan(m_tbxArbeitsende.Text);
-            Aktualisieren.Pausenbeginn = StringToTimeSpan(m_tbxPausenbeginn.Text);
-            Aktualisieren.Pausenende = StringToTimeSpan(m_tbxPausenende.Text);
-            Aktualisieren.Arbeitszeit = StringToTimeSpan(m_tbxArbeitszeit.Text);
-            Aktualisieren.Pausendauer = StringToTimeSpan(m_tbxPausendauer.Text);
+            Aktualisieren.Arbeitsbeginn = m_dtpArbeitsbeginn.Value.TimeOfDay;
+            Aktualisieren.Arbeitsende = m_dtpArbeitsende.Value.TimeOfDay;
+            Aktualisieren.Pausenbeginn = m_dtpPausenbeginn.Value.TimeOfDay;
+            Aktualisieren.Pausenende = m_dtpPausenende.Value.TimeOfDay;
+            Aktualisieren.Arbeitszeit = m_dtpArbeitszeit.Value.TimeOfDay;
+            Aktualisieren.Pausendauer = m_dtpPausendauer.Value.TimeOfDay;
+            Aktualisieren.Pause = m_cbPause.Checked;
 
-            Debug.WriteLine(Aktualisieren.Arbeitsbeginn.Ticks);
+            DataProvider.UpdateTag(Aktualisieren);
 
-            if(m_fehler == false)
-            {
-                DataProvider.UpdateTag(Aktualisieren);
-
-                m_tagesliste.ResetBindings();
-            }
-            else { m_fehler = false; }
+            m_tagesliste.ResetBindings();
         }
 
-        private TimeSpan StringToTimeSpan(string str)
-        {
-            TimeSpan temp = new TimeSpan();
-            try
-            {
-                string[] strarr = str.Split(':');
-                temp = new TimeSpan(Convert.ToInt32(strarr[0]), Convert.ToInt32(strarr[1]), 0);
-            }
-            catch
-            {
-                if(m_fehler == false)
-                {
-                    MessageBox.Show("Bitte die Uhrzeiten im Format HH:MM eingeben!");
-                    m_fehler = true;
-                }
-            }
-            return temp;
-        }
         private void UpdateTagesListe()
         {
             m_tagesliste.Clear();

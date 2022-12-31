@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TimeChip_App_1._0
 {
-    internal class ClsFingerprintRFID
+    public class ClsFingerprintRFID
     {
         private string m_RFIDUID;
         private int m_FingerprintID, m_ID;

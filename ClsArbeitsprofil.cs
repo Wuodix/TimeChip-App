@@ -10,11 +10,11 @@ namespace TimeChip_App_1._0
     public class ClsArbeitsprofil
     {
         private bool m_gleitzeit;
-        private int m_urlaub, m_ID;
+        private int m_ID;
         private ClsTag m_montag, m_dienstag, m_mittwoch, m_donnerstag, m_freitag, m_samstag, m_sonntag;
         private string m_name;
 
-        public ClsArbeitsprofil(int ID, string Name, ClsTag Montag, ClsTag Dienstag, ClsTag Mittwoch, ClsTag Donnerstag, ClsTag Freitag, ClsTag Samstag, ClsTag Sonntag, int Urlaub, bool Gleitzeit)
+        public ClsArbeitsprofil(int ID, string Name, ClsTag Montag, ClsTag Dienstag, ClsTag Mittwoch, ClsTag Donnerstag, ClsTag Freitag, ClsTag Samstag, ClsTag Sonntag, bool Gleitzeit)
         {
             m_name = Name;
             m_montag = Montag;
@@ -24,14 +24,12 @@ namespace TimeChip_App_1._0
             m_freitag = Freitag;
             m_samstag = Samstag;
             m_sonntag = Sonntag;
-            m_urlaub = Urlaub;
             m_gleitzeit = Gleitzeit;
             m_ID = ID;
         }
 
         public string Name { get { return m_name; } set { m_name = value; } }
         public bool Gleitzeit { get { return m_gleitzeit; } set { m_gleitzeit = value; } }
-        public int Urlaub { get { return m_urlaub; } set { m_urlaub = value; } }
         public ClsTag Montag { get { return m_montag; } set { m_montag = value; } }
         public ClsTag Dienstag { get { return m_dienstag; } set { m_dienstag = value; } }
         public ClsTag Mittwoch { get { return m_mittwoch; } set { m_mittwoch = value; } }

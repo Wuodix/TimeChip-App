@@ -12,7 +12,7 @@ namespace TimeChip_App_1._0
         Gehen
     }
 
-    class ClsBuchung
+    public class ClsBuchung
     {
         private int m_buchungsnummer, m_mitarbeiternummer;
         private DateTime m_zeit;
