@@ -29,7 +29,10 @@ namespace TimeChip_App_1._0
 
             ExecuteNonQuery(cmd);
 
-            return new ClsBuchung(SelectAllBuchungenFromDay(mitarbeiternr, zeit).Last().Buchungsnummer, mitarbeiternr, zeit, buchungstyp);
+            List<ClsMitarbeiter> mtbtrs = SelectAllMitarbeiter();
+            ClsMitarbeiter mtbtr = mtbtrs.Find(x => x.Mitarbeiternummer.Equals(mitarbeiternr));
+
+            return new ClsBuchung(SelectAllBuchungenFromDay(mtbtr, zeit, "buchungen").Last().Buchungsnummer, mitarbeiternr, zeit, buchungstyp);
         }
         public static ClsTag InsertTag(string name, TimeSpan arbeitsbeginn, TimeSpan arbeitsende, TimeSpan arbeitszeit, TimeSpan pausenbeginn, TimeSpan pausenende, TimeSpan pausendauer, bool pause)
         {
@@ -104,7 +107,8 @@ namespace TimeChip_App_1._0
         }
         public static ClsAusgewerteter_Tag InsertAusgewerteterTag(DateTime date, int Mitarbeiternummer, TimeSpan Arbeitszeit, int Status)
         {
-            if(SelectAusgewerteterTag(date,Mitarbeiternummer) == null)
+            ClsAusgewerteter_Tag ausgTag = SelectAusgewerteterTag(date, Mitarbeiternummer);
+            if (ausgTag == null)
             {
                 string query = "INSERT INTO ausgewertete_tage (Datum, Mitarbeiternummer, Arbeitszeit, Status) VALUES (@date, @mtbtrnr, @abzeit, @status)";
 
@@ -118,7 +122,7 @@ namespace TimeChip_App_1._0
             }
             else
             {
-                UpdateAusgewerteterTag(date, Mitarbeiternummer, Arbeitszeit, Status);
+                UpdateAusgewerteterTag(date, Mitarbeiternummer, Arbeitszeit, ausgTag.Status);
             }
 
             return new ClsAusgewerteter_Tag(SelectAusgewerteterTag(date, Mitarbeiternummer).ID, Mitarbeiternummer, Arbeitszeit, date, Status);
@@ -309,37 +313,46 @@ namespace TimeChip_App_1._0
             return list;
         }
 
-        public static List<ClsBuchung> SelectAllBuchungenFromDay(int Mitarbeiternr, DateTime date)
+        public static List<ClsBuchung> SelectAllBuchungenFromDay(ClsMitarbeiter mtbtr, DateTime date, string Table)
         {
             List<ClsBuchung> list = new List<ClsBuchung>();
-
-            string query = "SELECT * FROM buchungen WHERE Mitarbeiternummer=@mtbtrnr AND (Zeit BETWEEN @zeit1 AND @zeit2)";
-
-            using(MySqlConnection conn = new MySqlConnection(connectionString))
+            if (Table == "buchungen")
             {
-                conn.Open();
-                
-                MySqlCommand cmd = new MySqlCommand(query, conn);
+                string query = "SELECT * FROM buchungen WHERE Mitarbeiternummer=@mtbtrnr AND (Zeit BETWEEN @zeit1 AND @zeit2)";
 
-                DateTime dt1 = new DateTime(date.Year, date.Month, date.Day, 0, 0, 0);
-                DateTime dt2 = new DateTime(date.Year, date.Month, date.Day, 23, 59, 59);
-
-                cmd.Parameters.AddWithValue("mtbtrnr", Mitarbeiternr);
-                cmd.Parameters.AddWithValue("zeit1", dt1);
-                cmd.Parameters.AddWithValue("zeit2", dt2);
-
-                MySqlDataReader reader = cmd.ExecuteReader();
-
-                while (reader.Read())
+                using (MySqlConnection conn = new MySqlConnection(connectionString))
                 {
-                    ClsBuchung buchung = new ClsBuchung(reader.GetInt32("Buchungsnummer"), reader.GetInt32("Mitarbeiternummer"),
-                        reader.GetDateTime("Zeit"), StringToBuchungstyp(reader.GetString("Buchungstyp")));
+                    conn.Open();
 
-                    list.Add(buchung);
+                    MySqlCommand cmd = new MySqlCommand(query, conn);
+
+                    DateTime dt1 = new DateTime(date.Year, date.Month, date.Day, 0, 0, 0);
+                    DateTime dt2 = new DateTime(date.Year, date.Month, date.Day, 23, 59, 59);
+
+                    cmd.Parameters.AddWithValue("mtbtrnr", mtbtr.Mitarbeiternummer);
+                    cmd.Parameters.AddWithValue("zeit1", dt1);
+                    cmd.Parameters.AddWithValue("zeit2", dt2);
+
+                    MySqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        ClsBuchung buchung = new ClsBuchung(reader.GetInt16("Buchungsnummer"),
+                            reader.GetInt16("Mitarbeiternummer"), reader.GetDateTime("Zeit"),
+                            StringToBuchungstyp(reader.GetString("Buchungstyp")));
+
+                        list.Add(buchung);
+                    }
+
+                    cmd.Dispose();
+                    reader.Dispose();
                 }
+            }
+            else if(Table == "buchungen_temp")
+            {
+                List<ClsBuchung> buchungen = SelectAllBuchungenFromMtbtr(mtbtr, "buchungen_temp");
 
-                cmd.Dispose();
-                reader.Dispose();
+                list = buchungen.FindAll(x => x.Zeit.ToShortDateString().Equals(date.ToShortDateString()));
             }
 
             return list;

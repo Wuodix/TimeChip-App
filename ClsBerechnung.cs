@@ -44,110 +44,15 @@ namespace TimeChip_App_1._0
                     compare = compare.AddDays(1);
                 }
 
-                int i = 0;
-                foreach(List<ClsBuchung> tag in TagesBuchungen)
+                foreach(DateTime tag in Tage)
                 {
-                    Debug.WriteLine("NÄCHSTER TAG !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                    foreach(ClsMitarbeiter mitarbeiter in FrmHaupt.Mitarbeiterliste)
+                    foreach (ClsMitarbeiter mitarbeiter in FrmHaupt.Mitarbeiterliste)
                     {
-                        List<ClsBuchung> buchungen3 = tag.FindAll(x => x.Mitarbeiternummer.Equals(mitarbeiter.Mitarbeiternummer));
-                        buchungen3.Sort(Comparer<ClsBuchung>.Create((x, y) => x.Buchungsnummer.CompareTo(y.Buchungsnummer)));
-
-                        bool first = true;
-                        DateTime temp = new DateTime(0);
-                        TimeSpan Arbeitszeit = new TimeSpan(0);
-                        foreach (ClsBuchung buchung in buchungen3)
-                        {
-                            Debug.WriteLine(buchung.Buchungsnummer);
-
-                            switch (buchung.Buchungstyp)
-                            {
-                                case Buchungstyp.Kommen:
-                                    TimeSpan Arbeitsbeginn = GetArbeitsbeginnOfDayOfWeek(buchung.Zeit, mitarbeiter);
-                                    if (buchung.Zeit.CompareTo(new DateTime(buchung.Zeit.Year, buchung.Zeit.Month, buchung.Zeit.Day, Arbeitsbeginn.Hours, Arbeitsbeginn.Minutes, 0)) < 0 && Arbeitsbeginn.Hours != 0)
-                                    {
-                                        temp = new DateTime(buchung.Zeit.Year, buchung.Zeit.Month, buchung.Zeit.Day, Arbeitsbeginn.Hours, Arbeitsbeginn.Minutes, 0);
-                                        Debug.WriteLine("HI");
-                                        break;
-                                    }
-                                    Debug.WriteLine("HI2");
-                                    temp = buchung.Zeit;
-                                    break;
-                                case Buchungstyp.Gehen:
-                                    if (first || temp.Ticks == 1) { break; }
-                                    TimeSpan Arbeitsende = GetArbeitsendeOfDayOfWeek(buchung.Zeit, mitarbeiter);
-                                    if(buchung.Zeit.CompareTo(new DateTime(buchung.Zeit.Year, buchung.Zeit.Month, buchung.Zeit.Day, Arbeitsende.Hours, Arbeitsende.Minutes, 0)) > 0 && Arbeitsende.Hours != 0)
-                                    {
-                                        Arbeitszeit += new TimeSpan(new TimeSpan(Arbeitsende.Hours, Arbeitsende.Minutes, 0).Ticks - temp.TimeOfDay.Ticks);
-                                    }
-                                    else
-                                    {
-                                        Arbeitszeit += new TimeSpan(buchung.Zeit.Ticks - temp.Ticks);
-                                    }
-
-                                    Debug.WriteLine("Erste Zeit: " + temp);
-                                    Debug.WriteLine("Zweite Zeit: " + buchung.Zeit);
-                                    Debug.WriteLine("Durchrechnen Arbeitszeit: " + Arbeitszeit);
-                                    temp = new DateTime(1);
-                                    break;
-                            }
-
-                            first = false;
-                        }
-
-                        Debug.WriteLine("Arbeitszeit vor Pause Abzug: " + Arbeitszeit.ToString());
-                        TimeSpan Überstunden = new TimeSpan(0);
-
-                        //Pausenabzug
-                        bool pauseberechnet = false;
-                        if (GetPauseOfDayOfWeek(Tage[i], mitarbeiter))
-                        {
-                            if (buchungen3.Count != 0)
-                            {
-                                //Erste Buchung liegt vor Pausenbeginn
-                                if (buchungen3[0].Zeit.TimeOfDay.CompareTo(GetPausenbeginnOfDayOfWeek(Tage[i], mitarbeiter)) < 0)
-                                {
-                                    //Letzte Buchung liegt nach Pausenende
-                                    if (buchungen3.LastOrDefault().Zeit.TimeOfDay.CompareTo(GetPausenendeOfDayOfWeek(Tage[i], mitarbeiter)) > 0)
-                                    {
-                                        Arbeitszeit -= GetSollPausendauer(Tage[i], mitarbeiter);
-                                        Überstunden = Arbeitszeit - GetSollArbeitszeit(Tage[i], mitarbeiter);
-
-                                        pauseberechnet = true;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                pauseberechnet = true;
-                            }
-                        }
-                        else
-                        {
-                            pauseberechnet = true;
-                        }
-
-                        if (!pauseberechnet)
-                        {
-                            //Wenn nicht: Zeit, die letze Buchung nach Pausenbeginn liegt, als Pausendauer abziehen
-                            TimeSpan Pausendauer = buchungen3.LastOrDefault().Zeit.TimeOfDay.Subtract(GetPausenbeginnOfDayOfWeek(Tage[i], mitarbeiter));
-                            Debug.WriteLine("Pause bei schleißige Mitarbeiter");
-
-                            Arbeitszeit -= Pausendauer;
-                            Überstunden = Arbeitszeit - GetSollArbeitszeit(Tage[i], mitarbeiter);
-                        }
-
-                        Debug.WriteLine("Arbeitszeit nach Pause Abzug: " + Arbeitszeit.ToString());
-                        Debug.WriteLine("Überstunden: " + Überstunden.ToString());
-
-                        DataProvider.InsertAusgewerteterTag(Tage[i], mitarbeiter.Mitarbeiternummer, Arbeitszeit, 0);
-
-                        mitarbeiter.Überstunden += Überstunden;
-                        DataProvider.UpdateMitarbeiter(mitarbeiter);
+                        ClsMitarbeiter mtbtr = mitarbeiter;
+                        Berechnen(tag, ref mtbtr, true);
                     }
-
-                    i++;
                 }
+
 
                 DataProvider.WriteBerechnungsDateToCSV(DateTime.Now);
                 
@@ -167,9 +72,17 @@ namespace TimeChip_App_1._0
             }
         }
 
-        public static void Berechnen(DateTime day, ClsMitarbeiter mtbtr)
+        public static ClsAusgewerteter_Tag Berechnen(DateTime day, ref ClsMitarbeiter mtbtr, bool ersteBerechnung)
         {
-            List<ClsBuchung> buchungen = DataProvider.SelectAllBuchungenFromDay(mtbtr.Mitarbeiternummer, day);
+            List<ClsBuchung> buchungen;
+            if (!ersteBerechnung)
+            {
+                buchungen = DataProvider.SelectAllBuchungenFromDay(mtbtr, day,"buchungen");
+            }
+            else
+            {
+                buchungen = DataProvider.SelectAllBuchungenFromDay(mtbtr, day, "buchungen_temp");
+            }
 
             buchungen.Sort(Comparer<ClsBuchung>.Create((x, y) => x.Buchungsnummer.CompareTo(y.Buchungsnummer)));
             bool first = true;
@@ -260,10 +173,10 @@ namespace TimeChip_App_1._0
             Debug.WriteLine("Arbeitszeit nach Pause Abzug: " + Arbeitszeit.ToString());
             Debug.WriteLine("Überstunden: " + Überstunden.ToString());
 
-            DataProvider.InsertAusgewerteterTag(day, mtbtr.Mitarbeiternummer, Arbeitszeit, 0);
-
             mtbtr.Überstunden += Überstunden;
             DataProvider.UpdateMitarbeiter(mtbtr);
+
+            return DataProvider.InsertAusgewerteterTag(day, mtbtr.Mitarbeiternummer, Arbeitszeit, 0);
         }
 
         public static void TagesStatusÄnderung(ClsAusgewerteter_Tag tag, int alterStatus)

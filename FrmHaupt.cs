@@ -136,7 +136,7 @@ namespace TimeChip_App_1._0
         {
             if (m_lbxMitarbeiter.SelectedItem != null)
             {
-                List<ClsBuchung> Buchungen = DataProvider.SelectAllBuchungenFromDay((m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Mitarbeiternummer, m_cldKalender.SelectionStart);
+                List<ClsBuchung> Buchungen = DataProvider.SelectAllBuchungenFromDay(m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter, m_cldKalender.SelectionStart, "buchungen");
 
                 //List<ClsBuchung> Buchungen2 = Buchungen.FindAll(x => x.Zeit.Date.Equals(m_cldKalender.SelectionStart));
 
@@ -165,7 +165,7 @@ namespace TimeChip_App_1._0
             {
                 DataProvider.InsertBuchung(dlgBuchung.Buchungstyp, dlgBuchung.GetDateTime(), dlgBuchung.Mitarbeiter.Mitarbeiternummer);
 
-                ClsBerechnung.Berechnen(dlgBuchung.GetDateTime(), m_mitarbeiterliste.ToList().Find(x => x.Mitarbeiternummer.Equals(mitarbeiter.Mitarbeiternummer)));
+                ClsBerechnung.Berechnen(dlgBuchung.GetDateTime(), ref mitarbeiter, false);
 
                 UpdateLbxBuchungen();
             }
@@ -191,9 +191,10 @@ namespace TimeChip_App_1._0
                     zubearbeiten.Buchungstyp = dlgBuchung.Buchungstyp;
                     zubearbeiten.Zeit = dlgBuchung.GetDateTime();
                     zubearbeiten.Mitarbeiternummer = dlgBuchung.Mitarbeiter.Mitarbeiternummer;
+                    ClsMitarbeiter mtbtr = m_mitarbeiterliste.ToList().Find(x => x.Mitarbeiternummer.Equals(zubearbeiten.Mitarbeiternummer));
 
                     DataProvider.UpdateBuchung(zubearbeiten);
-                    ClsBerechnung.Berechnen(zubearbeiten.Zeit, m_mitarbeiterliste.ToList().Find(x => x.Mitarbeiternummer.Equals(zubearbeiten.Mitarbeiternummer)));
+                    ClsBerechnung.Berechnen(zubearbeiten.Zeit, ref mtbtr, false);
 
                     UpdateLbxBuchungen();
                 }
@@ -206,7 +207,8 @@ namespace TimeChip_App_1._0
                 ClsBuchung buchung = m_lbxBuchungen.SelectedItem as ClsBuchung;
                 DataProvider.DeleteBuchung(buchung, "buchungen");
 
-                ClsBerechnung.Berechnen(buchung.Zeit, m_mitarbeiterliste.ToList().Find(x => x.Mitarbeiternummer.Equals(buchung.Mitarbeiternummer)));
+                ClsMitarbeiter mtbtr = m_mitarbeiterliste.ToList().Find(x => x.Mitarbeiternummer.Equals(buchung.Mitarbeiternummer));
+                ClsBerechnung.Berechnen(buchung.Zeit, ref mtbtr, false);
                 UpdateLbxBuchungen();
             }
         }
