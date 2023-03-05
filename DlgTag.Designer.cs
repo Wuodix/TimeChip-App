@@ -33,6 +33,12 @@ namespace TimeChip_App_1._0
             this.m_btnNeu = new System.Windows.Forms.Button();
             this.m_btnLöschen = new System.Windows.Forms.Button();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.m_dtpPausendauer = new System.Windows.Forms.DateTimePicker();
+            this.m_dtpArbeitszeit = new System.Windows.Forms.DateTimePicker();
+            this.m_dtpPausenende = new System.Windows.Forms.DateTimePicker();
+            this.m_dtpPausenbeginn = new System.Windows.Forms.DateTimePicker();
+            this.m_dtpArbeitsende = new System.Windows.Forms.DateTimePicker();
+            this.m_dtpArbeitsbeginn = new System.Windows.Forms.DateTimePicker();
             this.label10 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
@@ -48,12 +54,6 @@ namespace TimeChip_App_1._0
             this.m_lbxTage = new System.Windows.Forms.ListBox();
             this.m_btnAktualisieren = new System.Windows.Forms.Button();
             this.m_btnErstellen = new System.Windows.Forms.Button();
-            this.m_dtpArbeitsbeginn = new System.Windows.Forms.DateTimePicker();
-            this.m_dtpArbeitsende = new System.Windows.Forms.DateTimePicker();
-            this.m_dtpPausenbeginn = new System.Windows.Forms.DateTimePicker();
-            this.m_dtpPausenende = new System.Windows.Forms.DateTimePicker();
-            this.m_dtpArbeitszeit = new System.Windows.Forms.DateTimePicker();
-            this.m_dtpPausendauer = new System.Windows.Forms.DateTimePicker();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -128,6 +128,84 @@ namespace TimeChip_App_1._0
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 12.55231F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(304, 368);
             this.tableLayoutPanel1.TabIndex = 27;
+            // 
+            // m_dtpPausendauer
+            // 
+            this.m_dtpPausendauer.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.m_dtpPausendauer.CustomFormat = "HH:mm";
+            this.m_dtpPausendauer.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.m_dtpPausendauer.Location = new System.Drawing.Point(201, 333);
+            this.m_dtpPausendauer.Margin = new System.Windows.Forms.Padding(2);
+            this.m_dtpPausendauer.Name = "m_dtpPausendauer";
+            this.m_dtpPausendauer.ShowUpDown = true;
+            this.m_dtpPausendauer.Size = new System.Drawing.Size(53, 20);
+            this.m_dtpPausendauer.TabIndex = 36;
+            this.m_dtpPausendauer.Value = new System.DateTime(2022, 12, 31, 0, 0, 0, 0);
+            // 
+            // m_dtpArbeitszeit
+            // 
+            this.m_dtpArbeitszeit.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.m_dtpArbeitszeit.CustomFormat = "HH:mm";
+            this.m_dtpArbeitszeit.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.m_dtpArbeitszeit.Location = new System.Drawing.Point(201, 286);
+            this.m_dtpArbeitszeit.Margin = new System.Windows.Forms.Padding(2);
+            this.m_dtpArbeitszeit.Name = "m_dtpArbeitszeit";
+            this.m_dtpArbeitszeit.ShowUpDown = true;
+            this.m_dtpArbeitszeit.Size = new System.Drawing.Size(53, 20);
+            this.m_dtpArbeitszeit.TabIndex = 35;
+            this.m_dtpArbeitszeit.Value = new System.DateTime(2022, 12, 31, 0, 0, 0, 0);
+            // 
+            // m_dtpPausenende
+            // 
+            this.m_dtpPausenende.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.m_dtpPausenende.CustomFormat = "HH:mm";
+            this.m_dtpPausenende.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.m_dtpPausenende.Location = new System.Drawing.Point(201, 240);
+            this.m_dtpPausenende.Margin = new System.Windows.Forms.Padding(2);
+            this.m_dtpPausenende.Name = "m_dtpPausenende";
+            this.m_dtpPausenende.ShowUpDown = true;
+            this.m_dtpPausenende.Size = new System.Drawing.Size(53, 20);
+            this.m_dtpPausenende.TabIndex = 34;
+            this.m_dtpPausenende.Value = new System.DateTime(2022, 12, 31, 0, 0, 0, 0);
+            // 
+            // m_dtpPausenbeginn
+            // 
+            this.m_dtpPausenbeginn.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.m_dtpPausenbeginn.CustomFormat = "HH:mm";
+            this.m_dtpPausenbeginn.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.m_dtpPausenbeginn.Location = new System.Drawing.Point(201, 193);
+            this.m_dtpPausenbeginn.Margin = new System.Windows.Forms.Padding(2);
+            this.m_dtpPausenbeginn.Name = "m_dtpPausenbeginn";
+            this.m_dtpPausenbeginn.ShowUpDown = true;
+            this.m_dtpPausenbeginn.Size = new System.Drawing.Size(53, 20);
+            this.m_dtpPausenbeginn.TabIndex = 33;
+            this.m_dtpPausenbeginn.Value = new System.DateTime(2022, 12, 31, 0, 0, 0, 0);
+            // 
+            // m_dtpArbeitsende
+            // 
+            this.m_dtpArbeitsende.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.m_dtpArbeitsende.CustomFormat = "HH:mm";
+            this.m_dtpArbeitsende.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.m_dtpArbeitsende.Location = new System.Drawing.Point(201, 105);
+            this.m_dtpArbeitsende.Margin = new System.Windows.Forms.Padding(2);
+            this.m_dtpArbeitsende.Name = "m_dtpArbeitsende";
+            this.m_dtpArbeitsende.ShowUpDown = true;
+            this.m_dtpArbeitsende.Size = new System.Drawing.Size(53, 20);
+            this.m_dtpArbeitsende.TabIndex = 32;
+            this.m_dtpArbeitsende.Value = new System.DateTime(2022, 12, 31, 0, 0, 0, 0);
+            // 
+            // m_dtpArbeitsbeginn
+            // 
+            this.m_dtpArbeitsbeginn.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.m_dtpArbeitsbeginn.CustomFormat = "HH:mm";
+            this.m_dtpArbeitsbeginn.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.m_dtpArbeitsbeginn.Location = new System.Drawing.Point(201, 59);
+            this.m_dtpArbeitsbeginn.Margin = new System.Windows.Forms.Padding(2);
+            this.m_dtpArbeitsbeginn.Name = "m_dtpArbeitsbeginn";
+            this.m_dtpArbeitsbeginn.ShowUpDown = true;
+            this.m_dtpArbeitsbeginn.Size = new System.Drawing.Size(53, 20);
+            this.m_dtpArbeitsbeginn.TabIndex = 31;
+            this.m_dtpArbeitsbeginn.Value = new System.DateTime(2022, 12, 31, 0, 0, 0, 0);
             // 
             // label10
             // 
@@ -300,84 +378,6 @@ namespace TimeChip_App_1._0
             this.m_btnErstellen.UseVisualStyleBackColor = true;
             this.m_btnErstellen.Click += new System.EventHandler(this.m_btnErstellen_Click);
             // 
-            // m_dtpArbeitsbeginn
-            // 
-            this.m_dtpArbeitsbeginn.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.m_dtpArbeitsbeginn.CustomFormat = "HH:mm";
-            this.m_dtpArbeitsbeginn.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.m_dtpArbeitsbeginn.Location = new System.Drawing.Point(201, 59);
-            this.m_dtpArbeitsbeginn.Margin = new System.Windows.Forms.Padding(2);
-            this.m_dtpArbeitsbeginn.Name = "m_dtpArbeitsbeginn";
-            this.m_dtpArbeitsbeginn.ShowUpDown = true;
-            this.m_dtpArbeitsbeginn.Size = new System.Drawing.Size(53, 20);
-            this.m_dtpArbeitsbeginn.TabIndex = 31;
-            this.m_dtpArbeitsbeginn.Value = new System.DateTime(2022, 12, 31, 0, 0, 0, 0);
-            // 
-            // m_dtpArbeitsende
-            // 
-            this.m_dtpArbeitsende.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.m_dtpArbeitsende.CustomFormat = "HH:mm";
-            this.m_dtpArbeitsende.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.m_dtpArbeitsende.Location = new System.Drawing.Point(201, 105);
-            this.m_dtpArbeitsende.Margin = new System.Windows.Forms.Padding(2);
-            this.m_dtpArbeitsende.Name = "m_dtpArbeitsende";
-            this.m_dtpArbeitsende.ShowUpDown = true;
-            this.m_dtpArbeitsende.Size = new System.Drawing.Size(53, 20);
-            this.m_dtpArbeitsende.TabIndex = 32;
-            this.m_dtpArbeitsende.Value = new System.DateTime(2022, 12, 31, 0, 0, 0, 0);
-            // 
-            // m_dtpPausenbeginn
-            // 
-            this.m_dtpPausenbeginn.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.m_dtpPausenbeginn.CustomFormat = "HH:mm";
-            this.m_dtpPausenbeginn.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.m_dtpPausenbeginn.Location = new System.Drawing.Point(201, 193);
-            this.m_dtpPausenbeginn.Margin = new System.Windows.Forms.Padding(2);
-            this.m_dtpPausenbeginn.Name = "m_dtpPausenbeginn";
-            this.m_dtpPausenbeginn.ShowUpDown = true;
-            this.m_dtpPausenbeginn.Size = new System.Drawing.Size(53, 20);
-            this.m_dtpPausenbeginn.TabIndex = 33;
-            this.m_dtpPausenbeginn.Value = new System.DateTime(2022, 12, 31, 0, 0, 0, 0);
-            // 
-            // m_dtpPausenende
-            // 
-            this.m_dtpPausenende.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.m_dtpPausenende.CustomFormat = "HH:mm";
-            this.m_dtpPausenende.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.m_dtpPausenende.Location = new System.Drawing.Point(201, 240);
-            this.m_dtpPausenende.Margin = new System.Windows.Forms.Padding(2);
-            this.m_dtpPausenende.Name = "m_dtpPausenende";
-            this.m_dtpPausenende.ShowUpDown = true;
-            this.m_dtpPausenende.Size = new System.Drawing.Size(53, 20);
-            this.m_dtpPausenende.TabIndex = 34;
-            this.m_dtpPausenende.Value = new System.DateTime(2022, 12, 31, 0, 0, 0, 0);
-            // 
-            // m_dtpArbeitszeit
-            // 
-            this.m_dtpArbeitszeit.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.m_dtpArbeitszeit.CustomFormat = "HH:mm";
-            this.m_dtpArbeitszeit.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.m_dtpArbeitszeit.Location = new System.Drawing.Point(201, 286);
-            this.m_dtpArbeitszeit.Margin = new System.Windows.Forms.Padding(2);
-            this.m_dtpArbeitszeit.Name = "m_dtpArbeitszeit";
-            this.m_dtpArbeitszeit.ShowUpDown = true;
-            this.m_dtpArbeitszeit.Size = new System.Drawing.Size(53, 20);
-            this.m_dtpArbeitszeit.TabIndex = 35;
-            this.m_dtpArbeitszeit.Value = new System.DateTime(2022, 12, 31, 0, 0, 0, 0);
-            // 
-            // m_dtpPausendauer
-            // 
-            this.m_dtpPausendauer.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.m_dtpPausendauer.CustomFormat = "HH:mm";
-            this.m_dtpPausendauer.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.m_dtpPausendauer.Location = new System.Drawing.Point(201, 333);
-            this.m_dtpPausendauer.Margin = new System.Windows.Forms.Padding(2);
-            this.m_dtpPausendauer.Name = "m_dtpPausendauer";
-            this.m_dtpPausendauer.ShowUpDown = true;
-            this.m_dtpPausendauer.Size = new System.Drawing.Size(53, 20);
-            this.m_dtpPausendauer.TabIndex = 36;
-            this.m_dtpPausendauer.Value = new System.DateTime(2022, 12, 31, 0, 0, 0, 0);
-            // 
             // DlgTag
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -394,7 +394,7 @@ namespace TimeChip_App_1._0
             this.Controls.Add(this.m_lbxTage);
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "DlgTag";
-            this.Text = "DlgTag";
+            this.Text = "Tage";
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);

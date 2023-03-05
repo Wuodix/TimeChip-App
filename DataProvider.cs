@@ -16,7 +16,7 @@ namespace TimeChip_App_1._0
 {
     public class DataProvider
     {
-        private static string connectionString = "SERVER=localhost;DATABASE=apotheke_time_chip;UID=root;";
+        private static readonly string connectionString = "SERVER=localhost;DATABASE=apotheke_time_chip;UID=root;";
 
         public static ClsBuchung InsertBuchung(Buchungstyp buchungstyp, DateTime zeit, int mitarbeiternr)
         {
@@ -763,7 +763,6 @@ namespace TimeChip_App_1._0
             webRequest.Method = "POST";
             webRequest.ContentLength = data.Length;
             webRequest.Timeout = 1000;
-            long time = DateTime.Now.Millisecond;
 
             try
             {

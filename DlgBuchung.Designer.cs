@@ -78,13 +78,13 @@ namespace TimeChip_App_1._0
             // 
             // m_dtpTime
             // 
-            this.m_dtpTime.CustomFormat = "HH:MM";
+            this.m_dtpTime.CustomFormat = "HH:mm:ss";
             this.m_dtpTime.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.m_dtpTime.Location = new System.Drawing.Point(377, 71);
+            this.m_dtpTime.Location = new System.Drawing.Point(366, 71);
             this.m_dtpTime.Margin = new System.Windows.Forms.Padding(2);
             this.m_dtpTime.Name = "m_dtpTime";
             this.m_dtpTime.ShowUpDown = true;
-            this.m_dtpTime.Size = new System.Drawing.Size(58, 20);
+            this.m_dtpTime.Size = new System.Drawing.Size(69, 20);
             this.m_dtpTime.TabIndex = 7;
             // 
             // label5

@@ -57,6 +57,7 @@ namespace TimeChip_App_1._0
             this.label4 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.m_lblTagesstatus = new System.Windows.Forms.Label();
+            this.m_btnPrint = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.SuspendLayout();
@@ -128,7 +129,7 @@ namespace TimeChip_App_1._0
             this.m_btnarbeitszeitprofil.TabIndex = 6;
             this.m_btnarbeitszeitprofil.Text = "Arbeitszeitprofile";
             this.m_btnarbeitszeitprofil.UseVisualStyleBackColor = true;
-            this.m_btnarbeitszeitprofil.Click += new System.EventHandler(this.m_btnLöschen_Click);
+            this.m_btnarbeitszeitprofil.Click += new System.EventHandler(this.m_btnarbeitszeitprofil_Click);
             // 
             // m_lbxBuchungen
             // 
@@ -216,26 +217,25 @@ namespace TimeChip_App_1._0
             this.m_btnRefresh.TabIndex = 14;
             this.m_btnRefresh.Text = "Aktualisieren";
             this.m_btnRefresh.UseVisualStyleBackColor = true;
+            this.m_btnRefresh.Click += new System.EventHandler(this.m_btnRefresh_Click);
             // 
             // tableLayoutPanel1
             // 
             this.tableLayoutPanel1.ColumnCount = 2;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 43.10345F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 56.89655F));
-            this.tableLayoutPanel1.Controls.Add(this.label7, 0, 2);
-            this.tableLayoutPanel1.Controls.Add(this.m_lblIst, 1, 2);
-            this.tableLayoutPanel1.Controls.Add(this.m_lblSoll, 1, 1);
-            this.tableLayoutPanel1.Controls.Add(this.label3, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.label2, 1, 0);
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(675, 298);
+            this.tableLayoutPanel1.Controls.Add(this.label7, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.m_lblIst, 1, 1);
+            this.tableLayoutPanel1.Controls.Add(this.m_lblSoll, 1, 0);
+            this.tableLayoutPanel1.Controls.Add(this.label3, 0, 0);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(675, 347);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 3;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(200, 145);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(200, 96);
             this.tableLayoutPanel1.TabIndex = 15;
             // 
             // label7
@@ -243,7 +243,7 @@ namespace TimeChip_App_1._0
             this.label7.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label7.AutoSize = true;
             this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.Location = new System.Drawing.Point(29, 110);
+            this.label7.Location = new System.Drawing.Point(29, 62);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(27, 20);
             this.label7.TabIndex = 7;
@@ -254,7 +254,7 @@ namespace TimeChip_App_1._0
             this.m_lblIst.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.m_lblIst.AutoSize = true;
             this.m_lblIst.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.m_lblIst.Location = new System.Drawing.Point(120, 111);
+            this.m_lblIst.Location = new System.Drawing.Point(120, 63);
             this.m_lblIst.Name = "m_lblIst";
             this.m_lblIst.Size = new System.Drawing.Size(46, 18);
             this.m_lblIst.TabIndex = 5;
@@ -265,7 +265,7 @@ namespace TimeChip_App_1._0
             this.m_lblSoll.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.m_lblSoll.AutoSize = true;
             this.m_lblSoll.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.m_lblSoll.Location = new System.Drawing.Point(120, 63);
+            this.m_lblSoll.Location = new System.Drawing.Point(120, 15);
             this.m_lblSoll.Name = "m_lblSoll";
             this.m_lblSoll.Size = new System.Drawing.Size(46, 18);
             this.m_lblSoll.TabIndex = 3;
@@ -276,7 +276,7 @@ namespace TimeChip_App_1._0
             this.label3.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(25, 62);
+            this.label3.Location = new System.Drawing.Point(25, 14);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(35, 20);
             this.label3.TabIndex = 2;
@@ -287,11 +287,11 @@ namespace TimeChip_App_1._0
             this.label2.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(116, 14);
+            this.label2.Location = new System.Drawing.Point(729, 312);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(54, 20);
+            this.label2.Size = new System.Drawing.Size(84, 20);
             this.label2.TabIndex = 1;
-            this.label2.Text = "Zeiten";
+            this.label2.Text = "Arbeitszeit";
             // 
             // label6
             // 
@@ -373,11 +373,11 @@ namespace TimeChip_App_1._0
             this.label1.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(22, 14);
+            this.label1.Location = new System.Drawing.Point(24, 14);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(101, 20);
+            this.label1.Size = new System.Drawing.Size(97, 20);
             this.label1.TabIndex = 8;
-            this.label1.Text = "Tagesstatus:";
+            this.label1.Text = "Tagesstatus";
             // 
             // m_lblTagesstatus
             // 
@@ -390,15 +390,27 @@ namespace TimeChip_App_1._0
             this.m_lblTagesstatus.TabIndex = 9;
             this.m_lblTagesstatus.Text = "Zeitausgleich";
             // 
+            // m_btnPrint
+            // 
+            this.m_btnPrint.Location = new System.Drawing.Point(290, 65);
+            this.m_btnPrint.Name = "m_btnPrint";
+            this.m_btnPrint.Size = new System.Drawing.Size(75, 23);
+            this.m_btnPrint.TabIndex = 18;
+            this.m_btnPrint.Text = "Exportieren";
+            this.m_btnPrint.UseVisualStyleBackColor = true;
+            this.m_btnPrint.Click += new System.EventHandler(this.m_btnPrint_Click);
+            // 
             // FrmHaupt
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(891, 457);
+            this.Controls.Add(this.m_btnPrint);
             this.Controls.Add(this.tableLayoutPanel2);
             this.Controls.Add(this.m_btnKrank);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.m_btnRefresh);
+            this.Controls.Add(this.label2);
             this.Controls.Add(this.m_btnUnentschuldigt);
             this.Controls.Add(this.m_btnUrlaub);
             this.Controls.Add(this.m_btnSchule);
@@ -420,6 +432,7 @@ namespace TimeChip_App_1._0
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel2.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -453,6 +466,7 @@ namespace TimeChip_App_1._0
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label m_lblÜberstunden;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Button m_btnPrint;
     }
 }
 

@@ -22,6 +22,8 @@ namespace TimeChip_App_1._0
 
             UpdateCMBX();
             UpdateAbzpList();
+
+            m_lbxArbeitszeitprofile.SelectedIndex= 0;
         }
 
         public static BindingList<ClsArbeitsprofil> ArbeitsprofilListe { get { return m_arbeitsprofilliste; } set { m_arbeitsprofilliste = value; } }
@@ -41,13 +43,13 @@ namespace TimeChip_App_1._0
 
             m_tbxName.Text = Auswählen.Name;
 
-            m_cmbxMontag.SelectedItem = DlgTag.Tagesliste[DlgTag.Tagesliste.IndexOf(Auswählen.Montag)];
-            m_cmbxDienstag.SelectedItem = DlgTag.Tagesliste[DlgTag.Tagesliste.IndexOf(Auswählen.Dienstag)];
-            m_cmbxMittwoch.SelectedItem = DlgTag.Tagesliste[DlgTag.Tagesliste.IndexOf(Auswählen.Mittwoch)];
-            m_cmbxDonnerstag.SelectedItem = DlgTag.Tagesliste[DlgTag.Tagesliste.IndexOf(Auswählen.Donnerstag)];
-            m_cmbxFreitag.SelectedItem = DlgTag.Tagesliste[DlgTag.Tagesliste.IndexOf(Auswählen.Freitag)];
-            m_cmbxSamstag.SelectedItem = DlgTag.Tagesliste[DlgTag.Tagesliste.IndexOf(Auswählen.Samstag)];
-            m_cmbxSonntag.SelectedItem = DlgTag.Tagesliste[DlgTag.Tagesliste.IndexOf(Auswählen.Sonntag)];
+            m_cmbxMontag.SelectedItem = FindTag(Auswählen.Montag);
+            m_cmbxDienstag.SelectedItem = FindTag(Auswählen.Dienstag);
+            m_cmbxMittwoch.SelectedItem = FindTag(Auswählen.Mittwoch);
+            m_cmbxDonnerstag.SelectedItem = FindTag(Auswählen.Donnerstag);
+            m_cmbxFreitag.SelectedItem = FindTag(Auswählen.Freitag);
+            m_cmbxSamstag.SelectedItem = FindTag(Auswählen.Samstag);
+            m_cmbxSonntag.SelectedItem = FindTag(Auswählen.Sonntag);
             m_cbGleitzeit.Checked = Auswählen.Gleitzeit;
         }
 
@@ -70,6 +72,19 @@ namespace TimeChip_App_1._0
             UpdateAbzpList();
         }
 
+        private ClsTag FindTag(ClsTag tag)
+        {
+            foreach(ClsTag tag1 in DlgTag.Tagesliste)
+            {
+                if(tag.ID == tag1.ID)
+                {
+                    return tag1;
+                }
+            }
+
+            return null;
+        }
+
         private void m_btnNeu_Click(object sender, EventArgs e)
         {
             m_tbxName.Text = "";
@@ -80,25 +95,16 @@ namespace TimeChip_App_1._0
             m_cmbxFreitag.Text = "";
             m_cmbxSamstag.Text = "";
             m_cmbxSonntag.Text = "";
-            m_tbxUrlaub.Text = "";
             m_cbGleitzeit.Checked = false;
         }
 
         private void m_btnErstellen_Click(object sender, EventArgs e)
         {
-            try
-            {
-                int Urlaub = Convert.ToInt32(m_tbxUrlaub.Text);
-                DataProvider.InsertArbeitszeitprofil(m_tbxName.Text, m_cmbxMontag.SelectedItem as ClsTag,
-                    m_cmbxDienstag.SelectedItem as ClsTag, m_cmbxMittwoch.SelectedItem as ClsTag,
-                    m_cmbxDonnerstag.SelectedItem as ClsTag, m_cmbxFreitag.SelectedItem as ClsTag,
-                    m_cmbxSamstag.SelectedItem as ClsTag, m_cmbxSonntag.SelectedItem as ClsTag, m_cbGleitzeit.Checked);
-                UpdateAbzpList();
-            }
-            catch
-            {
-                MessageBox.Show("Bitte den Urlaub als Zahl eingeben!");
-            }
+            DataProvider.InsertArbeitszeitprofil(m_tbxName.Text, m_cmbxMontag.SelectedItem as ClsTag,
+                m_cmbxDienstag.SelectedItem as ClsTag, m_cmbxMittwoch.SelectedItem as ClsTag,
+                m_cmbxDonnerstag.SelectedItem as ClsTag, m_cmbxFreitag.SelectedItem as ClsTag,
+                m_cmbxSamstag.SelectedItem as ClsTag, m_cmbxSonntag.SelectedItem as ClsTag, m_cbGleitzeit.Checked);
+            UpdateAbzpList();
         }
 
         private void m_btnLöschen_Click(object sender, EventArgs e)

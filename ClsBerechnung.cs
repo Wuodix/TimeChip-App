@@ -75,9 +75,11 @@ namespace TimeChip_App_1._0
         public static ClsAusgewerteter_Tag Berechnen(DateTime day, ref ClsMitarbeiter mtbtr, bool ersteBerechnung)
         {
             List<ClsBuchung> buchungen;
+            ClsAusgewerteter_Tag tag = new ClsAusgewerteter_Tag();
             if (!ersteBerechnung)
             {
                 buchungen = DataProvider.SelectAllBuchungenFromDay(mtbtr, day,"buchungen");
+                tag = DataProvider.SelectAusgewerteterTag(day, mtbtr.Mitarbeiternummer);
             }
             else
             {
@@ -97,7 +99,8 @@ namespace TimeChip_App_1._0
                 {
                     case Buchungstyp.Kommen:
                         TimeSpan Arbeitsbeginn = GetArbeitsbeginnOfDayOfWeek(buchung.Zeit, mtbtr);
-                        if (buchung.Zeit.CompareTo(new DateTime(buchung.Zeit.Year, buchung.Zeit.Month, buchung.Zeit.Day, Arbeitsbeginn.Hours, Arbeitsbeginn.Minutes, 0)) < 0 && Arbeitsbeginn.Hours != 0)
+                        if (buchung.Zeit.CompareTo(new DateTime(buchung.Zeit.Year, buchung.Zeit.Month, buchung.Zeit.Day, Arbeitsbeginn.Hours, Arbeitsbeginn.Minutes, 0)) < 0 && 
+                            Arbeitsbeginn.Hours != 0)
                         {
                             temp = new DateTime(buchung.Zeit.Year, buchung.Zeit.Month, buchung.Zeit.Day, Arbeitsbeginn.Hours, Arbeitsbeginn.Minutes, 0);
                             Debug.WriteLine("HI");
@@ -109,7 +112,8 @@ namespace TimeChip_App_1._0
                     case Buchungstyp.Gehen:
                         if (first || temp.Ticks == 1) { break; }
                         TimeSpan Arbeitsende = GetArbeitsendeOfDayOfWeek(buchung.Zeit, mtbtr);
-                        if (buchung.Zeit.CompareTo(new DateTime(buchung.Zeit.Year, buchung.Zeit.Month, buchung.Zeit.Day, Arbeitsende.Hours, Arbeitsende.Minutes, 0)) > 0 && Arbeitsende.Hours != 0)
+                        if (buchung.Zeit.CompareTo(new DateTime(buchung.Zeit.Year, buchung.Zeit.Month, buchung.Zeit.Day, Arbeitsende.Hours, Arbeitsende.Minutes, 0)) > 0 && 
+                            Arbeitsende.Hours != 0)
                         {
                             Arbeitszeit += new TimeSpan(new TimeSpan(Arbeitsende.Hours, Arbeitsende.Minutes, 0).Ticks - temp.TimeOfDay.Ticks);
                         }
@@ -173,6 +177,20 @@ namespace TimeChip_App_1._0
             Debug.WriteLine("Arbeitszeit nach Pause Abzug: " + Arbeitszeit.ToString());
             Debug.WriteLine("Überstunden: " + Überstunden.ToString());
 
+            if(ersteBerechnung == false)
+            {
+                TimeSpan oldÜberstunden = new TimeSpan(tag.Arbeitszeit.Ticks - GetSollArbeitszeit(day, mtbtr).Ticks);
+
+                mtbtr.Überstunden -= oldÜberstunden;
+                mtbtr.Überstunden += Überstunden;
+
+                DataProvider.UpdateMitarbeiter(mtbtr);
+
+                Debug.WriteLine("Arbeitszeit: " + Arbeitszeit);
+                Debug.WriteLine("Tag Arbeitszeit: " + tag.Arbeitszeit);
+
+                return DataProvider.InsertAusgewerteterTag(day, mtbtr.Mitarbeiternummer, Arbeitszeit, tag.Status);
+            }
             mtbtr.Überstunden += Überstunden;
             DataProvider.UpdateMitarbeiter(mtbtr);
 

@@ -37,7 +37,7 @@ namespace TimeChip_App_1._0
 
         public override string ToString()
         {
-            return m_mitarbeiternummmer + " - " + m_vorname + " - " + m_nachname;
+            return m_mitarbeiternummmer + " - " + m_vorname + " " + m_nachname;
         }
 
         public string Log()

@@ -21,6 +21,11 @@ namespace TimeChip_App_1._0
             m_status = status;
         }
 
+        public ClsAusgewerteter_Tag()
+        {
+            //Wird gebraucht für die Zuweisung eines Werts zur Variable "tag" in ClsBerechnung.Berechnen(DateTime,ClsMitarbeiter,bool)
+        }
+
         public int ID { get { return m_id; } set { m_id = value; } }
         public int MitarbeiterNummer { get { return m_mitarbeiternummer; } set { m_mitarbeiternummer = value; } }
         public TimeSpan Arbeitszeit { get { return m_arbeitszeit; } set { m_arbeitszeit = value; } }

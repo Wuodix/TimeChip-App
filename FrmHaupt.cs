@@ -4,6 +4,8 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Printing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,12 +17,15 @@ namespace TimeChip_App_1._0
     public partial class FrmHaupt : Form
     {
         static BindingList<ClsMitarbeiter> m_mitarbeiterliste = new BindingList<ClsMitarbeiter>();
+        static BindingList<ClsBuchung> m_buchungsliste = new BindingList<ClsBuchung>();
+        private StreamReader m_printStream;
 
         public FrmHaupt()
         {
             InitializeComponent();
 
             m_lbxMitarbeiter.DataSource = m_mitarbeiterliste;
+            m_lbxBuchungen.DataSource= m_buchungsliste;
 
             UpdateMtbtrList();
 
@@ -140,9 +145,13 @@ namespace TimeChip_App_1._0
 
                 //List<ClsBuchung> Buchungen2 = Buchungen.FindAll(x => x.Zeit.Date.Equals(m_cldKalender.SelectionStart));
 
-                m_lbxBuchungen.Items.Clear();
-
-                m_lbxBuchungen.Items.AddRange(Buchungen.ToArray());
+                m_buchungsliste.Clear();
+                foreach(ClsBuchung buchung in Buchungen)
+                {
+                    m_buchungsliste.Add(buchung);
+                }
+                
+                m_buchungsliste.ResetBindings();
 
                 UpdateCldKalender();
                 UpdateDataView();
@@ -165,7 +174,10 @@ namespace TimeChip_App_1._0
             {
                 DataProvider.InsertBuchung(dlgBuchung.Buchungstyp, dlgBuchung.GetDateTime(), dlgBuchung.Mitarbeiter.Mitarbeiternummer);
 
-                ClsBerechnung.Berechnen(dlgBuchung.GetDateTime(), ref mitarbeiter, false);
+                if(DataProvider.SelectAllBuchungenFromDay(mitarbeiter, dlgBuchung.GetDateTime(), "buchungen").Count > 1)
+                {
+                    ClsBerechnung.Berechnen(dlgBuchung.GetDateTime(), ref mitarbeiter, false);
+                }
 
                 UpdateLbxBuchungen();
             }
@@ -194,7 +206,10 @@ namespace TimeChip_App_1._0
                     ClsMitarbeiter mtbtr = m_mitarbeiterliste.ToList().Find(x => x.Mitarbeiternummer.Equals(zubearbeiten.Mitarbeiternummer));
 
                     DataProvider.UpdateBuchung(zubearbeiten);
-                    ClsBerechnung.Berechnen(zubearbeiten.Zeit, ref mtbtr, false);
+                    if (DataProvider.SelectAllBuchungenFromDay(mtbtr, dlgBuchung.GetDateTime(), "buchungen").Count > 1)
+                    {
+                        ClsBerechnung.Berechnen(dlgBuchung.GetDateTime(), ref mtbtr, false);
+                    }
 
                     UpdateLbxBuchungen();
                 }
@@ -208,7 +223,10 @@ namespace TimeChip_App_1._0
                 DataProvider.DeleteBuchung(buchung, "buchungen");
 
                 ClsMitarbeiter mtbtr = m_mitarbeiterliste.ToList().Find(x => x.Mitarbeiternummer.Equals(buchung.Mitarbeiternummer));
-                ClsBerechnung.Berechnen(buchung.Zeit, ref mtbtr, false);
+                if (DataProvider.SelectAllBuchungenFromDay(mtbtr, buchung.Zeit, "buchungen").Count > 1)
+                {
+                    ClsBerechnung.Berechnen(buchung.Zeit, ref mtbtr, false);
+                }
                 UpdateLbxBuchungen();
             }
         }
@@ -341,6 +359,98 @@ namespace TimeChip_App_1._0
 
                 ClsBerechnung.TagesStatusÄnderung(tag, alterStatus);
                 UpdateDataView();
+            }
+        }
+
+        private void m_btnPrint_Click(object sender, EventArgs e)
+        {
+            DateTime date = m_cldKalender.SelectionStart;
+            ClsMitarbeiter mtbtr = m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter;
+
+            using (StreamWriter sw = new StreamWriter("Export.csv", false))
+            {
+                sw.WriteLine(mtbtr.ToString());
+                for (int i = 1; i <= DateTime.DaysInMonth(date.Year, date.Month); i++)
+                {
+                    DateTime date1 = new DateTime(date.Year, date.Month, i);
+                    foreach(ClsBuchung buchung in DataProvider.SelectAllBuchungenFromDay(mtbtr, date1, "buchungen"))
+                    {
+                        sw.WriteLine(buchung.ToString());
+                    }
+                    sw.WriteLine();
+                }
+            }
+
+            
+            PrintDialog printDlg = new PrintDialog();
+            
+            PrintDocument printDoc = new PrintDocument();
+            printDlg.Document = printDoc;
+            printDlg.AllowPrintToFile = true;
+            if(printDlg.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    m_printStream = new StreamReader("Export.csv");
+                    printDoc.PrintPage += new PrintPageEventHandler(this.pd_PrintPage);
+                    printDoc.Print();
+                }
+                finally
+                {
+                    m_printStream.Close();
+                }
+
+            }
+        }
+
+
+        private void pd_PrintPage(object sender, PrintPageEventArgs ev)
+        {
+            float linesPerPage = 0;
+            float yPos = 0;
+            int count = 0;
+            float leftMargin = ev.MarginBounds.Left;
+            float topMargin = ev.MarginBounds.Top;
+            string line = null;
+            Font printFont = new Font("Arial", 11);
+
+            // Calculate the number of lines per page.
+            linesPerPage = ev.MarginBounds.Height /
+               printFont.GetHeight(ev.Graphics);
+
+            // Print each line of the file.
+            while (count < linesPerPage &&
+               ((line = m_printStream.ReadLine()) != null))
+            {
+                yPos = topMargin + (count *
+                   printFont.GetHeight(ev.Graphics));
+                ev.Graphics.DrawString(line, printFont, Brushes.Black,
+                   leftMargin, yPos, new StringFormat());
+                count++;
+            }
+
+            // If more lines exist, print another page.
+            if (line != null)
+                ev.HasMorePages = true;
+            else
+                ev.HasMorePages = false;
+        }
+
+        private void m_btnRefresh_Click(object sender, EventArgs e)
+        {
+            DateTime date = m_cldKalender.SelectionStart;
+            ClsMitarbeiter mtbtr = m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter;
+            ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(date, mtbtr.Mitarbeiternummer);
+
+            if(tag != null)
+            {
+                ClsBerechnung.Berechnen(date, ref mtbtr, false);
+                UpdateCldKalender();
+                UpdateDataView();
+            }
+            else
+            {
+                MessageBox.Show("Der Tag wurde noch nicht berechnet oder liegt in der Zukunft!","Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }
