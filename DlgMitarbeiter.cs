@@ -16,7 +16,8 @@ namespace TimeChip_App_1._0
     public partial class DlgMitarbeiter : Form
     {
         int m_mitarbeiternummer;
-        bool m_finger = false, m_bearbeiten = false;
+        //m_finger gibt an ob schon ein Finger hinzugefügt wurde; m_bearbeiten gibt an ob das Fenster gerade zum bearbeiten oder erstellen genutzt wird
+        bool m_finger = false, m_bearbeiten = false, m_card = false;
 
         public DlgMitarbeiter()
         {
@@ -55,24 +56,29 @@ namespace TimeChip_App_1._0
             return new TimeSpan(hours, minutes, 0);
         }
 
+        private void SetMitarbeiternummer()
+        {
+            List<ClsFingerprintRFID> list = DataProvider.SelectAllFingerprintRFID();
+            List<ClsFingerprintRFID> list1 = list.OrderBy(f => f.Fingerprint).ToList();
+
+            m_mitarbeiternummer = list1.Count + 1;
+            for (int i = 0; i < list1.Count; i++)
+            {
+                if (list1[i].Fingerprint != i + 1)
+                {
+                    m_mitarbeiternummer = i + 1;
+                    break;
+                }
+            }
+        }
+
         private void m_btnAddFinger_Click(object sender, EventArgs e)
         {
             if (!m_finger || m_bearbeiten)
             {
                 if (!m_bearbeiten)
                 {
-                    List<ClsFingerprintRFID> list = DataProvider.SelectAllFingerprintRFID();
-                    List<ClsFingerprintRFID> list1 = list.OrderBy(f => f.Fingerprint).ToList();
-
-                    m_mitarbeiternummer = list1.Count + 1;
-                    for (int i = 0; i < list1.Count; i++)
-                    {
-                        if (list1[i].Fingerprint != i + 1)
-                        {
-                            m_mitarbeiternummer = i + 1;
-                            break;
-                        }
-                    }
+                    SetMitarbeiternummer();
                 }
 
                 string responseContent = DataProvider.SendRecieveHTTP("Finger" + m_mitarbeiternummer);
@@ -109,6 +115,24 @@ namespace TimeChip_App_1._0
 
         private void m_btnOK_Click(object sender, EventArgs e)
         {
+            if (!m_bearbeiten)
+            {
+                if (!m_card)
+                {
+                    if(MessageBox.Show("Wollen Sie wirklich einen Mitarbeiter ohne zugewiesene Karte erstellen?", "Achtung",MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                    {
+                        return;
+                    }
+                }
+                if (!m_finger)
+                {
+                    if (MessageBox.Show("Wollen Sie wirklich einen Mitarbeiter ohne eingespeicherten Finger erstellen?", "Achtung", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                    {
+                        return;
+                    }
+                    SetMitarbeiternummer();
+                }
+            }
             try
             {
                 string[] teile = m_tbxUrlaub.Text.Split(':');
@@ -127,7 +151,7 @@ namespace TimeChip_App_1._0
 
         private void m_btnAddCard_Click(object sender, EventArgs e)
         {
-            if (m_bearbeiten || m_finger)
+            if (m_bearbeiten && m_finger || m_finger)
             {
                 string responseContent = DataProvider.SendRecieveHTTP("Card");
 
@@ -140,6 +164,7 @@ namespace TimeChip_App_1._0
                         DataProvider.InsertFingerRFIDUID(m_mitarbeiternummer, parts[1]);
 
                         MessageBox.Show("Karte wurde erfolgreich hinzugefügt.", "Erfolg", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        m_card = true;
                     }
                     else
                     {

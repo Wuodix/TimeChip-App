@@ -99,21 +99,22 @@ namespace TimeChip_App_1._0
                 {
                     case Buchungstyp.Kommen:
                         TimeSpan Arbeitsbeginn = GetArbeitsbeginnOfDayOfWeek(buchung.Zeit, mtbtr);
-                        if (buchung.Zeit.CompareTo(new DateTime(buchung.Zeit.Year, buchung.Zeit.Month, buchung.Zeit.Day, Arbeitsbeginn.Hours, Arbeitsbeginn.Minutes, 0)) < 0 && 
-                            Arbeitsbeginn.Hours != 0)
+                        if (buchung.Zeit.CompareTo(new DateTime(buchung.Zeit.Year, buchung.Zeit.Month, buchung.Zeit.Day, Arbeitsbeginn.Hours, Arbeitsbeginn.Minutes, Arbeitsbeginn.Seconds)) < 0 && 
+                            Arbeitsbeginn.TotalSeconds != 0)
                         {
-                            temp = new DateTime(buchung.Zeit.Year, buchung.Zeit.Month, buchung.Zeit.Day, Arbeitsbeginn.Hours, Arbeitsbeginn.Minutes, 0);
+                            temp = new DateTime(buchung.Zeit.Year, buchung.Zeit.Month, buchung.Zeit.Day, Arbeitsbeginn.Hours, Arbeitsbeginn.Minutes, Arbeitsbeginn.Seconds);
                             Debug.WriteLine("HI");
                             break;
                         }
                         Debug.WriteLine("HI2");
                         temp = buchung.Zeit;
+
                         break;
                     case Buchungstyp.Gehen:
                         if (first || temp.Ticks == 1) { break; }
                         TimeSpan Arbeitsende = GetArbeitsendeOfDayOfWeek(buchung.Zeit, mtbtr);
                         if (buchung.Zeit.CompareTo(new DateTime(buchung.Zeit.Year, buchung.Zeit.Month, buchung.Zeit.Day, Arbeitsende.Hours, Arbeitsende.Minutes, 0)) > 0 && 
-                            Arbeitsende.Hours != 0)
+                            Arbeitsende.TotalSeconds != 0)
                         {
                             Arbeitszeit += new TimeSpan(new TimeSpan(Arbeitsende.Hours, Arbeitsende.Minutes, 0).Ticks - temp.TimeOfDay.Ticks);
                         }
@@ -141,18 +142,27 @@ namespace TimeChip_App_1._0
             {
                 if (buchungen.Count != 0)
                 {
-                    //Erste Buchung liegt vor Pausenbeginn
-                    if (buchungen[0].Zeit.TimeOfDay.CompareTo(GetPausenbeginnOfDayOfWeek(day, mtbtr)) < 0)
+                    if (GetPausenbeginnOfDayOfWeek(day, mtbtr).TotalSeconds == 0 || GetPausenendeOfDayOfWeek(day, mtbtr).TotalSeconds == 0)
                     {
-                        //Letzte Buchung liegt nach Pausenende
-                        if (buchungen.LastOrDefault().Zeit.TimeOfDay.CompareTo(GetPausenendeOfDayOfWeek(day, mtbtr)) > 0)
+                        Arbeitszeit -= GetSollPausendauer(day, mtbtr);
+                        pauseberechnet = true;
+                    }
+                    else
+                    {
+                        //Erste Buchung liegt vor Pausenbeginn
+                        if (buchungen[0].Zeit.TimeOfDay.CompareTo(GetPausenbeginnOfDayOfWeek(day, mtbtr)) < 0)
                         {
-                            Arbeitszeit -= GetSollPausendauer(day, mtbtr);
-                            Überstunden = Arbeitszeit - GetSollArbeitszeit(day, mtbtr);
+                            //Letzte Buchung liegt nach Pausenende
+                            if (buchungen.LastOrDefault().Zeit.TimeOfDay.CompareTo(GetPausenendeOfDayOfWeek(day, mtbtr)) > 0)
+                            {
+                                Arbeitszeit -= GetSollPausendauer(day, mtbtr);
 
-                            pauseberechnet = true;
+                                Debug.WriteLine("Pause Normal berechnet");
+                                pauseberechnet = true;
+                            }
                         }
                     }
+
                 }
                 else
                 {
@@ -171,9 +181,9 @@ namespace TimeChip_App_1._0
                 Debug.WriteLine("Pause bei schleißige mtbtr");
 
                 Arbeitszeit -= Pausendauer;
-                Überstunden = Arbeitszeit - GetSollArbeitszeit(day, mtbtr);
             }
 
+            Überstunden = Arbeitszeit - GetSollArbeitszeit(day, mtbtr);
             Debug.WriteLine("Arbeitszeit nach Pause Abzug: " + Arbeitszeit.ToString());
             Debug.WriteLine("Überstunden: " + Überstunden.ToString());
 
@@ -222,7 +232,7 @@ namespace TimeChip_App_1._0
                             break;
                         case 3:
                             //Überstunden wieder hinzufügen und Urlaub einen Tag abziehen
-                            mitarbeiter.Urlaub = mitarbeiter.Urlaub.Subtract(new TimeSpan(8, 0, 0));
+                            mitarbeiter.Urlaub = mitarbeiter.Urlaub.Subtract(GetSollArbeitszeit(tag.Date, mitarbeiter));
                             Debug.WriteLine(mitarbeiter.Urlaub);
                             break;
                     }
@@ -240,7 +250,7 @@ namespace TimeChip_App_1._0
                             break;
                         case 3:
                             //Urlaub einen Tag abziehen
-                            mitarbeiter.Urlaub = mitarbeiter.Urlaub.Subtract(new TimeSpan(8,0,0));
+                            mitarbeiter.Urlaub = mitarbeiter.Urlaub.Subtract(GetSollArbeitszeit(tag.Date, mitarbeiter));
                             break;
                     }
                     break;
@@ -250,13 +260,13 @@ namespace TimeChip_App_1._0
                         {
                             case 0:
                                 //Einen Tag Urlaub hinzufügen und += Überstunden
-                                mitarbeiter.Urlaub = mitarbeiter.Urlaub.Add(new TimeSpan(8,0,0));
+                                mitarbeiter.Urlaub = mitarbeiter.Urlaub.Add(GetSollArbeitszeit(tag.Date, mitarbeiter));
                                 mitarbeiter.Überstunden += Überstunden;
                                 break;
                             case 1:
                             case 2:
                                 //Einen Tag Urlaub hinzufügen
-                                mitarbeiter.Urlaub = mitarbeiter.Urlaub.Add(new TimeSpan(8,0,0));
+                                mitarbeiter.Urlaub = mitarbeiter.Urlaub.Add(GetSollArbeitszeit(tag.Date, mitarbeiter));
                                 break;
                             case 3:
                                 break;
@@ -272,7 +282,7 @@ namespace TimeChip_App_1._0
 
         /// <summary>
         /// Berechnet bei Bedarf den jährlichen Urlaub eines Mitarbeiters
-        /// Wird nicht verwendet, da die Urlaubsberechnung nicht allgemeingültig ist und daher von Hand vollzogen wird
+        /// Wird nicht verwendet, da die Urlaubsberechnung nicht allgemeingültig ist und daher für jeden Mitarbeiter einzeln von Hand vollzogen wird
         /// </summary>
         public static void Urlaubsberechnung()
         {

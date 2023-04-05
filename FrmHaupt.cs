@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
@@ -102,7 +103,7 @@ namespace TimeChip_App_1._0
 
         private void m_btnLöschen_Click(object sender, EventArgs e)
         {
-            if(MessageBox.Show("Wollen Sie wirklich den Mitarbeiter inklusive aller aufgezeichneten Daten löschen?", "Achtung", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) == DialogResult.Yes)
+            if(MessageBox.Show("Wollen Sie wirklich den Mitarbeiter inklusive aller aufgezeichneten Daten löschen?", "Achtung", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
                 DataProvider.DeleteMitarbeiter(m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter);
                 UpdateMtbtrList();
@@ -114,6 +115,7 @@ namespace TimeChip_App_1._0
         {
             DlgArbeitszeitprofile arbeitszeitprofile = new DlgArbeitszeitprofile();
             arbeitszeitprofile.ShowDialog();
+            UpdateMtbtrList();
         }
 
         private void UpdateMtbtrList()
@@ -141,7 +143,7 @@ namespace TimeChip_App_1._0
         {
             if (m_lbxMitarbeiter.SelectedItem != null)
             {
-                List<ClsBuchung> Buchungen = DataProvider.SelectAllBuchungenFromDay(m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter, m_cldKalender.SelectionStart, "buchungen");
+                List<ClsBuchung> Buchungen = DataProvider.SelectAllBuchungenFromDay(m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter, m_cldKalender.SelectionStart, "buchungen_temp");
 
                 //List<ClsBuchung> Buchungen2 = Buchungen.FindAll(x => x.Zeit.Date.Equals(m_cldKalender.SelectionStart));
 
@@ -169,14 +171,15 @@ namespace TimeChip_App_1._0
             List<ClsMitarbeiter> clsMitarbeiters = m_mitarbeiterliste.ToList();
             ClsMitarbeiter mitarbeiter = clsMitarbeiters.FindLast(x => x.ID.Equals((m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).ID));
             dlgBuchung.Mitarbeiter = mitarbeiter;
+            dlgBuchung.Datum = m_cldKalender.SelectionStart;
 
             if (dlgBuchung.ShowDialog() == DialogResult.OK) 
             {
                 DataProvider.InsertBuchung(dlgBuchung.Buchungstyp, dlgBuchung.GetDateTime(), dlgBuchung.Mitarbeiter.Mitarbeiternummer);
 
-                if(DataProvider.SelectAllBuchungenFromDay(mitarbeiter, dlgBuchung.GetDateTime(), "buchungen").Count > 1)
+                if(DataProvider.SelectAllBuchungenFromDay(mitarbeiter, dlgBuchung.GetDateTime(), "buchungen_temp").Count > 1)
                 {
-                    ClsBerechnung.Berechnen(dlgBuchung.GetDateTime(), ref mitarbeiter, false);
+                    ClsBerechnung.Berechnen(dlgBuchung.Datum, ref mitarbeiter, false);
                 }
 
                 UpdateLbxBuchungen();
@@ -206,7 +209,7 @@ namespace TimeChip_App_1._0
                     ClsMitarbeiter mtbtr = m_mitarbeiterliste.ToList().Find(x => x.Mitarbeiternummer.Equals(zubearbeiten.Mitarbeiternummer));
 
                     DataProvider.UpdateBuchung(zubearbeiten);
-                    if (DataProvider.SelectAllBuchungenFromDay(mtbtr, dlgBuchung.GetDateTime(), "buchungen").Count > 1)
+                    if (DataProvider.SelectAllBuchungenFromDay(mtbtr, dlgBuchung.GetDateTime(), "buchungen_temp").Count > 1)
                     {
                         ClsBerechnung.Berechnen(dlgBuchung.GetDateTime(), ref mtbtr, false);
                     }
@@ -218,7 +221,7 @@ namespace TimeChip_App_1._0
 
         private void m_btnBuchungLöschen_Click(object sender, EventArgs e)
         {
-            if(MessageBox.Show("Wollen Sie wirklich diese Buchung löschen?", "Achtung", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) == DialogResult.Yes){
+            if(MessageBox.Show("Wollen Sie wirklich diese Buchung löschen?", "Achtung", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes){
                 ClsBuchung buchung = m_lbxBuchungen.SelectedItem as ClsBuchung;
                 DataProvider.DeleteBuchung(buchung, "buchungen");
 
@@ -244,11 +247,15 @@ namespace TimeChip_App_1._0
                 DateTime tag = new DateTime(ausgewählter_tag.Year, ausgewählter_tag.Month, i);
                 if(tag.CompareTo(DateTime.Now) < 0 && tag.CompareTo(mitarbeiter.Arbeitsbeginn) > 0)
                 {
-                    ClsAusgewerteter_Tag tag1 = DataProvider.SelectAusgewerteterTag(tag, mitarbeiter.Mitarbeiternummer);
+                    ClsAusgewerteter_Tag ausgewtag = DataProvider.SelectAusgewerteterTag(tag, mitarbeiter.Mitarbeiternummer);
 
-                    if(tag1 != null)
+                    if(ausgewtag != null)
                     {
-                        if(tag1.Arbeitszeit.Ticks < ClsBerechnung.GetSollArbeitszeit(tag, mitarbeiter).Ticks)
+                        Debug.WriteLine(ausgewtag.Date);
+                        Debug.WriteLine(ausgewtag.Arbeitszeit);
+                        Debug.WriteLine(ClsBerechnung.GetSollArbeitszeit(tag, mitarbeiter));
+
+                        if (ausgewtag.Arbeitszeit.Ticks < ClsBerechnung.GetSollArbeitszeit(tag, mitarbeiter).Ticks)
                         {
                             BoldedDates.Add(tag);
                         }
@@ -256,6 +263,7 @@ namespace TimeChip_App_1._0
                     else
                     {
                         BoldedDates.Add(tag);
+                        Debug.WriteLine(tag.ToString());
                     }
                 }
             }
@@ -270,9 +278,6 @@ namespace TimeChip_App_1._0
                 ClsMitarbeiter mitarbeiter = m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter;
 
                 string urlaub = mitarbeiter.Urlaub.TotalHours.ToString() + ":00";
-                if (mitarbeiter.Urlaub.Hours < 0)
-                    urlaub = "-" + urlaub;
-                Debug.WriteLine(urlaub);
 
                 m_lblUrlaub.Text = urlaub;
                 m_lblÜberstunden.Text = mitarbeiter.Überstunden.ToString();
@@ -364,76 +369,106 @@ namespace TimeChip_App_1._0
 
         private void m_btnPrint_Click(object sender, EventArgs e)
         {
+            m_Druckzähler = 0;
             DateTime date = m_cldKalender.SelectionStart;
             ClsMitarbeiter mtbtr = m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter;
 
-            using (StreamWriter sw = new StreamWriter("Export.csv", false))
+            using (StreamWriter sw = new StreamWriter("Export.html", false))
             {
-                sw.WriteLine(mtbtr.ToString());
+                ClsPrintTemplate doc = new ClsPrintTemplate();
+                TimeSpan Monat = new TimeSpan();
+                TimeSpan GesSoll = new TimeSpan();
+                TimeSpan GesIst = new TimeSpan();
+
+                
                 for (int i = 1; i <= DateTime.DaysInMonth(date.Year, date.Month); i++)
                 {
                     DateTime date1 = new DateTime(date.Year, date.Month, i);
-                    foreach(ClsBuchung buchung in DataProvider.SelectAllBuchungenFromDay(mtbtr, date1, "buchungen"))
+                    List<ClsBuchung> buchungen = DataProvider.SelectAllBuchungenFromDay(mtbtr, date1, "buchungen_temp");
+                    TimeSpan SollZeit = ClsBerechnung.GetSollArbeitszeit(date1, mtbtr);
+                    ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(date1, mtbtr.Mitarbeiternummer);
+                    TimeSpan IstZeit = new TimeSpan();
+                    if(tag != null)
                     {
-                        sw.WriteLine(buchung.ToString());
+                        IstZeit = tag.Arbeitszeit;
                     }
-                    sw.WriteLine();
+                    else
+                    {
+                        MessageBox.Show("Monat ist noch nicht beendet!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
+                    string Status;
+                    switch (tag.Status)
+                    {
+                        case 1:
+                            Status = "Krank";
+                            break;
+                        case 2:
+                            Status = "Schule";
+                            break;
+                        case 3:
+                            Status = "Urlaub";
+                            break;
+                        default:
+                            Status = "Zeitausgleich";
+                            break;
+                    }
+                    TimeSpan Überstunden = new TimeSpan(IstZeit.Ticks-SollZeit.Ticks);
+                    if(tag.Status == 0)
+                    {
+                        Monat = Monat.Add(Überstunden);
+                    }
+                    string Monatstr = Math.Round(Math.Abs(Monat.TotalHours) - 0.5, 0,MidpointRounding.AwayFromZero).ToString() + ":" + Math.Abs(Monat.Minutes).ToString("D2");
+                    if (Monat.TotalHours < 0)
+                        Monatstr = "-" + Monatstr;
+                    string Überstundenstr = Überstunden.ToString(@"hh\:mm");
+                    if (Überstunden.TotalHours < 0)
+                        Überstundenstr = "-" + Überstundenstr;
+                    string SollZeitstr = SollZeit.ToString(@"hh\:mm");
+                    string IstZeitstr = IstZeit.ToString(@"hh\:mm");
+                    string Tag = date1.DayOfWeek.ToString() + ", " + date1.Day;
+
+                    GesSoll = GesSoll.Add(SollZeit);
+                    GesIst = GesIst.Add(IstZeit);
+
+                    doc.AddLine(Tag,buchungen, SollZeitstr, IstZeitstr, Status, Überstundenstr, Monatstr);
                 }
+
+                string GesSollstr = Math.Round(Math.Abs(GesSoll.TotalHours) - 0.5, 0, MidpointRounding.AwayFromZero).ToString() + ":" + Math.Abs(GesSoll.Minutes).ToString("D2");
+
+                string GesIststr = Math.Round(Math.Abs(GesIst.TotalHours) - 0.5, 0, MidpointRounding.AwayFromZero).ToString() + ":" + Math.Abs(GesIst.Minutes).ToString("D2");
+
+                string Monatsüberstunden = Math.Round(Math.Abs(Monat.TotalHours) - 0.5, 0, MidpointRounding.AwayFromZero).ToString() + ":" + Math.Abs(Monat.Minutes).ToString("D2");
+                if (Monat.TotalHours < 0)
+                    Monatsüberstunden = "-" + Monatsüberstunden;
+                string GesÜberstunden = Math.Round(Math.Abs(mtbtr.Überstunden.TotalHours) - 0.5, 0, MidpointRounding.AwayFromZero).ToString() + ":" + Math.Abs(mtbtr.Überstunden.Minutes).ToString("D2");
+                if (mtbtr.Überstunden.TotalHours < 0)
+                    GesÜberstunden = "-" + GesÜberstunden;
+                string GesUrlaub = mtbtr.Urlaub.TotalHours.ToString() + ":00";
+
+                sw.WriteLine(doc.GetDoc(GesSollstr,GesIststr,Monatsüberstunden,GesÜberstunden,GesUrlaub));
             }
 
-            
-            PrintDialog printDlg = new PrintDialog();
-            
-            PrintDocument printDoc = new PrintDocument();
-            printDlg.Document = printDoc;
-            printDlg.AllowPrintToFile = true;
-            if(printDlg.ShowDialog() == DialogResult.OK)
-            {
-                try
-                {
-                    m_printStream = new StreamReader("Export.csv");
-                    printDoc.PrintPage += new PrintPageEventHandler(this.pd_PrintPage);
-                    printDoc.Print();
-                }
-                finally
-                {
-                    m_printStream.Close();
-                }
-
-            }
+            WebBrowser PrintBrowser = new WebBrowser();
+            string Filepath = Directory.GetCurrentDirectory().ToString() + @"\Export.html";
+            PrintBrowser.Url = new Uri(Filepath);
+            PrintBrowser.DocumentCompleted += PrintBrower_DocumentCompleted;
         }
-
-
-        private void pd_PrintPage(object sender, PrintPageEventArgs ev)
+        int m_Druckzähler = 0;
+        private void PrintBrower_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
-            float linesPerPage = 0;
-            float yPos = 0;
-            int count = 0;
-            float leftMargin = ev.MarginBounds.Left;
-            float topMargin = ev.MarginBounds.Top;
-            string line = null;
-            Font printFont = new Font("Arial", 11);
-
-            // Calculate the number of lines per page.
-            linesPerPage = ev.MarginBounds.Height /
-               printFont.GetHeight(ev.Graphics);
-
-            // Print each line of the file.
-            while (count < linesPerPage &&
-               ((line = m_printStream.ReadLine()) != null))
+            m_Druckzähler++;
+            Debug.WriteLine(m_Druckzähler);
+            if (m_Druckzähler == 1)
             {
-                yPos = topMargin + (count *
-                   printFont.GetHeight(ev.Graphics));
-                ev.Graphics.DrawString(line, printFont, Brushes.Black,
-                   leftMargin, yPos, new StringFormat());
-                count++;
+                ((WebBrowser)sender).ShowPrintDialog();
+                //((WebBrowser)sender).Print();
             }
-
-            // If more lines exist, print another page.
-            if (line != null)
-                ev.HasMorePages = true;
             else
-                ev.HasMorePages = false;
+            {
+                ((WebBrowser)sender).Dispose();
+            }
         }
 
         private void m_btnRefresh_Click(object sender, EventArgs e)

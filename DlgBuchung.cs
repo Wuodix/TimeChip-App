@@ -31,6 +31,7 @@ namespace TimeChip_App_1._0
         public string Titel { get { return m_lblTitel.Text; } set { m_lblTitel.Text = value; } }
         public string OkKnopf { get { return m_btnOK.Text; } set { m_btnOK.Text = value; } }
         public ClsMitarbeiter Mitarbeiter { get { return m_cmbxMitarbeiter.SelectedItem as ClsMitarbeiter; } set { m_cmbxMitarbeiter.SelectedItem = value; } }
+        public DateTime Datum { get { return GetDateTime(); } set { SetDateTime(value); } }
 
         public DateTime GetDateTime()
         {

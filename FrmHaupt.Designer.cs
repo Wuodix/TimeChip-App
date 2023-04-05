@@ -64,6 +64,7 @@ namespace TimeChip_App_1._0
             // 
             // m_cldKalender
             // 
+            this.m_cldKalender.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_cldKalender.Location = new System.Drawing.Point(675, 16);
             this.m_cldKalender.Margin = new System.Windows.Forms.Padding(7);
             this.m_cldKalender.MaxSelectionCount = 1;
@@ -76,19 +77,20 @@ namespace TimeChip_App_1._0
             // 
             // m_lbxMitarbeiter
             // 
-            this.m_lbxMitarbeiter.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.m_lbxMitarbeiter.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_lbxMitarbeiter.FormattingEnabled = true;
-            this.m_lbxMitarbeiter.ItemHeight = 18;
+            this.m_lbxMitarbeiter.ItemHeight = 20;
             this.m_lbxMitarbeiter.Location = new System.Drawing.Point(9, 115);
             this.m_lbxMitarbeiter.Margin = new System.Windows.Forms.Padding(2);
             this.m_lbxMitarbeiter.Name = "m_lbxMitarbeiter";
-            this.m_lbxMitarbeiter.Size = new System.Drawing.Size(294, 328);
+            this.m_lbxMitarbeiter.Size = new System.Drawing.Size(294, 324);
             this.m_lbxMitarbeiter.TabIndex = 1;
             this.m_lbxMitarbeiter.SelectedIndexChanged += new System.EventHandler(this.m_lbxMitarbeiterChanged);
             this.m_lbxMitarbeiter.SelectedValueChanged += new System.EventHandler(this.m_lbxMitarbeiterChanged);
             // 
             // m_btnNeuerMitarbeiter
             // 
+            this.m_btnNeuerMitarbeiter.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_btnNeuerMitarbeiter.Location = new System.Drawing.Point(9, 63);
             this.m_btnNeuerMitarbeiter.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnNeuerMitarbeiter.Name = "m_btnNeuerMitarbeiter";
@@ -100,6 +102,7 @@ namespace TimeChip_App_1._0
             // 
             // m_btnBearbeiten
             // 
+            this.m_btnBearbeiten.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_btnBearbeiten.Location = new System.Drawing.Point(109, 63);
             this.m_btnBearbeiten.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnBearbeiten.Name = "m_btnBearbeiten";
@@ -111,6 +114,7 @@ namespace TimeChip_App_1._0
             // 
             // m_btnLöschen
             // 
+            this.m_btnLöschen.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_btnLöschen.Location = new System.Drawing.Point(208, 63);
             this.m_btnLöschen.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnLöschen.Name = "m_btnLöschen";
@@ -122,6 +126,7 @@ namespace TimeChip_App_1._0
             // 
             // m_btnarbeitszeitprofil
             // 
+            this.m_btnarbeitszeitprofil.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_btnarbeitszeitprofil.Location = new System.Drawing.Point(9, 10);
             this.m_btnarbeitszeitprofil.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnarbeitszeitprofil.Name = "m_btnarbeitszeitprofil";
@@ -133,17 +138,18 @@ namespace TimeChip_App_1._0
             // 
             // m_lbxBuchungen
             // 
-            this.m_lbxBuchungen.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.m_lbxBuchungen.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_lbxBuchungen.FormattingEnabled = true;
-            this.m_lbxBuchungen.ItemHeight = 18;
+            this.m_lbxBuchungen.ItemHeight = 20;
             this.m_lbxBuchungen.Location = new System.Drawing.Point(349, 115);
             this.m_lbxBuchungen.Margin = new System.Windows.Forms.Padding(2);
             this.m_lbxBuchungen.Name = "m_lbxBuchungen";
-            this.m_lbxBuchungen.Size = new System.Drawing.Size(293, 166);
+            this.m_lbxBuchungen.Size = new System.Drawing.Size(293, 164);
             this.m_lbxBuchungen.TabIndex = 7;
             // 
             // m_btnNeueBuchung
             // 
+            this.m_btnNeueBuchung.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_btnNeueBuchung.Location = new System.Drawing.Point(349, 62);
             this.m_btnNeueBuchung.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnNeueBuchung.Name = "m_btnNeueBuchung";
@@ -155,6 +161,7 @@ namespace TimeChip_App_1._0
             // 
             // m_btnBuchungBearbeiten
             // 
+            this.m_btnBuchungBearbeiten.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_btnBuchungBearbeiten.Location = new System.Drawing.Point(448, 63);
             this.m_btnBuchungBearbeiten.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnBuchungBearbeiten.Name = "m_btnBuchungBearbeiten";
@@ -166,6 +173,7 @@ namespace TimeChip_App_1._0
             // 
             // m_btnBuchungLöschen
             // 
+            this.m_btnBuchungLöschen.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_btnBuchungLöschen.Location = new System.Drawing.Point(547, 62);
             this.m_btnBuchungLöschen.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnBuchungLöschen.Name = "m_btnBuchungLöschen";
@@ -177,6 +185,7 @@ namespace TimeChip_App_1._0
             // 
             // m_btnSchule
             // 
+            this.m_btnSchule.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_btnSchule.Location = new System.Drawing.Point(675, 187);
             this.m_btnSchule.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnSchule.Name = "m_btnSchule";
@@ -188,6 +197,7 @@ namespace TimeChip_App_1._0
             // 
             // m_btnUrlaub
             // 
+            this.m_btnUrlaub.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_btnUrlaub.Location = new System.Drawing.Point(774, 240);
             this.m_btnUrlaub.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnUrlaub.Name = "m_btnUrlaub";
@@ -199,17 +209,19 @@ namespace TimeChip_App_1._0
             // 
             // m_btnUnentschuldigt
             // 
+            this.m_btnUnentschuldigt.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_btnUnentschuldigt.Location = new System.Drawing.Point(675, 240);
             this.m_btnUnentschuldigt.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnUnentschuldigt.Name = "m_btnUnentschuldigt";
             this.m_btnUnentschuldigt.Size = new System.Drawing.Size(95, 49);
             this.m_btnUnentschuldigt.TabIndex = 13;
-            this.m_btnUnentschuldigt.Text = "Zeitausgleichs-\r\nstunden";
+            this.m_btnUnentschuldigt.Text = "Zeitaus-\r\ngleich";
             this.m_btnUnentschuldigt.UseVisualStyleBackColor = true;
             this.m_btnUnentschuldigt.Click += new System.EventHandler(this.m_btnUnentschuldigt_Click);
             // 
             // m_btnRefresh
             // 
+            this.m_btnRefresh.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_btnRefresh.Location = new System.Drawing.Point(349, 11);
             this.m_btnRefresh.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnRefresh.Name = "m_btnRefresh";
@@ -287,7 +299,7 @@ namespace TimeChip_App_1._0
             this.label2.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(729, 312);
+            this.label2.Location = new System.Drawing.Point(729, 316);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(84, 20);
             this.label2.TabIndex = 1;
@@ -317,6 +329,7 @@ namespace TimeChip_App_1._0
             // 
             // m_btnKrank
             // 
+            this.m_btnKrank.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_btnKrank.Location = new System.Drawing.Point(774, 187);
             this.m_btnKrank.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnKrank.Name = "m_btnKrank";
@@ -404,7 +417,7 @@ namespace TimeChip_App_1._0
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(891, 457);
+            this.ClientSize = new System.Drawing.Size(891, 464);
             this.Controls.Add(this.m_btnPrint);
             this.Controls.Add(this.tableLayoutPanel2);
             this.Controls.Add(this.m_btnKrank);

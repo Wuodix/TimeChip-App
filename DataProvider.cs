@@ -451,7 +451,7 @@ namespace TimeChip_App_1._0
         public static int UpdateTag(ClsTag Tag)
         {
             string query = "UPDATE tage SET Name=@name, Arbeitsbeginn=@abbeginn, Arbeitsende=@abende, Arbeitszeit=@abzeit, Pausenbeginn=@pbeginn, Pausenende=" +
-                "@pende, Pausendauer=@pdauer WHERE ID=@id";
+                "@pende, Pausendauer=@pdauer, Pause=@pause WHERE ID=@id";
 
             MySqlCommand cmd = new MySqlCommand(query);
             cmd.Parameters.AddWithValue("name", Tag.Name);
@@ -461,6 +461,7 @@ namespace TimeChip_App_1._0
             cmd.Parameters.AddWithValue("pbeginn", Tag.Pausenbeginn);
             cmd.Parameters.AddWithValue("pende", Tag.Pausenende);
             cmd.Parameters.AddWithValue("pdauer", Tag.Pausendauer);
+            cmd.Parameters.AddWithValue("pause", Tag.Pause);
             cmd.Parameters.AddWithValue("id", Tag.ID);
 
             return ExecuteNonQuery(cmd);
@@ -757,7 +758,7 @@ namespace TimeChip_App_1._0
         public static string SendRecieveHTTP(string text)
         {
             byte[] data = Encoding.UTF8.GetBytes(text + "\n\r\n");
-            string URL = "http://192.168.1.205/", responseContent;
+            string URL = "http://10.100.128.20/", responseContent;
 
             WebRequest webRequest = WebRequest.Create(URL);
             webRequest.Method = "POST";
