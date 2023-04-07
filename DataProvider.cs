@@ -16,7 +16,7 @@ namespace TimeChip_App_1._0
 {
     public class DataProvider
     {
-        private static readonly string connectionString = "SERVER=localhost;DATABASE=apotheke_time_chip;UID=root;";
+        private static readonly string m_connectionString = "SERVER=localhost;DATABASE=apotheke_time_chip;UID=root;";
 
         public static ClsBuchung InsertBuchung(Buchungstyp buchungstyp, DateTime zeit, int mitarbeiternr)
         {
@@ -131,7 +131,7 @@ namespace TimeChip_App_1._0
         public static List<ClsBuchung> SelectAllBuchungen(string Table)
         {
             List<ClsBuchung> list = new List<ClsBuchung>();
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            using (MySqlConnection conn = new MySqlConnection(m_connectionString))
             {
                 conn.Open();
                 
@@ -166,7 +166,7 @@ namespace TimeChip_App_1._0
         public static List<ClsBuchung> SelectAllBuchungenFromMtbtr(ClsMitarbeiter mtbtr, string Table)
         {
             List<ClsBuchung> list = new List<ClsBuchung>();
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            using (MySqlConnection conn = new MySqlConnection(m_connectionString))
             {
                 conn.Open();
 
@@ -202,7 +202,7 @@ namespace TimeChip_App_1._0
         {
             List<ClsTag> list = new List<ClsTag>();
 
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            using (MySqlConnection conn = new MySqlConnection(m_connectionString))
             {
                 conn.Open();
 
@@ -231,7 +231,7 @@ namespace TimeChip_App_1._0
         {
             List<ClsArbeitsprofil> list = new List<ClsArbeitsprofil>();
 
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            using (MySqlConnection conn = new MySqlConnection(m_connectionString))
             {
                 conn.Open();
 
@@ -261,7 +261,7 @@ namespace TimeChip_App_1._0
         {
             List<ClsMitarbeiter> list = new List<ClsMitarbeiter>();
 
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            using (MySqlConnection conn = new MySqlConnection(m_connectionString))
             {
                 conn.Open();
                 
@@ -290,7 +290,7 @@ namespace TimeChip_App_1._0
         {
             List<ClsFingerprintRFID> list = new List<ClsFingerprintRFID>();
 
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            using (MySqlConnection conn = new MySqlConnection(m_connectionString))
             {
                 conn.Open();
 
@@ -320,7 +320,7 @@ namespace TimeChip_App_1._0
             {
                 string query = "SELECT * FROM buchungen WHERE Mitarbeiternummer=@mtbtrnr AND (Zeit BETWEEN @zeit1 AND @zeit2)";
 
-                using (MySqlConnection conn = new MySqlConnection(connectionString))
+                using (MySqlConnection conn = new MySqlConnection(m_connectionString))
                 {
                     conn.Open();
 
@@ -363,7 +363,7 @@ namespace TimeChip_App_1._0
 
             string query = "SELECT * FROM ausgewertete_tage WHERE Datum=@date AND Mitarbeiternummer=@mtbtrnr";
 
-            using(MySqlConnection conn = new MySqlConnection(connectionString))
+            using(MySqlConnection conn = new MySqlConnection(m_connectionString))
             {
                 conn.Open();
 
@@ -391,7 +391,7 @@ namespace TimeChip_App_1._0
 
             string query = "SELECT * FROM ausgewertete_tage WHERE ID=(SELECT max(ID) FROM ausgewertete_tage)";
 
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            using (MySqlConnection conn = new MySqlConnection(m_connectionString))
             {
                 conn.Open();
 
@@ -416,7 +416,7 @@ namespace TimeChip_App_1._0
 
             string query = "SELECT * FROM ausgewertete_tage WHERE Mitarbeiternummer=" + mtbtr.Mitarbeiternummer;
 
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            using (MySqlConnection conn = new MySqlConnection(m_connectionString))
             {
                 conn.Open();
 
@@ -728,7 +728,7 @@ namespace TimeChip_App_1._0
         {
             int result = 0;
 
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            using (MySqlConnection conn = new MySqlConnection(m_connectionString))
             {
                 conn.Open();
 
@@ -744,7 +744,7 @@ namespace TimeChip_App_1._0
         {
             int result = 0;
 
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            using (MySqlConnection conn = new MySqlConnection(m_connectionString))
             {
                 conn.Open();
 
