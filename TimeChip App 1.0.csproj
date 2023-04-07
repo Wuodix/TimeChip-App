@@ -107,6 +107,7 @@
     <Compile Include="ClsAusgewerteter_Tag.cs" />
     <Compile Include="ClsBerechnung.cs" />
     <Compile Include="ClsBuchung.cs" />
+    <Compile Include="ClsFeiertage.cs" />
     <Compile Include="ClsPrintTemplate.cs" />
     <Compile Include="DataProvider.cs" />
     <Compile Include="DlgArbeitszeitprofile.cs">

@@ -46,6 +46,8 @@ namespace TimeChip_App_1._0
             this.label1 = new System.Windows.Forms.Label();
             this.m_tbxUrlaub = new System.Windows.Forms.TextBox();
             this.clsArbeitsprofilBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.m_tbxÜberstunden = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.clsArbeitsprofilBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
@@ -105,7 +107,7 @@ namespace TimeChip_App_1._0
             // m_cmbxAProfil
             // 
             this.m_cmbxAProfil.FormattingEnabled = true;
-            this.m_cmbxAProfil.Location = new System.Drawing.Point(243, 231);
+            this.m_cmbxAProfil.Location = new System.Drawing.Point(243, 270);
             this.m_cmbxAProfil.Margin = new System.Windows.Forms.Padding(2);
             this.m_cmbxAProfil.Name = "m_cmbxAProfil";
             this.m_cmbxAProfil.Size = new System.Drawing.Size(194, 21);
@@ -116,7 +118,7 @@ namespace TimeChip_App_1._0
             this.label4.AllowDrop = true;
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(10, 228);
+            this.label4.Location = new System.Drawing.Point(10, 267);
             this.label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(146, 22);
@@ -125,7 +127,7 @@ namespace TimeChip_App_1._0
             // 
             // m_dtpArbeitsb
             // 
-            this.m_dtpArbeitsb.Location = new System.Drawing.Point(243, 263);
+            this.m_dtpArbeitsb.Location = new System.Drawing.Point(243, 302);
             this.m_dtpArbeitsb.Margin = new System.Windows.Forms.Padding(2);
             this.m_dtpArbeitsb.Name = "m_dtpArbeitsb";
             this.m_dtpArbeitsb.Size = new System.Drawing.Size(194, 20);
@@ -136,7 +138,7 @@ namespace TimeChip_App_1._0
             this.label5.AllowDrop = true;
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(10, 263);
+            this.label5.Location = new System.Drawing.Point(10, 302);
             this.label5.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(132, 22);
@@ -146,20 +148,20 @@ namespace TimeChip_App_1._0
             // m_btnOK
             // 
             this.m_btnOK.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.m_btnOK.Location = new System.Drawing.Point(65, 399);
+            this.m_btnOK.Location = new System.Drawing.Point(65, 438);
             this.m_btnOK.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnOK.Name = "m_btnOK";
             this.m_btnOK.Size = new System.Drawing.Size(126, 38);
             this.m_btnOK.TabIndex = 9;
             this.m_btnOK.Text = "Erstellen";
             this.m_btnOK.UseVisualStyleBackColor = true;
-            this.m_btnOK.Click += new System.EventHandler(this.m_btnOK_Click);
+            this.m_btnOK.Click += new System.EventHandler(this.BtnOK_Click);
             // 
             // m_btnCancel
             // 
             this.m_btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.m_btnCancel.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.m_btnCancel.Location = new System.Drawing.Point(243, 399);
+            this.m_btnCancel.Location = new System.Drawing.Point(243, 438);
             this.m_btnCancel.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnCancel.Name = "m_btnCancel";
             this.m_btnCancel.Size = new System.Drawing.Size(128, 38);
@@ -170,33 +172,33 @@ namespace TimeChip_App_1._0
             // m_btnAddFinger
             // 
             this.m_btnAddFinger.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.m_btnAddFinger.Location = new System.Drawing.Point(14, 304);
+            this.m_btnAddFinger.Location = new System.Drawing.Point(14, 343);
             this.m_btnAddFinger.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnAddFinger.Name = "m_btnAddFinger";
             this.m_btnAddFinger.Size = new System.Drawing.Size(220, 31);
             this.m_btnAddFinger.TabIndex = 11;
             this.m_btnAddFinger.Text = "Finger hinzufügen";
             this.m_btnAddFinger.UseVisualStyleBackColor = true;
-            this.m_btnAddFinger.Click += new System.EventHandler(this.m_btnAddFinger_Click);
+            this.m_btnAddFinger.Click += new System.EventHandler(this.BtnAddFinger_Click);
             // 
             // m_btnAddCard
             // 
             this.m_btnAddCard.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.m_btnAddCard.Location = new System.Drawing.Point(14, 350);
+            this.m_btnAddCard.Location = new System.Drawing.Point(14, 389);
             this.m_btnAddCard.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnAddCard.Name = "m_btnAddCard";
             this.m_btnAddCard.Size = new System.Drawing.Size(220, 31);
             this.m_btnAddCard.TabIndex = 12;
             this.m_btnAddCard.Text = "NFC Karte hinzufügen";
             this.m_btnAddCard.UseVisualStyleBackColor = true;
-            this.m_btnAddCard.Click += new System.EventHandler(this.m_btnAddCard_Click);
+            this.m_btnAddCard.Click += new System.EventHandler(this.BtnAddCard_Click);
             // 
             // label1
             // 
             this.label1.AllowDrop = true;
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(9, 193);
+            this.label1.Location = new System.Drawing.Point(9, 232);
             this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(69, 22);
@@ -205,7 +207,7 @@ namespace TimeChip_App_1._0
             // 
             // m_tbxUrlaub
             // 
-            this.m_tbxUrlaub.Location = new System.Drawing.Point(379, 193);
+            this.m_tbxUrlaub.Location = new System.Drawing.Point(379, 232);
             this.m_tbxUrlaub.Margin = new System.Windows.Forms.Padding(2);
             this.m_tbxUrlaub.Multiline = true;
             this.m_tbxUrlaub.Name = "m_tbxUrlaub";
@@ -216,11 +218,34 @@ namespace TimeChip_App_1._0
             // 
             this.clsArbeitsprofilBindingSource.DataSource = typeof(TimeChip_App_1._0.ClsArbeitsprofil);
             // 
+            // m_tbxÜberstunden
+            // 
+            this.m_tbxÜberstunden.Location = new System.Drawing.Point(379, 200);
+            this.m_tbxÜberstunden.Margin = new System.Windows.Forms.Padding(2);
+            this.m_tbxÜberstunden.Multiline = true;
+            this.m_tbxÜberstunden.Name = "m_tbxÜberstunden";
+            this.m_tbxÜberstunden.Size = new System.Drawing.Size(58, 24);
+            this.m_tbxÜberstunden.TabIndex = 16;
+            // 
+            // label6
+            // 
+            this.label6.AllowDrop = true;
+            this.label6.AutoSize = true;
+            this.label6.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label6.Location = new System.Drawing.Point(9, 200);
+            this.label6.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(123, 22);
+            this.label6.TabIndex = 15;
+            this.label6.Text = "Überstunden:";
+            // 
             // DlgMitarbeiter
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(446, 448);
+            this.ClientSize = new System.Drawing.Size(446, 487);
+            this.Controls.Add(this.m_tbxÜberstunden);
+            this.Controls.Add(this.label6);
             this.Controls.Add(this.m_tbxUrlaub);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.m_btnAddCard);
@@ -263,5 +288,7 @@ namespace TimeChip_App_1._0
         private System.Windows.Forms.ComboBox m_cmbxAProfil;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox m_tbxUrlaub;
+        private System.Windows.Forms.TextBox m_tbxÜberstunden;
+        private System.Windows.Forms.Label label6;
     }
 }

@@ -33,7 +33,7 @@ namespace TimeChip_App_1._0
 
         public override string ToString()
         {
-            return Zeit.TimeOfDay.ToString() + " - " + Buchungstyp.ToString();
+            return Zeit.TimeOfDay.ToString(@"hh\:mm") + " - " + Buchungstyp.ToString();
         }
     }
 }

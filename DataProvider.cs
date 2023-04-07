@@ -56,7 +56,7 @@ namespace TimeChip_App_1._0
         }
         public static ClsArbeitsprofil InsertArbeitszeitprofil(string name, ClsTag montag, ClsTag dienstag, ClsTag mittwoch, ClsTag donnerstag, ClsTag freitag, ClsTag samstag, ClsTag sonntag, bool gleitzeit)
         {
-            string query = "INSERT INTO arbeitszeitprofile (Name, Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag, Sonntag, Urlaub, Gleitzeit)" +
+            string query = "INSERT INTO arbeitszeitprofile (Name, Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag, Sonntag, Gleitzeit)" +
                 "VALUES(@name, @montag, @dienstag, @mittwoch, @donnerstag, @freitag, @samstag, @sonntag, @gleitzeit)";
 
             MySqlCommand cmd = new MySqlCommand(query);
@@ -787,7 +787,7 @@ namespace TimeChip_App_1._0
             }
             catch
             {
-                MessageBox.Show("Der Arduino kann leider nicht erreicht werden!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Der Arduino kann nicht erreicht werden!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return "-1";
             }
         }

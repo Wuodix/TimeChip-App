@@ -343,6 +343,12 @@ namespace TimeChip_App_1._0
 
         public static TimeSpan GetSollArbeitszeit(DateTime date, ClsMitarbeiter mitarbeiter)
         {
+            FeiertagLogic feiertage = FeiertagLogic.GetInstance(date.Year);
+
+            if (feiertage.isFeiertag(date))
+            {
+                return new TimeSpan();
+            }
             switch (date.DayOfWeek)
             {
                 case DayOfWeek.Monday:

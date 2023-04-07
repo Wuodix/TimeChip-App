@@ -18,8 +18,7 @@ namespace TimeChip_App_1._0
     public partial class FrmHaupt : Form
     {
         static BindingList<ClsMitarbeiter> m_mitarbeiterliste = new BindingList<ClsMitarbeiter>();
-        static BindingList<ClsBuchung> m_buchungsliste = new BindingList<ClsBuchung>();
-        private StreamReader m_printStream;
+        static readonly BindingList<ClsBuchung> m_buchungsliste = new BindingList<ClsBuchung>();
 
         public FrmHaupt()
         {
@@ -42,24 +41,19 @@ namespace TimeChip_App_1._0
 
         public static BindingList<ClsMitarbeiter> Mitarbeiterliste { get { return m_mitarbeiterliste; } set { m_mitarbeiterliste = value; } }
 
-        private void m_btnNeu_Click(object sender, EventArgs e)
+        private void BtnNeu_Click(object sender, EventArgs e)
         {
             DlgMitarbeiter neu = new DlgMitarbeiter();
-            neu.Titel = "Neuer:e Mitarbeiter:in";
-            neu.OkKnopf = "Erstellen";
-            neu.Name = "Neu";
-            neu.BtnAddFinger = "Finger hinzufügen";
-            neu.BtnAddCard = "Karte hinzufügen";
-            neu.Bearbeiten = false;
+            neu.Neu();
             if (neu.ShowDialog() == DialogResult.OK)
             {
-                DataProvider.InsertMitarbeiter(neu.Mitarbeiternummer,neu.Vorname, neu.Nachname, neu.Arbeitsbeginn, new TimeSpan(0), neu.Arbeitzeitprofil, neu.GetUrlaub());
+                DataProvider.InsertMitarbeiter(neu.Mitarbeiternummer,neu.Vorname, neu.Nachname, neu.Arbeitsbeginn, neu.Überstunden, neu.Arbeitzeitprofil, neu.Urlaub);
                 UpdateMtbtrList();
                 UpdateLbxBuchungen();
             }
         }
 
-        private void m_btnBearbeiten_Click(object sender, EventArgs e)
+        private void BtnBearbeiten_Click(object sender, EventArgs e)
         {
             DlgMitarbeiter Bearbeiten = new DlgMitarbeiter();
 
@@ -71,17 +65,7 @@ namespace TimeChip_App_1._0
             */
 
             ClsMitarbeiter zubearbeitender = m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter;
-            Bearbeiten.Titel = "Mitarbeiter:in bearbeiten";
-            Bearbeiten.OkKnopf = "Bearbeiten";
-            Bearbeiten.Name = "Bearbeiten";
-            Bearbeiten.BtnAddFinger = "Finger ändern";
-            Bearbeiten.BtnAddCard = "Karte ändern";
-            Bearbeiten.Vorname = zubearbeitender.Vorname;
-            Bearbeiten.Nachname = zubearbeitender.Nachname;
-            Bearbeiten.Arbeitsbeginn = zubearbeitender.Arbeitsbeginn;
-            Bearbeiten.Bearbeiten = true;
-            Bearbeiten.Mitarbeiternummer = zubearbeitender.Mitarbeiternummer;
-            Bearbeiten.SetUrlaub(zubearbeitender.Urlaub);
+            Bearbeiten.Bearbeiten(zubearbeitender);
 
             List<ClsArbeitsprofil> clsArbeitsprofils = DlgArbeitszeitprofile.ArbeitsprofilListe.ToList();
             ClsArbeitsprofil arbeitsprofil = clsArbeitsprofils.FindLast(x => x.ID.Equals(zubearbeitender.Arbeitszeitprofil.ID));
@@ -94,14 +78,15 @@ namespace TimeChip_App_1._0
                 zubearbeitender.Arbeitsbeginn = Bearbeiten.Arbeitsbeginn;
                 zubearbeitender.Arbeitszeitprofil = Bearbeiten.Arbeitzeitprofil;
                 zubearbeitender.Mitarbeiternummer = Bearbeiten.Mitarbeiternummer;
-                zubearbeitender.Urlaub = Bearbeiten.GetUrlaub();
+                zubearbeitender.Urlaub = Bearbeiten.Urlaub;
+                zubearbeitender.Überstunden = Bearbeiten.Überstunden;
 
                 DataProvider.UpdateMitarbeiter(zubearbeitender);
                 m_mitarbeiterliste.ResetBindings();
             }
         }
 
-        private void m_btnLöschen_Click(object sender, EventArgs e)
+        private void BtnLöschen_Click(object sender, EventArgs e)
         {
             if(MessageBox.Show("Wollen Sie wirklich den Mitarbeiter inklusive aller aufgezeichneten Daten löschen?", "Achtung", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
@@ -111,7 +96,7 @@ namespace TimeChip_App_1._0
             }
         }
 
-        private void m_btnarbeitszeitprofil_Click(object sender, EventArgs e)
+        private void Btnarbeitszeitprofil_Click(object sender, EventArgs e)
         {
             DlgArbeitszeitprofile arbeitszeitprofile = new DlgArbeitszeitprofile();
             arbeitszeitprofile.ShowDialog();
@@ -130,11 +115,11 @@ namespace TimeChip_App_1._0
             m_mitarbeiterliste.ResetBindings();
         }
 
-        private void m_lbxMitarbeiterChanged(object sender, EventArgs e)
+        private void LbxMitarbeiterChanged(object sender, EventArgs e)
         {
             UpdateLbxBuchungen();
         }
-        private void m_cldKalenderChanged(object sender, DateRangeEventArgs e)
+        private void CldKalenderChanged(object sender, DateRangeEventArgs e)
         {
             UpdateLbxBuchungen();
         }
@@ -160,13 +145,14 @@ namespace TimeChip_App_1._0
             }
         }
 
-        private void m_btnNeueBuchung_Click(object sender, EventArgs e)
+        private void BtnNeueBuchung_Click(object sender, EventArgs e)
         {
-            DlgBuchung dlgBuchung = new DlgBuchung();
-
-            dlgBuchung.Titel = "Buchung hinzufügen";
-            dlgBuchung.OkKnopf = "Hinzufügen";
-            dlgBuchung.Name = "Neu";
+            DlgBuchung dlgBuchung = new DlgBuchung
+            {
+                Titel = "Buchung hinzufügen",
+                OkKnopf = "Hinzufügen",
+                Name = "Neu"
+            };
 
             List<ClsMitarbeiter> clsMitarbeiters = m_mitarbeiterliste.ToList();
             ClsMitarbeiter mitarbeiter = clsMitarbeiters.FindLast(x => x.ID.Equals((m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).ID));
@@ -186,7 +172,7 @@ namespace TimeChip_App_1._0
             }
         }
 
-        private void m_btnBuchungBearbeiten_Click(object sender, EventArgs e)
+        private void BtnBuchungBearbeiten_Click(object sender, EventArgs e)
         {
             if (m_lbxBuchungen.SelectedItem != null)
             {
@@ -219,7 +205,7 @@ namespace TimeChip_App_1._0
             }
         }
 
-        private void m_btnBuchungLöschen_Click(object sender, EventArgs e)
+        private void BtnBuchungLöschen_Click(object sender, EventArgs e)
         {
             if(MessageBox.Show("Wollen Sie wirklich diese Buchung löschen?", "Achtung", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes){
                 ClsBuchung buchung = m_lbxBuchungen.SelectedItem as ClsBuchung;
@@ -277,10 +263,10 @@ namespace TimeChip_App_1._0
                 DateTime SelectedDay = m_cldKalender.SelectionStart;
                 ClsMitarbeiter mitarbeiter = m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter;
 
-                string urlaub = mitarbeiter.Urlaub.TotalHours.ToString() + ":00";
-
-                m_lblUrlaub.Text = urlaub;
-                m_lblÜberstunden.Text = mitarbeiter.Überstunden.ToString();
+                m_lblUrlaub.Text = mitarbeiter.Urlaub.TotalHours.ToString() + ":00";
+                m_lblÜberstunden.Text = StundenRunderStr(mitarbeiter.Überstunden);
+                if (mitarbeiter.Überstunden.TotalHours < 0)
+                    m_lblÜberstunden.Text = "-" + m_lblÜberstunden.Text;
 
                 m_lblSoll.Text = ClsBerechnung.GetSollArbeitszeit(SelectedDay, mitarbeiter).ToString(@"hh\:mm");
 
@@ -315,7 +301,7 @@ namespace TimeChip_App_1._0
             }
         }
 
-        private void m_btnSchule_Click(object sender, EventArgs e)
+        private void BtnSchule_Click(object sender, EventArgs e)
         {
             ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(m_cldKalender.SelectionStart, (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Mitarbeiternummer);
             if (tag != null)
@@ -328,7 +314,7 @@ namespace TimeChip_App_1._0
             }
         }
 
-        private void m_btnUrlaub_Click(object sender, EventArgs e)
+        private void BtnUrlaub_Click(object sender, EventArgs e)
         {
             ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(m_cldKalender.SelectionStart, (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Mitarbeiternummer);
             if (tag != null)
@@ -341,7 +327,7 @@ namespace TimeChip_App_1._0
             }
         }
 
-        private void m_btnUnentschuldigt_Click(object sender, EventArgs e)
+        private void BtnUnentschuldigt_Click(object sender, EventArgs e)
         {
             ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(m_cldKalender.SelectionStart, (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Mitarbeiternummer);
             if (tag != null)
@@ -354,7 +340,7 @@ namespace TimeChip_App_1._0
             }
         }
 
-        private void m_btnKrank_Click(object sender, EventArgs e)
+        private void BtnKrank_Click(object sender, EventArgs e)
         {
             ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(m_cldKalender.SelectionStart, (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Mitarbeiternummer);
             if (tag != null)
@@ -367,15 +353,16 @@ namespace TimeChip_App_1._0
             }
         }
 
-        private void m_btnPrint_Click(object sender, EventArgs e)
+        private void BtnPrint_Click(object sender, EventArgs e)
         {
-            m_Druckzähler = 0;
+            m_druckzähler = 0;
             DateTime date = m_cldKalender.SelectionStart;
             ClsMitarbeiter mtbtr = m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter;
+            string datestr = GetMonthStr(date) + " " + date.Year.ToString();
 
             using (StreamWriter sw = new StreamWriter("Export.html", false))
             {
-                ClsPrintTemplate doc = new ClsPrintTemplate();
+                ClsPrintTemplate doc = new ClsPrintTemplate(mtbtr.ToString(),datestr);
                 TimeSpan Monat = new TimeSpan();
                 TimeSpan GesSoll = new TimeSpan();
                 TimeSpan GesIst = new TimeSpan();
@@ -419,7 +406,7 @@ namespace TimeChip_App_1._0
                     {
                         Monat = Monat.Add(Überstunden);
                     }
-                    string Monatstr = Math.Round(Math.Abs(Monat.TotalHours) - 0.5, 0,MidpointRounding.AwayFromZero).ToString() + ":" + Math.Abs(Monat.Minutes).ToString("D2");
+                    string Monatstr = StundenRunderStr(Monat);
                     if (Monat.TotalHours < 0)
                         Monatstr = "-" + Monatstr;
                     string Überstundenstr = Überstunden.ToString(@"hh\:mm");
@@ -427,7 +414,7 @@ namespace TimeChip_App_1._0
                         Überstundenstr = "-" + Überstundenstr;
                     string SollZeitstr = SollZeit.ToString(@"hh\:mm");
                     string IstZeitstr = IstZeit.ToString(@"hh\:mm");
-                    string Tag = date1.DayOfWeek.ToString() + ", " + date1.Day;
+                    string Tag = GetDayofWeekStr(date1) + ", " + date1.Day;
 
                     GesSoll = GesSoll.Add(SollZeit);
                     GesIst = GesIst.Add(IstZeit);
@@ -435,16 +422,19 @@ namespace TimeChip_App_1._0
                     doc.AddLine(Tag,buchungen, SollZeitstr, IstZeitstr, Status, Überstundenstr, Monatstr);
                 }
 
-                string GesSollstr = Math.Round(Math.Abs(GesSoll.TotalHours) - 0.5, 0, MidpointRounding.AwayFromZero).ToString() + ":" + Math.Abs(GesSoll.Minutes).ToString("D2");
+                string GesSollstr = StundenRunderStr(GesSoll);
 
-                string GesIststr = Math.Round(Math.Abs(GesIst.TotalHours) - 0.5, 0, MidpointRounding.AwayFromZero).ToString() + ":" + Math.Abs(GesIst.Minutes).ToString("D2");
+                string GesIststr = StundenRunderStr(GesIst);
 
-                string Monatsüberstunden = Math.Round(Math.Abs(Monat.TotalHours) - 0.5, 0, MidpointRounding.AwayFromZero).ToString() + ":" + Math.Abs(Monat.Minutes).ToString("D2");
+                string Monatsüberstunden = StundenRunderStr(Monat);
                 if (Monat.TotalHours < 0)
                     Monatsüberstunden = "-" + Monatsüberstunden;
-                string GesÜberstunden = Math.Round(Math.Abs(mtbtr.Überstunden.TotalHours) - 0.5, 0, MidpointRounding.AwayFromZero).ToString() + ":" + Math.Abs(mtbtr.Überstunden.Minutes).ToString("D2");
-                if (mtbtr.Überstunden.TotalHours < 0)
+
+
+                string GesÜberstunden = StundenRunderStr(GetOldÜberstunden(date, mtbtr));
                     GesÜberstunden = "-" + GesÜberstunden;
+
+
                 string GesUrlaub = mtbtr.Urlaub.TotalHours.ToString() + ":00";
 
                 sw.WriteLine(doc.GetDoc(GesSollstr,GesIststr,Monatsüberstunden,GesÜberstunden,GesUrlaub));
@@ -455,12 +445,32 @@ namespace TimeChip_App_1._0
             PrintBrowser.Url = new Uri(Filepath);
             PrintBrowser.DocumentCompleted += PrintBrower_DocumentCompleted;
         }
-        int m_Druckzähler = 0;
+
+        public TimeSpan GetOldÜberstunden(DateTime date, ClsMitarbeiter mtbtr)
+        {
+            TimeSpan aktuelleÜberstunden = mtbtr.Überstunden;
+            DateTime lastDayofMonth = new DateTime(date.Year, date.Month, DateTime.DaysInMonth(date.Year, date.Month));
+            for (DateTime today = DateTime.Today.Subtract(new TimeSpan(1,0,0,0)); today.CompareTo(lastDayofMonth) > 0; today = today.Subtract(new TimeSpan(1, 0, 0, 0)))
+            {
+                ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(today, mtbtr.Mitarbeiternummer);
+                TimeSpan Üst = tag.Arbeitszeit - ClsBerechnung.GetSollArbeitszeit(today, mtbtr);
+                aktuelleÜberstunden = aktuelleÜberstunden.Subtract(Üst);
+            }
+
+            return aktuelleÜberstunden;
+        }
+
+        public string StundenRunderStr(TimeSpan Zeit)
+        {
+            return Math.Round(Math.Abs(Zeit.TotalHours) - 0.5, 0, MidpointRounding.AwayFromZero).ToString() + ":" + Math.Abs(Zeit.Minutes).ToString("D2");
+        }
+
+        int m_druckzähler = 0;
         private void PrintBrower_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
-            m_Druckzähler++;
-            Debug.WriteLine(m_Druckzähler);
-            if (m_Druckzähler == 1)
+            m_druckzähler++;
+            Debug.WriteLine(m_druckzähler);
+            if (m_druckzähler == 1)
             {
                 ((WebBrowser)sender).ShowPrintDialog();
                 //((WebBrowser)sender).Print();
@@ -471,7 +481,7 @@ namespace TimeChip_App_1._0
             }
         }
 
-        private void m_btnRefresh_Click(object sender, EventArgs e)
+        private void BtnRefresh_Click(object sender, EventArgs e)
         {
             DateTime date = m_cldKalender.SelectionStart;
             ClsMitarbeiter mtbtr = m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter;
@@ -487,6 +497,60 @@ namespace TimeChip_App_1._0
             {
                 MessageBox.Show("Der Tag wurde noch nicht berechnet oder liegt in der Zukunft!","Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        public string GetMonthStr(DateTime date)
+        {
+            switch (date.Month)
+            {
+                case 1:
+                    return "Jänner";
+                case 2:
+                    return "Februar";
+                case 3:
+                    return "März";
+                case 4:
+                    return "April";
+                case 5:
+                    return "Mai";
+                case 6:
+                    return "Juni";
+                case 7:
+                    return "Juli";
+                case 8:
+                    return "August";
+                case 9:
+                    return "September";
+                case 10:
+                    return "Oktober";
+                case 11:
+                    return "November";
+                case 12:
+                    return "Dezember";
+            }
+            return date.Month.ToString();
+        }
+
+        public string GetDayofWeekStr(DateTime date)
+        {
+            switch (date.DayOfWeek)
+            {
+                case DayOfWeek.Monday:
+                    return "Montag";
+                case DayOfWeek.Tuesday:
+                    return "Dienstag";
+                case DayOfWeek.Wednesday:
+                    return "Mittwoch";
+                case DayOfWeek.Thursday:
+                    return "Donnerstag";
+                case DayOfWeek.Friday:
+                    return "Freitag";
+                case DayOfWeek.Saturday:
+                    return "Samstag";
+                case DayOfWeek.Sunday:
+                    return "Sonntag";
+            }
+            return date.Day.ToString();
         }
     }
 }

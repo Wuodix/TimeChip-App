@@ -10,9 +10,9 @@ namespace TimeChip_App_1._0
     internal class ClsPrintTemplate
     {
         string m_printTemplate;
-        public ClsPrintTemplate()
+        public ClsPrintTemplate(string Mitarbeiter, string Monat)
         {
-            m_printTemplate = "<html><style>table, th, td {  border:1px solid black;border-collapse: collapse;}td{  text-align:center;}table{width:100%; margin:0;}</style>  <body><table><tr><th>Tag</th><th>Buchungen</th><th>Soll</th><th>Ist</th><th>Status</th><th>Ueberstunden</th><th>Monat</th></tr>";
+            m_printTemplate = "<html><style>table, th, td {  border:1px solid black;border-collapse: collapse;}td{  text-align:center;}table{width:100%; margin:0;}</style>  <body><h1>" + Mitarbeiter + "</h1><h2>" + Monat + "</h2><table><tr><th>Tag</th><th>Buchungen</th><th>Soll</th><th>Ist</th><th>Status</th><th>Ueberstunden</th><th>Monat</th></tr>";
         }
 
         public void AddLine(string Tag, List<ClsBuchung> buchungen, string Soll, string Ist, string Status, string Überstunden, string Monat)

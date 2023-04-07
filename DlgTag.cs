@@ -25,7 +25,7 @@ namespace TimeChip_App_1._0
 
         public static BindingList<ClsTag> Tagesliste { get { return m_tagesliste; } set { m_tagesliste = value; } }
 
-        private void m_btnNeu_Click(object sender, EventArgs e)
+        private void BtnNeu_Click(object sender, EventArgs e)
         {
             m_tbxName.Text = "";
             m_dtpArbeitsbeginn.Value = DateTime.Today;
@@ -37,13 +37,13 @@ namespace TimeChip_App_1._0
             m_cbPause.Checked = false;
         }
 
-        private void m_btnLöschen_Click(object sender, EventArgs e)
+        private void BtnLöschen_Click(object sender, EventArgs e)
         {
             DataProvider.DeleteTag(m_lbxTage.SelectedItem as ClsTag);
             UpdateTagesListe();
         }
 
-        private void m_btnErstellen_Click(object sender, EventArgs e)
+        private void BtnErstellen_Click(object sender, EventArgs e)
         {
             TimeSpan arbeitsbeginn = m_dtpArbeitsbeginn.Value.TimeOfDay;
             TimeSpan arbeitsende = m_dtpArbeitsende.Value.TimeOfDay;
@@ -56,7 +56,7 @@ namespace TimeChip_App_1._0
             UpdateTagesListe();
         }
 
-        private void m_btnAuswählen_Click(object sender, EventArgs e)
+        private void BtnAuswählen_Click(object sender, EventArgs e)
         {
             ClsTag Auswählen = m_lbxTage.SelectedItem as ClsTag;
 
@@ -71,7 +71,7 @@ namespace TimeChip_App_1._0
 
         }
 
-        private void m_btnAktualisieren_Click(object sender, EventArgs e)
+        private void BtnAktualisieren_Click(object sender, EventArgs e)
         {
             ClsTag Aktualisieren = m_lbxTage.SelectedItem as ClsTag;
 

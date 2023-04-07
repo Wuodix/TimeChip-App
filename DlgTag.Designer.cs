@@ -67,7 +67,7 @@ namespace TimeChip_App_1._0
             this.m_btnAuswählen.TabIndex = 31;
             this.m_btnAuswählen.Text = "Auswählen";
             this.m_btnAuswählen.UseVisualStyleBackColor = true;
-            this.m_btnAuswählen.Click += new System.EventHandler(this.m_btnAuswählen_Click);
+            this.m_btnAuswählen.Click += new System.EventHandler(this.BtnAuswählen_Click);
             // 
             // m_btnNeu
             // 
@@ -79,7 +79,7 @@ namespace TimeChip_App_1._0
             this.m_btnNeu.TabIndex = 30;
             this.m_btnNeu.Text = "Neu";
             this.m_btnNeu.UseVisualStyleBackColor = true;
-            this.m_btnNeu.Click += new System.EventHandler(this.m_btnNeu_Click);
+            this.m_btnNeu.Click += new System.EventHandler(this.BtnNeu_Click);
             // 
             // m_btnLöschen
             // 
@@ -91,7 +91,7 @@ namespace TimeChip_App_1._0
             this.m_btnLöschen.TabIndex = 29;
             this.m_btnLöschen.Text = "Löschen";
             this.m_btnLöschen.UseVisualStyleBackColor = true;
-            this.m_btnLöschen.Click += new System.EventHandler(this.m_btnLöschen_Click);
+            this.m_btnLöschen.Click += new System.EventHandler(this.BtnLöschen_Click);
             // 
             // tableLayoutPanel1
             // 
@@ -364,7 +364,7 @@ namespace TimeChip_App_1._0
             this.m_btnAktualisieren.TabIndex = 32;
             this.m_btnAktualisieren.Text = "Aktualisieren";
             this.m_btnAktualisieren.UseVisualStyleBackColor = true;
-            this.m_btnAktualisieren.Click += new System.EventHandler(this.m_btnAktualisieren_Click);
+            this.m_btnAktualisieren.Click += new System.EventHandler(this.BtnAktualisieren_Click);
             // 
             // m_btnErstellen
             // 
@@ -376,7 +376,7 @@ namespace TimeChip_App_1._0
             this.m_btnErstellen.TabIndex = 33;
             this.m_btnErstellen.Text = "Erstellen";
             this.m_btnErstellen.UseVisualStyleBackColor = true;
-            this.m_btnErstellen.Click += new System.EventHandler(this.m_btnErstellen_Click);
+            this.m_btnErstellen.Click += new System.EventHandler(this.BtnErstellen_Click);
             // 
             // DlgTag
             // 

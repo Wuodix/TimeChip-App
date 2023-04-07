@@ -18,6 +18,7 @@ namespace TimeChip_App_1._0
         int m_mitarbeiternummer;
         //m_finger gibt an ob schon ein Finger hinzugefügt wurde; m_bearbeiten gibt an ob das Fenster gerade zum bearbeiten oder erstellen genutzt wird
         bool m_finger = false, m_bearbeiten = false, m_card = false;
+        ClsFingerprintRFID m_fingerprintRFID;
 
         public DlgMitarbeiter()
         {
@@ -31,24 +32,63 @@ namespace TimeChip_App_1._0
         public string Nachname { get { return m_tbxNachname.Text; } set { m_tbxNachname.Text = value; } }
         public ClsArbeitsprofil Arbeitzeitprofil { get { return m_cmbxAProfil.SelectedItem as ClsArbeitsprofil; } set { m_cmbxAProfil.SelectedItem = value; } }
         public DateTime Arbeitsbeginn { get { return m_dtpArbeitsb.Value; } set { m_dtpArbeitsb.Value = value; } }
-        public string Titel { get { return m_lblTitel.Text; } set { m_lblTitel.Text = value; } }
-        public string OkKnopf { get { return m_btnOK.Text; } set { m_btnOK.Text = value; } }
-        public string BtnAddFinger { get { return m_btnAddFinger.Text; } set { m_btnAddFinger.Text = value; } }
-        public string BtnAddCard { get { return m_btnAddCard.Text; } set { m_btnAddCard.Text = value; } }
         public int Mitarbeiternummer { get { return m_mitarbeiternummer; } set { m_mitarbeiternummer = value; } }
-        public bool Bearbeiten { get { return m_bearbeiten; } set { m_bearbeiten = value; } }
+        public TimeSpan Überstunden { get { return GetTimeSpans(false); }set { m_tbxÜberstunden.Text = Stundenrunder(value); } }
+        public TimeSpan Urlaub { get { return GetTimeSpans(true); } set { m_tbxUrlaub.Text = Stundenrunder(value); } }
 
-        public void SetUrlaub(TimeSpan Urlaub)
+        public void Bearbeiten(ClsMitarbeiter Bearbeitender)
         {
-            string minutes = Urlaub.Minutes.ToString();
-            if(Urlaub.Minutes < 10)
-                minutes = "0" + minutes;
-            m_tbxUrlaub.Text = Urlaub.TotalHours.ToString() + ":" + minutes;
+            m_bearbeiten = true;
+
+            m_lblTitel.Text = "Mitarbeiter:in bearbeiten";
+            m_btnOK.Text = "Bearbeiten";
+            Name = "Bearbeiten";
+            m_btnAddFinger.Text = "Finger ändern";
+            m_btnAddCard.Text = "Karte ändern";
+
+            m_tbxVorname.Text = Bearbeitender.Vorname;
+            m_tbxNachname.Text = Bearbeitender.Nachname;
+            m_dtpArbeitsb.Value = Bearbeitender.Arbeitsbeginn;
+            m_mitarbeiternummer = Bearbeitender.Mitarbeiternummer;
+            m_tbxÜberstunden.Text = Stundenrunder(Bearbeitender.Überstunden);
+            m_tbxUrlaub.Text = Stundenrunder(Bearbeitender.Urlaub);
+
+            List<ClsArbeitsprofil> clsArbeitsprofils = DlgArbeitszeitprofile.ArbeitsprofilListe.ToList();
+            ClsArbeitsprofil arbeitsprofil = clsArbeitsprofils.FindLast(x => x.ID.Equals(Bearbeitender.Arbeitszeitprofil.ID));
+            m_cmbxAProfil.SelectedItem = arbeitsprofil;
+
+            m_fingerprintRFID = DataProvider.SelectAllFingerprintRFID().Find(x => x.Fingerprint.Equals(Bearbeitender.Mitarbeiternummer));
+
+            if(m_fingerprintRFID.RFIDUID != "NaN") { m_card = true; }
         }
 
-        public TimeSpan GetUrlaub()
+        private string Stundenrunder(TimeSpan Zeit)
         {
-            string[] teile = m_tbxUrlaub.Text.Split(':');
+            return Math.Round(Math.Abs(Zeit.TotalHours) - 0.5, 0, MidpointRounding.AwayFromZero).ToString() + ":" + Math.Abs(Zeit.Minutes).ToString("D2");
+        }
+
+        public void Neu()
+        {
+            m_lblTitel.Text = "Neuer:e Mitarbeiter:in";
+            m_btnOK.Text = "Erstellen";
+            Name = "Neu";
+            m_btnAddFinger.Text = "Finger hinzufügen";
+            m_btnAddCard.Text = "Karte hinzufügen";
+            m_bearbeiten = false;
+        }
+
+        private TimeSpan GetTimeSpans(bool which)
+        {
+            string[] teile;
+            if (which)
+            {
+                teile = m_tbxUrlaub.Text.Split(':');
+            }
+            else
+            {
+                teile = m_tbxÜberstunden.Text.Split(':');
+            }
+            
 
             int hours = Convert.ToInt32(teile[0]);
             int minutes = Convert.ToInt32(teile[1]);
@@ -72,49 +112,109 @@ namespace TimeChip_App_1._0
             }
         }
 
-        private void m_btnAddFinger_Click(object sender, EventArgs e)
+        private void BtnAddFinger_Click(object sender, EventArgs e)
         {
-            if (!m_finger || m_bearbeiten)
+            if(m_bearbeiten || m_finger)
+            {
+                if(MessageBox.Show("Wollen Sie den Finger wirklich ändern?","Achtung",MessageBoxButtons.YesNo,MessageBoxIcon.Question) == DialogResult.No)
+                {
+                    return;
+                }
+            }
+
+            if (!m_bearbeiten && !m_finger && !m_card)
+            {
+                SetMitarbeiternummer();
+            }
+
+            string responseContent = DataProvider.SendRecieveHTTP("Finger" + m_mitarbeiternummer);
+
+            if (responseContent.Contains("Finger-hinzugefuegt"))
             {
                 if (!m_bearbeiten)
                 {
-                    SetMitarbeiternummer();
+                    MessageBox.Show("Der Finger wurde erfolgreich hinzugefügt!", "Erfolg", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    m_finger = true;
+                }
+                else
+                {
+                    MessageBox.Show("Der Finger wurde erfolgreich geändert!", "Erfolg", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
 
-                string responseContent = DataProvider.SendRecieveHTTP("Finger" + m_mitarbeiternummer);
-
-                if (responseContent.Contains("Finger-hinzugefuegt"))
+                if (!m_card && !m_bearbeiten)
                 {
-                    if (!m_bearbeiten)
-                    {
-                        MessageBox.Show("Der Finger wurde erfolgreich hinzugefügt!", "Erfolg", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        m_finger = true;
-                    }
-                    else
-                    {
-                        MessageBox.Show("Der Finger wurde erfolgreich geändert!", "Erfolg", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                }
-                else if (responseContent.Contains("Finger-nicht-hinzugefuegt"))
-                {
-                    if (!m_bearbeiten)
-                    {
-                        MessageBox.Show("Der Finger konnte leider nicht hinzugefügt werden!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    }
-                    else
-                    {
-                        MessageBox.Show("Der Finger konnte leider nicht geändert werden!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    }
+                    m_fingerprintRFID = DataProvider.InsertFingerRFIDUID(Mitarbeiternummer, "NaN");
                 }
             }
             else
             {
-                MessageBox.Show("Es wurde bereits ein Finger hinzugefügt.", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                if (!m_bearbeiten)
+                {
+                    MessageBox.Show("Der Finger konnte nicht hinzugefügt werden!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                else
+                {
+                    MessageBox.Show("Der Finger konnte nicht geändert werden!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
-        private void m_btnOK_Click(object sender, EventArgs e)
+        private void BtnAddCard_Click(object sender, EventArgs e)
         {
+            if(m_bearbeiten || m_card)
+            {
+                if (MessageBox.Show("Wollen Sie die Karte wirklich ändern?", "Achtung", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                {
+                    return;
+                }
+            }
+
+            if (!m_bearbeiten && !m_finger && !m_card)
+            {
+                SetMitarbeiternummer();
+            }
+
+            string responseContent = DataProvider.SendRecieveHTTP("Card");
+
+            if (responseContent.Contains("CardUID:"))
+            {
+                string[] parts = responseContent.Split('$');
+
+                if (!m_bearbeiten && !m_finger)
+                {
+                    m_fingerprintRFID = DataProvider.InsertFingerRFIDUID(m_mitarbeiternummer, parts[1]);
+                }
+                else
+                {
+                    m_fingerprintRFID.RFIDUID = parts[1];
+                    DataProvider.UpdateFingerprintRFID(m_fingerprintRFID);
+                }
+                m_card = true;
+
+                if (!m_bearbeiten)
+                {
+                    MessageBox.Show("Karte wurde erfolgreich hinzugefügt.", "Erfolg", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    MessageBox.Show("Karte wurde erfolgreich geändert.", "Erfolg", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            else
+            {
+                if (!m_bearbeiten)
+                {
+                    MessageBox.Show("Die Karte konnte nicht hinzugefügt werden!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                else
+                {
+                    MessageBox.Show("Die Karte konnte nicht geändert werden!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void BtnOK_Click(object sender, EventArgs e)
+        {            
             if (!m_bearbeiten)
             {
                 if (!m_card)
@@ -130,8 +230,14 @@ namespace TimeChip_App_1._0
                     {
                         return;
                     }
-                    SetMitarbeiternummer();
                 }
+            }
+
+            if (!m_card && !m_finger && !m_bearbeiten)
+            {
+                SetMitarbeiternummer();
+
+                DataProvider.InsertFingerRFIDUID(m_mitarbeiternummer, "NaN");
             }
             try
             {
@@ -139,47 +245,16 @@ namespace TimeChip_App_1._0
                 int hours = Convert.ToInt32(teile[0]);
                 int minutes = Convert.ToInt32(teile[1]);
 
+                string[]teile1 = m_tbxÜberstunden.Text.Split(':');
+                int hours1 = Convert.ToInt32(teile1[0]);
+                int minutes1 = Convert.ToInt32(teile1[1]);
+
                 DialogResult = DialogResult.OK;
-                Debug.WriteLine("hi");
                 Close();
             }
             catch
             {
-                MessageBox.Show("Bitte Urlaub im Format Stunden:Minuten eingeben!");
-            }
-        }
-
-        private void m_btnAddCard_Click(object sender, EventArgs e)
-        {
-            if (m_bearbeiten && m_finger || m_finger)
-            {
-                string responseContent = DataProvider.SendRecieveHTTP("Card");
-
-                if (responseContent.Contains("CardUID:"))
-                {
-                    string[] parts = responseContent.Split('$');
-
-                    if (!m_bearbeiten)
-                    {
-                        DataProvider.InsertFingerRFIDUID(m_mitarbeiternummer, parts[1]);
-
-                        MessageBox.Show("Karte wurde erfolgreich hinzugefügt.", "Erfolg", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        m_card = true;
-                    }
-                    else
-                    {
-                        ClsFingerprintRFID finger = DataProvider.SelectAllFingerprintRFID().Last(x => x.Fingerprint.Equals(m_mitarbeiternummer));
-                        DataProvider.UpdateFingerprintRFID(new ClsFingerprintRFID(finger.ID, parts[1], m_mitarbeiternummer));
-
-                        MessageBox.Show("Karte wurde erfolgreich geändert.", "Erfolg", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-
-                    
-                }
-            }
-            else
-            {
-                MessageBox.Show("Speichern Sie bitte zuerst einen Finger ein", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Bitte Urlaub und Überstunden im Format Stunden:Minuten eingeben!");
             }
         }
     }
