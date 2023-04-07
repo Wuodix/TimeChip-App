@@ -675,16 +675,18 @@ namespace TimeChip_App_1._0
         public static DateTime ReadBerechnungsDateFromCSV()
         {
             DateTime date = new DateTime();
-            using (StreamReader sr = new StreamReader(@"Logs\Berechnungsdate.csv"))
+            if (File.Exists(@"Logs\Berechnungsdate.csv"))
             {
-                while (!sr.EndOfStream)
+                using (StreamReader sr = new StreamReader(@"Logs\Berechnungsdate.csv"))
                 {
-                    string zeile = sr.ReadLine();
+                    while (!sr.EndOfStream)
+                    {
+                        string zeile = sr.ReadLine();
 
-                    date = Convert.ToDateTime(zeile);
+                        date = Convert.ToDateTime(zeile);
+                    }
                 }
             }
-
             return date;
         }
 

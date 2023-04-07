@@ -19,8 +19,6 @@ namespace TimeChip_App_1._0
         public static void Berechnen()
         {
             List<ClsBuchung> buchungen1 = DataProvider.SelectAllBuchungen("buchungen_temp");
-            //TEMP
-            DataProvider.WriteBerechnungsDateToCSV(new DateTime(2022, 12, 19, 00, 00, 01));
 
             DateTime lastBerechnung = DataProvider.ReadBerechnungsDateFromCSV();
 
@@ -55,20 +53,20 @@ namespace TimeChip_App_1._0
 
 
                 DataProvider.WriteBerechnungsDateToCSV(DateTime.Now);
-                
-                /*
+
+
                 List<ClsBuchung> buchungen = DataProvider.SelectAllBuchungen("buchungen_temp");
                 foreach (DateTime date in Tage)
                 {
                     List<ClsBuchung> Buchungen = buchungen.FindAll(x => x.Zeit.ToShortDateString().Equals(date.ToShortDateString()));
 
-                    foreach(ClsBuchung buchung in Buchungen)
+                    foreach (ClsBuchung buchung in Buchungen)
                     {
                         DataProvider.InsertBuchung(buchung.Buchungstyp, buchung.Zeit, buchung.Mitarbeiternummer);
                         DataProvider.DeleteBuchung(buchung, "buchungen_temp");
                     }
                 }
-                */
+
             }
         }
 

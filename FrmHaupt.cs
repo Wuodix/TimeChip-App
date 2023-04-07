@@ -128,7 +128,7 @@ namespace TimeChip_App_1._0
         {
             if (m_lbxMitarbeiter.SelectedItem != null)
             {
-                List<ClsBuchung> Buchungen = DataProvider.SelectAllBuchungenFromDay(m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter, m_cldKalender.SelectionStart, "buchungen_temp");
+                List<ClsBuchung> Buchungen = DataProvider.SelectAllBuchungenFromDay(m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter, m_cldKalender.SelectionStart, "buchungen");
 
                 //List<ClsBuchung> Buchungen2 = Buchungen.FindAll(x => x.Zeit.Date.Equals(m_cldKalender.SelectionStart));
 
@@ -163,7 +163,7 @@ namespace TimeChip_App_1._0
             {
                 DataProvider.InsertBuchung(dlgBuchung.Buchungstyp, dlgBuchung.GetDateTime(), dlgBuchung.Mitarbeiter.Mitarbeiternummer);
 
-                if(DataProvider.SelectAllBuchungenFromDay(mitarbeiter, dlgBuchung.GetDateTime(), "buchungen_temp").Count > 1)
+                if(DataProvider.SelectAllBuchungenFromDay(mitarbeiter, dlgBuchung.GetDateTime(), "buchungen").Count > 1)
                 {
                     ClsBerechnung.Berechnen(dlgBuchung.Datum, ref mitarbeiter, false);
                 }
@@ -195,7 +195,7 @@ namespace TimeChip_App_1._0
                     ClsMitarbeiter mtbtr = m_mitarbeiterliste.ToList().Find(x => x.Mitarbeiternummer.Equals(zubearbeiten.Mitarbeiternummer));
 
                     DataProvider.UpdateBuchung(zubearbeiten);
-                    if (DataProvider.SelectAllBuchungenFromDay(mtbtr, dlgBuchung.GetDateTime(), "buchungen_temp").Count > 1)
+                    if (DataProvider.SelectAllBuchungenFromDay(mtbtr, dlgBuchung.GetDateTime(), "buchungen").Count > 1)
                     {
                         ClsBerechnung.Berechnen(dlgBuchung.GetDateTime(), ref mtbtr, false);
                     }
@@ -371,7 +371,7 @@ namespace TimeChip_App_1._0
                 for (int i = 1; i <= DateTime.DaysInMonth(date.Year, date.Month); i++)
                 {
                     DateTime date1 = new DateTime(date.Year, date.Month, i);
-                    List<ClsBuchung> buchungen = DataProvider.SelectAllBuchungenFromDay(mtbtr, date1, "buchungen_temp");
+                    List<ClsBuchung> buchungen = DataProvider.SelectAllBuchungenFromDay(mtbtr, date1, "buchungen");
                     TimeSpan SollZeit = ClsBerechnung.GetSollArbeitszeit(date1, mtbtr);
                     ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(date1, mtbtr.Mitarbeiternummer);
                     TimeSpan IstZeit = new TimeSpan();
