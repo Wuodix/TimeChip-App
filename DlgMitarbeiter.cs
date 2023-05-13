@@ -64,7 +64,7 @@ namespace TimeChip_App_1._0
 
         private string Stundenrunder(TimeSpan Zeit)
         {
-            return Math.Round(Math.Abs(Zeit.TotalHours) - 0.5, 0, MidpointRounding.AwayFromZero).ToString() + ":" + Math.Abs(Zeit.Minutes).ToString("D2");
+            return Convert.ToInt32(Math.Round(Math.Abs(Zeit.TotalHours) - 0.49, 0, MidpointRounding.AwayFromZero)).ToString("D2") + ":" + Math.Abs(Zeit.Minutes).ToString("D2");
         }
 
         public void Neu()
@@ -233,12 +233,6 @@ namespace TimeChip_App_1._0
                 }
             }
 
-            if (!m_card && !m_finger && !m_bearbeiten)
-            {
-                SetMitarbeiternummer();
-
-                DataProvider.InsertFingerRFIDUID(m_mitarbeiternummer, "NaN");
-            }
             try
             {
                 string[] teile = m_tbxUrlaub.Text.Split(':');
@@ -254,7 +248,15 @@ namespace TimeChip_App_1._0
             }
             catch
             {
-                MessageBox.Show("Bitte Urlaub und Überstunden im Format Stunden:Minuten eingeben!");
+                MessageBox.Show("Bitte Urlaub und Überstunden im Format Stunden:Minuten eingeben!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (!m_card && !m_finger && !m_bearbeiten)
+            {
+                SetMitarbeiternummer();
+
+                DataProvider.InsertFingerRFIDUID(m_mitarbeiternummer, "NaN");
             }
         }
     }

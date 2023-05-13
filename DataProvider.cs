@@ -16,7 +16,7 @@ namespace TimeChip_App_1._0
 {
     public class DataProvider
     {
-        private static readonly string m_connectionString = "SERVER=localhost;DATABASE=apotheke_time_chip;UID=root;";
+        private static readonly string m_connectionString = "SERVER=10.100.128.1;DATABASE=apotheke_time_chip;UID=Hauptapp;Password=oo/1X)ZV1jlmTyEm;";
 
         public static ClsBuchung InsertBuchung(Buchungstyp buchungstyp, DateTime zeit, int mitarbeiternr)
         {
@@ -77,7 +77,7 @@ namespace TimeChip_App_1._0
         }
         public static ClsMitarbeiter InsertMitarbeiter(int mitarbeiternummer, string vorname, string nachname, DateTime arbeitsbeginn, TimeSpan überstunden, ClsArbeitsprofil abzp, TimeSpan urlaub)
         {
-            string query = "INSERT INTO mitarbeiter (Mitarbeiternummer, Vorname, Nachname, Arbeitsbeginn, Überstunden, Arbeitszeitprofil, Urlaub) VALUES(" +
+            string query = "INSERT INTO mitarbeiter (Mitarbeiternummer, Vorname, Nachname, Arbeitsbeginn, Ueberstunden, Arbeitszeitprofil, Urlaub) VALUES(" +
                 "@mitarbeiternr, @vorname, @nachname, @arbeitsbeginn, @überstunden, @arbeitszeitp, @urlaub)";
 
             MySqlCommand cmd = new MySqlCommand(query);
@@ -276,7 +276,7 @@ namespace TimeChip_App_1._0
                     ClsMitarbeiter mitarbeiter = new ClsMitarbeiter(reader.GetInt16("ID"), reader.GetInt16("Mitarbeiternummer"),
                         reader.GetString("Vorname"), reader.GetString("Nachname"),
                         abzt.Find(x => x.ID == reader.GetInt16("Arbeitszeitprofil")), reader.GetDateTime("Arbeitsbeginn"),
-                        reader.GetTimeSpan("Urlaub"), reader.GetTimeSpan("Überstunden"));
+                        reader.GetTimeSpan("Urlaub"), reader.GetTimeSpan("Ueberstunden"));
                     list.Add(mitarbeiter);
                 }
 
@@ -488,7 +488,7 @@ namespace TimeChip_App_1._0
         public static int UpdateMitarbeiter(ClsMitarbeiter Mtbtr)
         {
             string query = "UPDATE mitarbeiter SET Vorname=@vorname, Nachname=@nachname, Arbeitszeitprofil=@abzp, Arbeitsbeginn=@abbeginn, Urlaub=@urlaub, " +
-                "Überstunden=@überstunden WHERE ID=@id";
+                "Ueberstunden=@überstunden WHERE ID=@id";
 
             MySqlCommand cmd = new MySqlCommand(query);
             cmd.Parameters.AddWithValue("vorname", Mtbtr.Vorname);
@@ -760,7 +760,7 @@ namespace TimeChip_App_1._0
         public static string SendRecieveHTTP(string text)
         {
             byte[] data = Encoding.UTF8.GetBytes(text + "\n\r\n");
-            string URL = "http://10.100.128.20/", responseContent;
+            string URL = "http://10.100.128.21/", responseContent;
 
             WebRequest webRequest = WebRequest.Create(URL);
             webRequest.Method = "POST";

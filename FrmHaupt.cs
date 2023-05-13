@@ -29,14 +29,17 @@ namespace TimeChip_App_1._0
 
             UpdateMtbtrList();
 
-            m_lbxMitarbeiter.SelectedIndex = 1;
+            if(m_mitarbeiterliste.Count  > 0)
+            {
+                m_lbxMitarbeiter.SelectedIndex = 0;
 
-            UpdateLbxBuchungen();
+                UpdateLbxBuchungen();
 
-            ClsBerechnung.Berechnen();
+                ClsBerechnung.Berechnen();
 
-            UpdateDataView();
-            UpdateCldKalender();
+                UpdateDataView();
+                UpdateCldKalender();
+            }
         }
 
         public static BindingList<ClsMitarbeiter> Mitarbeiterliste { get { return m_mitarbeiterliste; } set { m_mitarbeiterliste = value; } }
@@ -57,15 +60,10 @@ namespace TimeChip_App_1._0
         {
             DlgMitarbeiter Bearbeiten = new DlgMitarbeiter();
 
-            /*
-            for(int i = 0; i<m_arbeitsprofilliste.Count; i++)
-            {
-                Bearbeiten.m_cmbxAProfil.Items.Add(m_arbeitsprofilliste[i]);
-            }
-            */
-
             ClsMitarbeiter zubearbeitender = m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter;
             Bearbeiten.Bearbeiten(zubearbeitender);
+
+            Debug.WriteLine(zubearbeitender.Überstunden);
 
             List<ClsArbeitsprofil> clsArbeitsprofils = DlgArbeitszeitprofile.ArbeitsprofilListe.ToList();
             ClsArbeitsprofil arbeitsprofil = clsArbeitsprofils.FindLast(x => x.ID.Equals(zubearbeitender.Arbeitszeitprofil.ID));
@@ -82,7 +80,8 @@ namespace TimeChip_App_1._0
                 zubearbeitender.Überstunden = Bearbeiten.Überstunden;
 
                 DataProvider.UpdateMitarbeiter(zubearbeitender);
-                m_mitarbeiterliste.ResetBindings();
+                UpdateMtbtrList();
+                UpdateDataView();
             }
         }
 
@@ -110,6 +109,8 @@ namespace TimeChip_App_1._0
             foreach(ClsMitarbeiter mtbtr in DataProvider.SelectAllMitarbeiter())
             {
                 m_mitarbeiterliste.Add(mtbtr);
+                Debug.WriteLine(mtbtr.Überstunden);
+                Debug.WriteLine(mtbtr.Urlaub);
             }
 
             m_mitarbeiterliste.ResetBindings();
@@ -462,7 +463,7 @@ namespace TimeChip_App_1._0
 
         public string StundenRunderStr(TimeSpan Zeit)
         {
-            return Math.Round(Math.Abs(Zeit.TotalHours) - 0.5, 0, MidpointRounding.AwayFromZero).ToString() + ":" + Math.Abs(Zeit.Minutes).ToString("D2");
+            return Convert.ToInt32(Math.Round(Math.Abs(Zeit.TotalHours) - 0.49, 0, MidpointRounding.AwayFromZero)).ToString("D2") + ":" + Math.Abs(Zeit.Minutes).ToString("D2");
         }
 
         int m_druckzähler = 0;
