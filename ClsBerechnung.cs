@@ -1,15 +1,7 @@
-﻿using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Tls;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace TimeChip_App_1._0
 {

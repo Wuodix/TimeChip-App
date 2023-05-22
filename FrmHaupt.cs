@@ -1,17 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Xml;
 
 namespace TimeChip_App_1._0
 {
@@ -33,10 +26,10 @@ namespace TimeChip_App_1._0
             {
                 m_lbxMitarbeiter.SelectedIndex = 0;
 
+                
                 UpdateLbxBuchungen();
-
                 ClsBerechnung.Berechnen();
-
+                
                 UpdateDataView();
                 UpdateCldKalender();
             }

@@ -1,16 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Security.Policy;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using MySql.Data.MySqlClient;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Utilities;
 
 namespace TimeChip_App_1._0
 {
@@ -626,7 +621,7 @@ namespace TimeChip_App_1._0
         /// <param name="strings">Liste aus MtbtrID;Urlaubstag</param>
         public static void WriteDateToCSV(List<string> strings)
         {
-            using (StreamWriter sw = new StreamWriter(@"Logs\date.csv", false))
+            using (StreamWriter sw = new StreamWriter(@"Resources\date.csv", false))
             {
                 foreach(string s in strings)
                 {
@@ -642,7 +637,7 @@ namespace TimeChip_App_1._0
         public static List<DateTime> ReadDateFromCSV(ref List<int> IDs)
         {
             List<DateTime> list = new List<DateTime>();
-            using(StreamReader sr = new StreamReader(@"Logs\date.csv"))
+            using(StreamReader sr = new StreamReader(@"Resources\date.csv"))
             {
                 while (!sr.EndOfStream)
                 {
@@ -666,7 +661,7 @@ namespace TimeChip_App_1._0
 
         public static void WriteBerechnungsDateToCSV(DateTime date)
         {
-            using (StreamWriter sw = new StreamWriter(@"Logs\Berechnungsdate.csv", false))
+            using (StreamWriter sw = new StreamWriter(@"Resources\Berechnungsdate.csv", false))
             {
                 sw.WriteLine(date.ToString());
             }
@@ -675,9 +670,9 @@ namespace TimeChip_App_1._0
         public static DateTime ReadBerechnungsDateFromCSV()
         {
             DateTime date = new DateTime();
-            if (File.Exists(@"Logs\Berechnungsdate.csv"))
+            if (File.Exists(@"Resources\Berechnungsdate.csv"))
             {
-                using (StreamReader sr = new StreamReader(@"Logs\Berechnungsdate.csv"))
+                using (StreamReader sr = new StreamReader(@"Resources\Berechnungsdate.csv"))
                 {
                     while (!sr.EndOfStream)
                     {
