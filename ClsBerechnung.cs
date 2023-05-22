@@ -79,7 +79,7 @@ namespace TimeChip_App_1._0
             if (!ersteBerechnung)
             {
                 buchungen = DataProvider.SelectAllBuchungenFromDay(mtbtr, day,"buchungen");
-                tag = DataProvider.SelectAusgewerteterTag(day, mtbtr.Mitarbeiternummer);
+                tag = DataProvider.SelectAusgewerteterTag(day, mtbtr.ID);
             }
             else
             {
@@ -199,17 +199,17 @@ namespace TimeChip_App_1._0
                 Debug.WriteLine("Arbeitszeit: " + Arbeitszeit);
                 Debug.WriteLine("Tag Arbeitszeit: " + tag.Arbeitszeit);
 
-                return DataProvider.InsertAusgewerteterTag(day, mtbtr.Mitarbeiternummer, Arbeitszeit, tag.Status);
+                return DataProvider.InsertAusgewerteterTag(day, mtbtr.ID, Arbeitszeit, tag.Status);
             }
             mtbtr.Überstunden += Überstunden;
             DataProvider.UpdateMitarbeiter(mtbtr);
 
-            return DataProvider.InsertAusgewerteterTag(day, mtbtr.Mitarbeiternummer, Arbeitszeit, 0);
+            return DataProvider.InsertAusgewerteterTag(day, mtbtr.ID, Arbeitszeit, 0);
         }
 
         public static void TagesStatusÄnderung(ClsAusgewerteter_Tag tag, int alterStatus)
         {
-            ClsMitarbeiter mitarbeiter = FrmHaupt.Mitarbeiterliste.ToList().Find(x => x.Mitarbeiternummer.Equals(tag.MitarbeiterNummer));
+            ClsMitarbeiter mitarbeiter = FrmHaupt.Mitarbeiterliste.ToList().Find(x => x.ID.Equals(tag.MitarbeiterID));
             TimeSpan Überstunden = tag.Arbeitszeit - GetSollArbeitszeit(tag.Date, mitarbeiter);
             //Status Codes:
             //0 = Überstunden

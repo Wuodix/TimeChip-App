@@ -48,6 +48,8 @@ namespace TimeChip_App_1._0
             this.clsArbeitsprofilBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.m_tbxÜberstunden = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
+            this.m_lbxFinger = new System.Windows.Forms.ListBox();
+            this.m_btnChangeFinger = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.clsArbeitsprofilBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
@@ -148,7 +150,7 @@ namespace TimeChip_App_1._0
             // m_btnOK
             // 
             this.m_btnOK.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.m_btnOK.Location = new System.Drawing.Point(65, 438);
+            this.m_btnOK.Location = new System.Drawing.Point(65, 477);
             this.m_btnOK.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnOK.Name = "m_btnOK";
             this.m_btnOK.Size = new System.Drawing.Size(126, 38);
@@ -161,7 +163,7 @@ namespace TimeChip_App_1._0
             // 
             this.m_btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.m_btnCancel.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.m_btnCancel.Location = new System.Drawing.Point(243, 438);
+            this.m_btnCancel.Location = new System.Drawing.Point(243, 477);
             this.m_btnCancel.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnCancel.Name = "m_btnCancel";
             this.m_btnCancel.Size = new System.Drawing.Size(128, 38);
@@ -239,11 +241,33 @@ namespace TimeChip_App_1._0
             this.label6.TabIndex = 15;
             this.label6.Text = "Überstunden:";
             // 
+            // m_lbxFinger
+            // 
+            this.m_lbxFinger.FormattingEnabled = true;
+            this.m_lbxFinger.Location = new System.Drawing.Point(243, 325);
+            this.m_lbxFinger.Name = "m_lbxFinger";
+            this.m_lbxFinger.Size = new System.Drawing.Size(194, 95);
+            this.m_lbxFinger.TabIndex = 17;
+            // 
+            // m_btnChangeFinger
+            // 
+            this.m_btnChangeFinger.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.m_btnChangeFinger.Location = new System.Drawing.Point(243, 425);
+            this.m_btnChangeFinger.Margin = new System.Windows.Forms.Padding(2);
+            this.m_btnChangeFinger.Name = "m_btnChangeFinger";
+            this.m_btnChangeFinger.Size = new System.Drawing.Size(194, 31);
+            this.m_btnChangeFinger.TabIndex = 18;
+            this.m_btnChangeFinger.Text = "Finger ändern";
+            this.m_btnChangeFinger.UseVisualStyleBackColor = true;
+            this.m_btnChangeFinger.Click += new System.EventHandler(this.BtnChangeFinger_Click);
+            // 
             // DlgMitarbeiter
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(446, 487);
+            this.ClientSize = new System.Drawing.Size(446, 526);
+            this.Controls.Add(this.m_btnChangeFinger);
+            this.Controls.Add(this.m_lbxFinger);
             this.Controls.Add(this.m_tbxÜberstunden);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.m_tbxUrlaub);
@@ -290,5 +314,7 @@ namespace TimeChip_App_1._0
         private System.Windows.Forms.TextBox m_tbxUrlaub;
         private System.Windows.Forms.TextBox m_tbxÜberstunden;
         private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.ListBox m_lbxFinger;
+        private System.Windows.Forms.Button m_btnChangeFinger;
     }
 }

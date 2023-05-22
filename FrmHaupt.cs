@@ -47,7 +47,15 @@ namespace TimeChip_App_1._0
             neu.Neu();
             if (neu.ShowDialog() == DialogResult.OK)
             {
-                DataProvider.InsertMitarbeiter(neu.Mitarbeiternummer,neu.Vorname, neu.Nachname, neu.Arbeitsbeginn, neu.Überstunden, neu.Arbeitzeitprofil, neu.Urlaub);
+                ClsMitarbeiter mtbtr = DataProvider.InsertMitarbeiter(neu.Vorname, neu.Nachname, neu.Arbeitsbeginn, neu.Überstunden, neu.Arbeitzeitprofil, neu.Urlaub);
+                
+                List<ClsFingerprintRFID> fingerprintRFID = DataProvider.SelectAllFingerprintRFID().FindAll(x=> x.MtbtrID.Equals(mtbtr.ID) && x.MtbtrID.Equals(0));
+                foreach(ClsFingerprintRFID finger in fingerprintRFID)
+                {
+                    finger.MtbtrID = mtbtr.ID;
+                    DataProvider.UpdateFingerprintRFID(finger);
+                }
+
                 UpdateMtbtrList();
                 UpdateLbxBuchungen();
             }
@@ -77,7 +85,6 @@ namespace TimeChip_App_1._0
                 zubearbeitender.Nachname = Bearbeiten.Nachname;
                 zubearbeitender.Arbeitsbeginn = Bearbeiten.Arbeitsbeginn;
                 zubearbeitender.Arbeitszeitprofil = Bearbeiten.Arbeitzeitprofil;
-                zubearbeitender.Mitarbeiternummer = Bearbeiten.Mitarbeiternummer;
                 zubearbeitender.Urlaub = Bearbeiten.Urlaub;
                 zubearbeitender.Überstunden = Bearbeiten.Überstunden;
 
@@ -161,7 +168,7 @@ namespace TimeChip_App_1._0
 
             if (dlgBuchung.ShowDialog() == DialogResult.OK) 
             {
-                DataProvider.InsertBuchung(dlgBuchung.Buchungstyp, dlgBuchung.GetDateTime(), dlgBuchung.Mitarbeiter.Mitarbeiternummer);
+                DataProvider.InsertBuchung(dlgBuchung.Buchungstyp, dlgBuchung.GetDateTime(), dlgBuchung.Mitarbeiter);
 
                 if(DataProvider.SelectAllBuchungenFromDay(mitarbeiter, dlgBuchung.GetDateTime(), "buchungen_temp").Count > 1)
                 {
@@ -185,14 +192,14 @@ namespace TimeChip_App_1._0
                 dlgBuchung.SetBuchungstyp(zubearbeiten.Buchungstyp);
                 dlgBuchung.Buchungstyp = zubearbeiten.Buchungstyp;
                 dlgBuchung.SetDateTime(zubearbeiten.Zeit);
-                dlgBuchung.Mitarbeiter = m_mitarbeiterliste.ToList().FindLast(x => x.Mitarbeiternummer.Equals(zubearbeiten.Mitarbeiternummer));
+                dlgBuchung.Mitarbeiter = m_mitarbeiterliste.ToList().FindLast(x => x.ID.Equals(zubearbeiten.MtbtrID));
 
                 if(dlgBuchung.ShowDialog() == DialogResult.OK)
                 {
                     zubearbeiten.Buchungstyp = dlgBuchung.Buchungstyp;
                     zubearbeiten.Zeit = dlgBuchung.GetDateTime();
-                    zubearbeiten.Mitarbeiternummer = dlgBuchung.Mitarbeiter.Mitarbeiternummer;
-                    ClsMitarbeiter mtbtr = m_mitarbeiterliste.ToList().Find(x => x.Mitarbeiternummer.Equals(zubearbeiten.Mitarbeiternummer));
+                    zubearbeiten.MtbtrID = dlgBuchung.Mitarbeiter.ID;
+                    ClsMitarbeiter mtbtr = m_mitarbeiterliste.ToList().Find(x => x.ID.Equals(zubearbeiten.MtbtrID));
 
                     DataProvider.UpdateBuchung(zubearbeiten);
                     if (DataProvider.SelectAllBuchungenFromDay(mtbtr, dlgBuchung.GetDateTime(), "buchungen_temp").Count > 1)
@@ -211,7 +218,7 @@ namespace TimeChip_App_1._0
                 ClsBuchung buchung = m_lbxBuchungen.SelectedItem as ClsBuchung;
                 DataProvider.DeleteBuchung(buchung, "buchungen");
 
-                ClsMitarbeiter mtbtr = m_mitarbeiterliste.ToList().Find(x => x.Mitarbeiternummer.Equals(buchung.Mitarbeiternummer));
+                ClsMitarbeiter mtbtr = m_mitarbeiterliste.ToList().Find(x => x.ID.Equals(buchung.MtbtrID));
                 if (DataProvider.SelectAllBuchungenFromDay(mtbtr, buchung.Zeit, "buchungen").Count > 1)
                 {
                     ClsBerechnung.Berechnen(buchung.Zeit, ref mtbtr, false);
@@ -233,7 +240,7 @@ namespace TimeChip_App_1._0
                 DateTime tag = new DateTime(ausgewählter_tag.Year, ausgewählter_tag.Month, i);
                 if(tag.CompareTo(DateTime.Now) < 0 && tag.CompareTo(mitarbeiter.Arbeitsbeginn) > 0)
                 {
-                    ClsAusgewerteter_Tag ausgewtag = DataProvider.SelectAusgewerteterTag(tag, mitarbeiter.Mitarbeiternummer);
+                    ClsAusgewerteter_Tag ausgewtag = DataProvider.SelectAusgewerteterTag(tag, mitarbeiter.ID);
 
                     if(ausgewtag != null)
                     {
@@ -270,7 +277,7 @@ namespace TimeChip_App_1._0
 
                 m_lblSoll.Text = ClsBerechnung.GetSollArbeitszeit(SelectedDay, mitarbeiter).ToString(@"hh\:mm");
 
-                ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(SelectedDay, mitarbeiter.Mitarbeiternummer);
+                ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(SelectedDay, mitarbeiter.ID);
                 
                 if(tag != null)
                 {
@@ -303,7 +310,7 @@ namespace TimeChip_App_1._0
 
         private void BtnSchule_Click(object sender, EventArgs e)
         {
-            ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(m_cldKalender.SelectionStart, (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Mitarbeiternummer);
+            ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(m_cldKalender.SelectionStart, (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).ID);
             if (tag != null)
             {
                 int alterStatus = tag.Status;
@@ -316,7 +323,7 @@ namespace TimeChip_App_1._0
 
         private void BtnUrlaub_Click(object sender, EventArgs e)
         {
-            ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(m_cldKalender.SelectionStart, (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Mitarbeiternummer);
+            ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(m_cldKalender.SelectionStart, (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).ID);
             if (tag != null)
             {
                 int alterStatus = tag.Status;
@@ -329,7 +336,7 @@ namespace TimeChip_App_1._0
 
         private void BtnUnentschuldigt_Click(object sender, EventArgs e)
         {
-            ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(m_cldKalender.SelectionStart, (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Mitarbeiternummer);
+            ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(m_cldKalender.SelectionStart, (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).ID);
             if (tag != null)
             {
                 int alterStatus = tag.Status;
@@ -342,7 +349,7 @@ namespace TimeChip_App_1._0
 
         private void BtnKrank_Click(object sender, EventArgs e)
         {
-            ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(m_cldKalender.SelectionStart, (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Mitarbeiternummer);
+            ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(m_cldKalender.SelectionStart, (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).ID);
             if (tag != null)
             {
                 int alterStatus = tag.Status;
@@ -373,7 +380,7 @@ namespace TimeChip_App_1._0
                     DateTime date1 = new DateTime(date.Year, date.Month, i);
                     List<ClsBuchung> buchungen = DataProvider.SelectAllBuchungenFromDay(mtbtr, date1, "buchungen_temp");
                     TimeSpan SollZeit = ClsBerechnung.GetSollArbeitszeit(date1, mtbtr);
-                    ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(date1, mtbtr.Mitarbeiternummer);
+                    ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(date1, mtbtr.ID);
                     TimeSpan IstZeit = new TimeSpan();
                     if(tag != null)
                     {
@@ -452,7 +459,7 @@ namespace TimeChip_App_1._0
             DateTime lastDayofMonth = new DateTime(date.Year, date.Month, DateTime.DaysInMonth(date.Year, date.Month));
             for (DateTime today = DateTime.Today.Subtract(new TimeSpan(1,0,0,0)); today.CompareTo(lastDayofMonth) > 0; today = today.Subtract(new TimeSpan(1, 0, 0, 0)))
             {
-                ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(today, mtbtr.Mitarbeiternummer);
+                ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(today, mtbtr.ID);
                 TimeSpan Üst = tag.Arbeitszeit - ClsBerechnung.GetSollArbeitszeit(today, mtbtr);
                 aktuelleÜberstunden = aktuelleÜberstunden.Subtract(Üst);
             }
@@ -485,7 +492,7 @@ namespace TimeChip_App_1._0
         {
             DateTime date = m_cldKalender.SelectionStart;
             ClsMitarbeiter mtbtr = m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter;
-            ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(date, mtbtr.Mitarbeiternummer);
+            ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(date, mtbtr.ID);
 
             if(tag != null)
             {

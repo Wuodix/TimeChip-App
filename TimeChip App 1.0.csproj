@@ -125,6 +125,12 @@
     <Compile Include="DlgBuchung.Designer.cs">
       <DependentUpon>DlgBuchung.cs</DependentUpon>
     </Compile>
+    <Compile Include="DlgFingerName.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DlgFingerName.Designer.cs">
+      <DependentUpon>DlgFingerName.cs</DependentUpon>
+    </Compile>
     <Compile Include="DlgMitarbeiter.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -151,6 +157,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="DlgBuchung.resx">
       <DependentUpon>DlgBuchung.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DlgFingerName.resx">
+      <DependentUpon>DlgFingerName.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="DlgMitarbeiter.resx">
       <DependentUpon>DlgMitarbeiter.cs</DependentUpon>

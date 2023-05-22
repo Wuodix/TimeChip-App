@@ -8,18 +8,27 @@ namespace TimeChip_App_1._0
 {
     public class ClsFingerprintRFID
     {
-        private string m_RFIDUID;
-        private int m_FingerprintID, m_ID;
+        private string m_rFIDUID, m_fingerName;
+        private int m_fingerprintID, m_iD, m_mtbtrID;
 
-        public ClsFingerprintRFID(int ID, string rfidUID, int fingerprintID)
+        public ClsFingerprintRFID(int ID, string rfidUID, int fingerprintID, int mtbtrID, string fingerName)
         {
-            m_ID = ID;
-            m_RFIDUID = rfidUID;
-            m_FingerprintID = fingerprintID;
+            m_iD = ID;
+            m_rFIDUID = rfidUID;
+            m_fingerprintID = fingerprintID;
+            m_mtbtrID = mtbtrID;
+            m_fingerName = fingerName;
         }
 
-        public string RFIDUID { get { return m_RFIDUID; } set { m_RFIDUID = value; } }
-        public int Fingerprint { get { return m_FingerprintID; } set { m_FingerprintID = value; } }
-        public int ID { get { return m_ID; } set { m_ID = value; } }
+        public string RFIDUID { get { return m_rFIDUID; } set { m_rFIDUID = value; } }
+        public string FingerName { get { return m_fingerName; } set { m_fingerName = value; } }
+        public int Fingerprint { get { return m_fingerprintID; } set { m_fingerprintID = value; } }
+        public int ID { get { return m_iD; } set { m_iD = value; } }
+        public int MtbtrID { get {  return m_mtbtrID; } set { m_mtbtrID = value; } } 
+
+        public string ToFinger()
+        {
+            return m_fingerprintID + " - " + m_fingerName;
+        }
     }
 }
