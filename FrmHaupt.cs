@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Windows.Forms;
 
 namespace TimeChip_App_1._0
@@ -71,6 +72,8 @@ namespace TimeChip_App_1._0
                 zubearbeitender.Mitarbeiternummer = Bearbeiten.Mitarbeiternummer;
                 zubearbeitender.Urlaub = Bearbeiten.Urlaub;
                 zubearbeitender.Überstunden = Bearbeiten.Überstunden;
+
+                Debug.WriteLine("FrmHaupt Urlaub: " + zubearbeitender.Urlaub);
 
                 DataProvider.UpdateMitarbeiter(zubearbeitender);
                 UpdateMtbtrList();
@@ -257,10 +260,8 @@ namespace TimeChip_App_1._0
                 DateTime SelectedDay = m_cldKalender.SelectionStart;
                 ClsMitarbeiter mitarbeiter = m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter;
 
-                m_lblUrlaub.Text = mitarbeiter.Urlaub.TotalHours.ToString() + ":00";
+                m_lblUrlaub.Text = StundenRunderStr(mitarbeiter.Urlaub);
                 m_lblÜberstunden.Text = StundenRunderStr(mitarbeiter.Überstunden);
-                if (mitarbeiter.Überstunden.TotalHours < 0)
-                    m_lblÜberstunden.Text = "-" + m_lblÜberstunden.Text;
 
                 m_lblSoll.Text = ClsBerechnung.GetSollArbeitszeit(SelectedDay, mitarbeiter).ToString(@"hh\:mm");
 
@@ -401,11 +402,7 @@ namespace TimeChip_App_1._0
                         Monat = Monat.Add(Überstunden);
                     }
                     string Monatstr = StundenRunderStr(Monat);
-                    if (Monat.TotalHours < 0)
-                        Monatstr = "-" + Monatstr;
                     string Überstundenstr = Überstunden.ToString(@"hh\:mm");
-                    if (Überstunden.TotalHours < 0)
-                        Überstundenstr = "-" + Überstundenstr;
                     string SollZeitstr = SollZeit.ToString(@"hh\:mm");
                     string IstZeitstr = IstZeit.ToString(@"hh\:mm");
                     string Tag = GetDayofWeekStr(date1) + ", " + date1.Day;
@@ -421,12 +418,9 @@ namespace TimeChip_App_1._0
                 string GesIststr = StundenRunderStr(GesIst);
 
                 string Monatsüberstunden = StundenRunderStr(Monat);
-                if (Monat.TotalHours < 0)
-                    Monatsüberstunden = "-" + Monatsüberstunden;
 
 
                 string GesÜberstunden = StundenRunderStr(GetOldÜberstunden(date, mtbtr));
-                    GesÜberstunden = "-" + GesÜberstunden;
 
 
                 string GesUrlaub = mtbtr.Urlaub.TotalHours.ToString() + ":00";
@@ -456,7 +450,12 @@ namespace TimeChip_App_1._0
 
         public string StundenRunderStr(TimeSpan Zeit)
         {
-            return Convert.ToInt32(Math.Round(Math.Abs(Zeit.TotalHours) - 0.49, 0, MidpointRounding.AwayFromZero)).ToString("D2") + ":" + Math.Abs(Zeit.Minutes).ToString("D2");
+            string result = Convert.ToInt32(Math.Round(Math.Abs(Zeit.TotalHours) - 0.49, 0, MidpointRounding.AwayFromZero)).ToString("D2") + ":" + Math.Abs(Zeit.Minutes).ToString("D2");
+
+            if (Zeit.TotalHours < 0)
+                result = "-" + result;
+
+            return result;
         }
 
         int m_druckzähler = 0;

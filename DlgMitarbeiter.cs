@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Windows.Forms;
 
 namespace TimeChip_App_1._0
@@ -57,7 +59,14 @@ namespace TimeChip_App_1._0
 
         private string Stundenrunder(TimeSpan Zeit)
         {
-            return Convert.ToInt32(Math.Round(Math.Abs(Zeit.TotalHours) - 0.49, 0, MidpointRounding.AwayFromZero)).ToString("D2") + ":" + Math.Abs(Zeit.Minutes).ToString("D2");
+            string result = Convert.ToInt32(Math.Round(Math.Abs(Zeit.TotalHours) - 0.49, 0, MidpointRounding.AwayFromZero)).ToString("D2") + ":" + Math.Abs(Zeit.Minutes).ToString("D2");
+
+            if (Zeit.TotalHours < 0)
+            {
+                result = "-" + result;
+            }
+
+            return result;
         }
 
         public void Neu()
@@ -81,12 +90,22 @@ namespace TimeChip_App_1._0
             {
                 teile = m_tbxÜberstunden.Text.Split(':');
             }
-            
 
             int hours = Convert.ToInt32(teile[0]);
             int minutes = Convert.ToInt32(teile[1]);
 
-            return new TimeSpan(hours, minutes, 0);
+            TimeSpan result;
+            if(hours < 0)
+            {
+                result = new TimeSpan(Math.Abs(hours), minutes, 0);
+                result = result.Negate();
+            }
+            else
+            {
+                result = new TimeSpan(hours,minutes, 0);
+            }
+
+            return result;
         }
 
         private void SetMitarbeiternummer()
@@ -228,13 +247,8 @@ namespace TimeChip_App_1._0
 
             try
             {
-                string[] teile = m_tbxUrlaub.Text.Split(':');
-                int hours = Convert.ToInt32(teile[0]);
-                int minutes = Convert.ToInt32(teile[1]);
-
-                string[]teile1 = m_tbxÜberstunden.Text.Split(':');
-                int hours1 = Convert.ToInt32(teile1[0]);
-                int minutes1 = Convert.ToInt32(teile1[1]);
+                GetTimeSpans(true);
+                GetTimeSpans(false);
 
                 DialogResult = DialogResult.OK;
                 Close();
