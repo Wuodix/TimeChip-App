@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace TimeChip_App_1._0
+namespace TimeChip_App
 {
     public partial class DlgFingerName : Form
     {

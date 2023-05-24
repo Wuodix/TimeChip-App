@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TimeChip_App_1._0
+namespace TimeChip_App
 {
     internal class ClsPrintTemplate
     {

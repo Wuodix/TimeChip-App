@@ -1,5 +1,5 @@
 ﻿
-namespace TimeChip_App_1._0
+namespace TimeChip_App
 {
     partial class DlgMitarbeiter
     {
@@ -215,10 +215,6 @@ namespace TimeChip_App_1._0
             this.m_tbxUrlaub.Name = "m_tbxUrlaub";
             this.m_tbxUrlaub.Size = new System.Drawing.Size(58, 24);
             this.m_tbxUrlaub.TabIndex = 14;
-            // 
-            // clsArbeitsprofilBindingSource
-            // 
-            this.clsArbeitsprofilBindingSource.DataSource = typeof(TimeChip_App_1._0.ClsArbeitsprofil);
             // 
             // m_tbxÜberstunden
             // 

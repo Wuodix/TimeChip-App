@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
-namespace TimeChip_App_1._0
+namespace TimeChip_App
 {
     public class ClsBerechnung
     {

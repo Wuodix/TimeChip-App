@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace TimeChip_App_1._0
+namespace TimeChip_App
 {
     public class Feiertag : IComparable<Feiertag>
     {

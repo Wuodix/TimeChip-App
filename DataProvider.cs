@@ -12,7 +12,7 @@ using MySql.Data.MySqlClient;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Utilities;
 
-namespace TimeChip_App_1._0
+namespace TimeChip_App
 {
     public class DataProvider
     {

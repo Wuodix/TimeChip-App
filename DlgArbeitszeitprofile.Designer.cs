@@ -1,5 +1,5 @@
 ﻿
-namespace TimeChip_App_1._0
+namespace TimeChip_App
 {
     partial class DlgArbeitszeitprofile
     {
@@ -340,7 +340,7 @@ namespace TimeChip_App_1._0
             this.m_btnTage.TabIndex = 20;
             this.m_btnTage.Text = "Tage";
             this.m_btnTage.UseVisualStyleBackColor = true;
-            this.m_btnTage.Click += new System.EventHandler(this.m_btnTage_Click);
+            this.m_btnTage.Click += new System.EventHandler(this.BtnTage_Click);
             // 
             // m_btnErstellen
             // 
@@ -352,7 +352,7 @@ namespace TimeChip_App_1._0
             this.m_btnErstellen.TabIndex = 21;
             this.m_btnErstellen.Text = "Erstellen";
             this.m_btnErstellen.UseVisualStyleBackColor = true;
-            this.m_btnErstellen.Click += new System.EventHandler(this.m_btnErstellen_Click);
+            this.m_btnErstellen.Click += new System.EventHandler(this.BtnErstellen_Click);
             // 
             // m_btnNeu
             // 
@@ -364,7 +364,7 @@ namespace TimeChip_App_1._0
             this.m_btnNeu.TabIndex = 22;
             this.m_btnNeu.Text = "Neu";
             this.m_btnNeu.UseVisualStyleBackColor = true;
-            this.m_btnNeu.Click += new System.EventHandler(this.m_btnNeu_Click);
+            this.m_btnNeu.Click += new System.EventHandler(this.BtnNeu_Click);
             // 
             // m_btnAktualisieren
             // 
@@ -376,7 +376,7 @@ namespace TimeChip_App_1._0
             this.m_btnAktualisieren.TabIndex = 23;
             this.m_btnAktualisieren.Text = "Aktualisieren";
             this.m_btnAktualisieren.UseVisualStyleBackColor = true;
-            this.m_btnAktualisieren.Click += new System.EventHandler(this.m_btnAktualisieren_Click);
+            this.m_btnAktualisieren.Click += new System.EventHandler(this.BtnAktualisieren_Click);
             // 
             // m_btnAuswählen
             // 
@@ -388,7 +388,7 @@ namespace TimeChip_App_1._0
             this.m_btnAuswählen.TabIndex = 24;
             this.m_btnAuswählen.Text = "Auswählen";
             this.m_btnAuswählen.UseVisualStyleBackColor = true;
-            this.m_btnAuswählen.Click += new System.EventHandler(this.m_btnAuswählen_Click);
+            this.m_btnAuswählen.Click += new System.EventHandler(this.BtnAuswählen_Click);
             // 
             // m_btnLöschen
             // 
@@ -400,7 +400,7 @@ namespace TimeChip_App_1._0
             this.m_btnLöschen.TabIndex = 25;
             this.m_btnLöschen.Text = "Löschen";
             this.m_btnLöschen.UseVisualStyleBackColor = true;
-            this.m_btnLöschen.Click += new System.EventHandler(this.m_btnLöschen_Click);
+            this.m_btnLöschen.Click += new System.EventHandler(this.BtnLöschen_Click);
             // 
             // DlgArbeitszeitprofile
             // 

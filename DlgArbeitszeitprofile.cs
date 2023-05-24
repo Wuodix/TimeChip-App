@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace TimeChip_App_1._0
+namespace TimeChip_App
 {
     public partial class DlgArbeitszeitprofile : Form
     {
@@ -28,7 +28,7 @@ namespace TimeChip_App_1._0
 
         public static BindingList<ClsArbeitsprofil> ArbeitsprofilListe { get { return m_arbeitsprofilliste; } set { m_arbeitsprofilliste = value; } }
 
-        private void m_btnTage_Click(object sender, EventArgs e)
+        private void BtnTage_Click(object sender, EventArgs e)
         {
             DlgTag Tag = new DlgTag();
             if(Tag.ShowDialog() == DialogResult.OK)
@@ -37,7 +37,7 @@ namespace TimeChip_App_1._0
             }
         }
 
-        private void m_btnAuswählen_Click(object sender, EventArgs e)
+        private void BtnAuswählen_Click(object sender, EventArgs e)
         {
             ClsArbeitsprofil Auswählen = m_lbxArbeitszeitprofile.SelectedItem as ClsArbeitsprofil;
 
@@ -53,7 +53,7 @@ namespace TimeChip_App_1._0
             m_cbGleitzeit.Checked = Auswählen.Gleitzeit;
         }
 
-        private void m_btnAktualisieren_Click(object sender, EventArgs e)
+        private void BtnAktualisieren_Click(object sender, EventArgs e)
         {
             ClsArbeitsprofil Aktualisieren = m_lbxArbeitszeitprofile.SelectedItem as ClsArbeitsprofil;
 
@@ -85,7 +85,7 @@ namespace TimeChip_App_1._0
             return null;
         }
 
-        private void m_btnNeu_Click(object sender, EventArgs e)
+        private void BtnNeu_Click(object sender, EventArgs e)
         {
             m_tbxName.Text = "";
             m_cmbxMontag.Text = "";
@@ -98,7 +98,7 @@ namespace TimeChip_App_1._0
             m_cbGleitzeit.Checked = false;
         }
 
-        private void m_btnErstellen_Click(object sender, EventArgs e)
+        private void BtnErstellen_Click(object sender, EventArgs e)
         {
             DataProvider.InsertArbeitszeitprofil(m_tbxName.Text, m_cmbxMontag.SelectedItem as ClsTag,
                 m_cmbxDienstag.SelectedItem as ClsTag, m_cmbxMittwoch.SelectedItem as ClsTag,
@@ -107,7 +107,7 @@ namespace TimeChip_App_1._0
             UpdateAbzpList();
         }
 
-        private void m_btnLöschen_Click(object sender, EventArgs e)
+        private void BtnLöschen_Click(object sender, EventArgs e)
         {
             DataProvider.DeleteArbeitszeitprofil(m_lbxArbeitszeitprofile.SelectedItem as ClsArbeitsprofil);
             UpdateAbzpList();
@@ -134,6 +134,15 @@ namespace TimeChip_App_1._0
             m_cmbxSamstag.Items.Clear();
             m_cmbxSonntag.Items.Clear();
 
+            m_cmbxMontag.Items.AddRange(DlgTag.Tagesliste.ToArray());
+            m_cmbxDienstag.Items.AddRange(DlgTag.Tagesliste.ToArray());
+            m_cmbxMittwoch.Items.AddRange(DlgTag.Tagesliste.ToArray());
+            m_cmbxDonnerstag.Items.AddRange(DlgTag.Tagesliste.ToArray());
+            m_cmbxFreitag.Items.AddRange(DlgTag.Tagesliste.ToArray());
+            m_cmbxSamstag.Items.AddRange(DlgTag.Tagesliste.ToArray());
+            m_cmbxSonntag.Items.AddRange(DlgTag.Tagesliste.ToArray());
+
+            /*
             for (int i = 0; i < DlgTag.Tagesliste.Count; i++)
             {
                 m_cmbxMontag.Items.Add(DlgTag.Tagesliste[i]);
@@ -144,6 +153,7 @@ namespace TimeChip_App_1._0
                 m_cmbxSamstag.Items.Add(DlgTag.Tagesliste[i]);
                 m_cmbxSonntag.Items.Add(DlgTag.Tagesliste[i]);
             }
+            */
         }
     }
 }

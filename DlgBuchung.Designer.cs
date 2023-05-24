@@ -1,5 +1,5 @@
 ﻿
-namespace TimeChip_App_1._0
+namespace TimeChip_App
 {
     partial class DlgBuchung
     {
@@ -151,10 +151,6 @@ namespace TimeChip_App_1._0
             this.m_cmbxBTyp.Name = "m_cmbxBTyp";
             this.m_cmbxBTyp.Size = new System.Drawing.Size(194, 21);
             this.m_cmbxBTyp.TabIndex = 14;
-            // 
-            // clsArbeitsprofilBindingSource
-            // 
-            this.clsArbeitsprofilBindingSource.DataSource = typeof(TimeChip_App_1._0.ClsArbeitsprofil);
             // 
             // DlgBuchung
             // 

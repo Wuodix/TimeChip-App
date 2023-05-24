@@ -5,12 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel;
 
-namespace TimeChip_App_1._0
+namespace TimeChip_App
 {
     public class ClsArbeitsprofil
     {
         private bool m_gleitzeit;
-        private int m_ID;
+        private int m_id;
         private ClsTag m_montag, m_dienstag, m_mittwoch, m_donnerstag, m_freitag, m_samstag, m_sonntag;
         private string m_name;
 
@@ -25,7 +25,7 @@ namespace TimeChip_App_1._0
             m_samstag = Samstag;
             m_sonntag = Sonntag;
             m_gleitzeit = Gleitzeit;
-            m_ID = ID;
+            m_id = ID;
         }
 
         public string Name { get { return m_name; } set { m_name = value; } }
@@ -37,7 +37,7 @@ namespace TimeChip_App_1._0
         public ClsTag Freitag { get { return m_freitag; } set { m_freitag = value; } }
         public ClsTag Samstag { get { return m_samstag; } set { m_samstag = value; } }
         public ClsTag Sonntag { get { return m_sonntag; } set { m_sonntag = value; } }
-        public int ID { get { return m_ID; } }
+        public int ID { get { return m_id; } }
         public override string ToString()
         {
             return m_name;

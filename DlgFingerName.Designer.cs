@@ -1,4 +1,4 @@
-﻿namespace TimeChip_App_1._0
+﻿namespace TimeChip_App
 {
     partial class DlgFingerName
     {
