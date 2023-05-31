@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace TimeChip_App
@@ -12,12 +14,12 @@ namespace TimeChip_App
         {
             InitializeComponent();
 
-            m_lbxArbeitszeitprofile.DataSource = m_arbeitsprofilliste;
-
             UpdateCMBX();
             UpdateAbzpList();
 
-            if(m_arbeitsprofilliste.Count > 0)
+            m_lbxArbeitszeitprofile.DataSource = m_arbeitsprofilliste;
+
+            if (m_arbeitsprofilliste.Count > 0)
             {
                 m_lbxArbeitszeitprofile.SelectedIndex = 0;
             }
@@ -51,19 +53,13 @@ namespace TimeChip_App
             DataProvider.UpdateArbeitszeitprofil(Aktualisieren);
 
             UpdateAbzpList();
+
+            m_lbxArbeitszeitprofile.SelectedItem = m_arbeitsprofilliste.ToList().Find(x=>x.ID == Aktualisieren.ID);
         }
 
         private ClsTag FindTag(ClsTag tag)
         {
-            foreach(ClsTag tag1 in DlgTag.Tagesliste)
-            {
-                if(tag.ID == tag1.ID)
-                {
-                    return tag1;
-                }
-            }
-
-            return null;
+            return DlgTag.Tagesliste.ToList().Find(x=>x.ID == tag.ID);
         }
 
         private void BtnNeu_Click(object sender, EventArgs e)
@@ -81,7 +77,7 @@ namespace TimeChip_App
 
         private void BtnErstellen_Click(object sender, EventArgs e)
         {
-            DataProvider.InsertArbeitszeitprofil(m_tbxName.Text, m_cmbxMontag.SelectedItem as ClsTag,
+            ClsArbeitsprofil abzp =  DataProvider.InsertArbeitszeitprofil(m_tbxName.Text, m_cmbxMontag.SelectedItem as ClsTag,
                 m_cmbxDienstag.SelectedItem as ClsTag, m_cmbxMittwoch.SelectedItem as ClsTag,
                 m_cmbxDonnerstag.SelectedItem as ClsTag, m_cmbxFreitag.SelectedItem as ClsTag,
                 m_cmbxSamstag.SelectedItem as ClsTag, m_cmbxSonntag.SelectedItem as ClsTag, m_cbGleitzeit.Checked);
@@ -96,6 +92,9 @@ namespace TimeChip_App
             m_cmbxSamstag.Text = "";
             m_cmbxSonntag.Text = "";
             m_cbGleitzeit.Checked = false;
+
+            m_lbxArbeitszeitprofile.SelectedItem = m_arbeitsprofilliste.ToList().Find(x => x.ID == abzp.ID);
+            LbxArbeitszeitprofile_SelectedIndexChanged(this, EventArgs.Empty);
         }
 
         private void BtnLöschen_Click(object sender, EventArgs e)
@@ -167,20 +166,38 @@ namespace TimeChip_App
         }
 
         private void LbxArbeitszeitprofile_SelectedIndexChanged(object sender, EventArgs e)
-        {
+        {   
             if(m_arbeitsprofilliste.Count >0)
             {
                 ClsArbeitsprofil Auswählen = m_lbxArbeitszeitprofile.SelectedItem as ClsArbeitsprofil;
 
                 m_tbxName.Text = Auswählen.Name;
 
-                m_cmbxMontag.SelectedItem = FindTag(Auswählen.Montag);
-                m_cmbxDienstag.SelectedItem = FindTag(Auswählen.Dienstag);
-                m_cmbxMittwoch.SelectedItem = FindTag(Auswählen.Mittwoch);
-                m_cmbxDonnerstag.SelectedItem = FindTag(Auswählen.Donnerstag);
-                m_cmbxFreitag.SelectedItem = FindTag(Auswählen.Freitag);
-                m_cmbxSamstag.SelectedItem = FindTag(Auswählen.Samstag);
-                m_cmbxSonntag.SelectedItem = FindTag(Auswählen.Sonntag);
+                //m_cmbxMontag.SelectedItem = FindTag(Auswählen.Montag);
+                //m_cmbxDienstag.SelectedItem = FindTag(Auswählen.Dienstag);
+                //m_cmbxMittwoch.SelectedItem = FindTag(Auswählen.Mittwoch);
+                //m_cmbxDonnerstag.SelectedItem = FindTag(Auswählen.Donnerstag);
+                //m_cmbxFreitag.SelectedItem = FindTag(Auswählen.Freitag);
+                //m_cmbxSamstag.SelectedItem = FindTag(Auswählen.Samstag);
+                //m_cmbxSonntag.SelectedItem = FindTag(Auswählen.Sonntag);
+                //m_cbGleitzeit.Checked = Auswählen.Gleitzeit;
+
+                //m_cmbxMontag.SelectedItem = DlgTag.Tagesliste.ToList().Find(x=>x.ID.Equals(Auswählen.Montag.ID));
+                //m_cmbxDienstag.SelectedItem = DlgTag.Tagesliste.ToList().Find(x=>x.ID.Equals(Auswählen.Dienstag.ID));
+                //m_cmbxMittwoch.SelectedItem = DlgTag.Tagesliste.ToList().Find(x => x.ID.Equals(Auswählen.Mittwoch.ID));
+                //m_cmbxDonnerstag.SelectedItem = DlgTag.Tagesliste.ToList().Find(x => x.ID.Equals(Auswählen.Donnerstag.ID));
+                //m_cmbxFreitag.SelectedItem = DlgTag.Tagesliste.ToList().Find(x => x.ID.Equals(Auswählen.Freitag.ID));
+                //m_cmbxSamstag.SelectedItem = DlgTag.Tagesliste.ToList().Find(x => x.ID.Equals(Auswählen.Samstag.ID));
+                //m_cmbxSonntag.SelectedItem = DlgTag.Tagesliste.ToList().Find(x => x.ID.Equals(Auswählen.Sonntag.ID));
+                //m_cbGleitzeit.Checked = Auswählen.Gleitzeit;
+
+                m_cmbxMontag.SelectedIndex = DlgTag.Tagesliste.ToList().FindIndex(x => x.ID.Equals(Auswählen.Montag.ID));
+                m_cmbxDienstag.SelectedIndex = DlgTag.Tagesliste.ToList().FindIndex(x => x.ID.Equals(Auswählen.Dienstag.ID));
+                m_cmbxMittwoch.SelectedIndex = DlgTag.Tagesliste.ToList().FindIndex(x => x.ID.Equals(Auswählen.Mittwoch.ID));
+                m_cmbxDonnerstag.SelectedIndex = DlgTag.Tagesliste.ToList().FindIndex(x => x.ID.Equals(Auswählen.Donnerstag.ID));
+                m_cmbxFreitag.SelectedIndex = DlgTag.Tagesliste.ToList().FindIndex(x => x.ID.Equals(Auswählen.Freitag.ID));
+                m_cmbxSamstag.SelectedIndex = DlgTag.Tagesliste.ToList().FindIndex(x => x.ID.Equals(Auswählen.Samstag.ID));
+                m_cmbxSonntag.SelectedIndex = DlgTag.Tagesliste.ToList().FindIndex(x => x.ID.Equals(Auswählen.Sonntag.ID));
                 m_cbGleitzeit.Checked = Auswählen.Gleitzeit;
             }
         }

@@ -11,32 +11,28 @@ namespace TimeChip_App
 {
     public partial class FrmHaupt : Form
     {
-        static BindingList<ClsMitarbeiter> m_mitarbeiterliste = new BindingList<ClsMitarbeiter>();
-        static readonly BindingList<ClsBuchung> m_buchungsliste = new BindingList<ClsBuchung>();
+        static List<ClsMitarbeiter> m_mitarbeiterliste = new List<ClsMitarbeiter>();
+        static readonly List<ClsBuchung> m_buchungsliste = new List<ClsBuchung>();
 
         public FrmHaupt()
         {
             InitializeComponent();
 
-            m_lbxMitarbeiter.DataSource = m_mitarbeiterliste;
-            m_lbxBuchungen.DataSource= m_buchungsliste;
-
             UpdateMtbtrList();
 
-            if(m_mitarbeiterliste.Count  > 0)
-            {
+            if(m_mitarbeiterliste.Count  > 0||true)
+            {   
+                m_lbxMitarbeiter.DataSource = m_mitarbeiterliste;
                 m_lbxMitarbeiter.SelectedIndex = 0;
 
-                
                 UpdateLbxBuchungen();
+                m_lbxBuchungen.DataSource = m_buchungsliste;
+
                 ClsBerechnung.Berechnen();
-                
-                UpdateDataView();
-                UpdateCldKalender();
             }
         }
 
-        public static BindingList<ClsMitarbeiter> Mitarbeiterliste { get { return m_mitarbeiterliste; } set { m_mitarbeiterliste = value; } }
+        public static List<ClsMitarbeiter> Mitarbeiterliste { get { return m_mitarbeiterliste; } set { m_mitarbeiterliste = value; } }
 
         private void BtnNeu_Click(object sender, EventArgs e)
         {
@@ -46,7 +42,7 @@ namespace TimeChip_App
             {
                 ClsMitarbeiter mtbtr = DataProvider.InsertMitarbeiter(neu.Vorname, neu.Nachname, neu.Arbeitsbeginn, neu.Überstunden, neu.Arbeitzeitprofil, neu.Urlaub);
                 
-                List<ClsFingerprintRFID> fingerprintRFID = DataProvider.SelectAllFingerprintRFID().FindAll(x=> x.MtbtrID.Equals(mtbtr.ID) && x.MtbtrID.Equals(0));
+                List<ClsFingerprintRFID> fingerprintRFID = DataProvider.SelectFingerprintRFIDOfMtbtr(mtbtr.ID);
                 foreach(ClsFingerprintRFID finger in fingerprintRFID)
                 {
                     finger.MtbtrID = mtbtr.ID;
@@ -112,11 +108,7 @@ namespace TimeChip_App
             foreach(ClsMitarbeiter mtbtr in DataProvider.SelectAllMitarbeiter())
             {
                 m_mitarbeiterliste.Add(mtbtr);
-                Debug.WriteLine(mtbtr.Überstunden);
-                Debug.WriteLine(mtbtr.Urlaub);
             }
-
-            m_mitarbeiterliste.ResetBindings();
         }
 
         private void LbxMitarbeiterChanged(object sender, EventArgs e)
@@ -141,8 +133,6 @@ namespace TimeChip_App
                 {
                     m_buchungsliste.Add(buchung);
                 }
-                
-                m_buchungsliste.ResetBindings();
 
                 UpdateCldKalender();
                 UpdateDataView();

@@ -72,6 +72,7 @@ namespace TimeChip_App
             this.m_cldKalender.ShowToday = false;
             this.m_cldKalender.ShowWeekNumbers = true;
             this.m_cldKalender.TabIndex = 0;
+            this.m_cldKalender.TabStop = false;
             this.m_cldKalender.DateChanged += new System.Windows.Forms.DateRangeEventHandler(this.CldKalenderChanged);
             this.m_cldKalender.DateSelected += new System.Windows.Forms.DateRangeEventHandler(this.CldKalenderChanged);
             // 
@@ -85,6 +86,7 @@ namespace TimeChip_App
             this.m_lbxMitarbeiter.Name = "m_lbxMitarbeiter";
             this.m_lbxMitarbeiter.Size = new System.Drawing.Size(294, 264);
             this.m_lbxMitarbeiter.TabIndex = 1;
+            this.m_lbxMitarbeiter.TabStop = false;
             this.m_lbxMitarbeiter.SelectedIndexChanged += new System.EventHandler(this.LbxMitarbeiterChanged);
             this.m_lbxMitarbeiter.SelectedValueChanged += new System.EventHandler(this.LbxMitarbeiterChanged);
             // 
@@ -95,7 +97,7 @@ namespace TimeChip_App
             this.m_btnNeuerMitarbeiter.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnNeuerMitarbeiter.Name = "m_btnNeuerMitarbeiter";
             this.m_btnNeuerMitarbeiter.Size = new System.Drawing.Size(95, 49);
-            this.m_btnNeuerMitarbeiter.TabIndex = 3;
+            this.m_btnNeuerMitarbeiter.TabIndex = 2;
             this.m_btnNeuerMitarbeiter.Text = "Neu";
             this.m_btnNeuerMitarbeiter.UseVisualStyleBackColor = true;
             this.m_btnNeuerMitarbeiter.Click += new System.EventHandler(this.BtnNeu_Click);
@@ -107,7 +109,7 @@ namespace TimeChip_App
             this.m_btnBearbeiten.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnBearbeiten.Name = "m_btnBearbeiten";
             this.m_btnBearbeiten.Size = new System.Drawing.Size(95, 49);
-            this.m_btnBearbeiten.TabIndex = 4;
+            this.m_btnBearbeiten.TabIndex = 3;
             this.m_btnBearbeiten.Text = "Bearbeiten";
             this.m_btnBearbeiten.UseVisualStyleBackColor = true;
             this.m_btnBearbeiten.Click += new System.EventHandler(this.BtnBearbeiten_Click);
@@ -119,7 +121,7 @@ namespace TimeChip_App
             this.m_btnLöschen.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnLöschen.Name = "m_btnLöschen";
             this.m_btnLöschen.Size = new System.Drawing.Size(95, 49);
-            this.m_btnLöschen.TabIndex = 5;
+            this.m_btnLöschen.TabIndex = 4;
             this.m_btnLöschen.Text = "Löschen";
             this.m_btnLöschen.UseVisualStyleBackColor = true;
             this.m_btnLöschen.Click += new System.EventHandler(this.BtnLöschen_Click);
@@ -131,7 +133,7 @@ namespace TimeChip_App
             this.m_btnarbeitszeitprofil.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnarbeitszeitprofil.Name = "m_btnarbeitszeitprofil";
             this.m_btnarbeitszeitprofil.Size = new System.Drawing.Size(295, 49);
-            this.m_btnarbeitszeitprofil.TabIndex = 6;
+            this.m_btnarbeitszeitprofil.TabIndex = 1;
             this.m_btnarbeitszeitprofil.Text = "Arbeitszeitprofile";
             this.m_btnarbeitszeitprofil.UseVisualStyleBackColor = true;
             this.m_btnarbeitszeitprofil.Click += new System.EventHandler(this.Btnarbeitszeitprofil_Click);
@@ -146,6 +148,7 @@ namespace TimeChip_App
             this.m_lbxBuchungen.Name = "m_lbxBuchungen";
             this.m_lbxBuchungen.Size = new System.Drawing.Size(293, 164);
             this.m_lbxBuchungen.TabIndex = 7;
+            this.m_lbxBuchungen.TabStop = false;
             // 
             // m_btnNeueBuchung
             // 
@@ -154,7 +157,7 @@ namespace TimeChip_App
             this.m_btnNeueBuchung.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnNeueBuchung.Name = "m_btnNeueBuchung";
             this.m_btnNeueBuchung.Size = new System.Drawing.Size(95, 49);
-            this.m_btnNeueBuchung.TabIndex = 8;
+            this.m_btnNeueBuchung.TabIndex = 6;
             this.m_btnNeueBuchung.Text = "Neue Buchung";
             this.m_btnNeueBuchung.UseVisualStyleBackColor = true;
             this.m_btnNeueBuchung.Click += new System.EventHandler(this.BtnNeueBuchung_Click);
@@ -166,7 +169,7 @@ namespace TimeChip_App
             this.m_btnBuchungBearbeiten.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnBuchungBearbeiten.Name = "m_btnBuchungBearbeiten";
             this.m_btnBuchungBearbeiten.Size = new System.Drawing.Size(95, 49);
-            this.m_btnBuchungBearbeiten.TabIndex = 9;
+            this.m_btnBuchungBearbeiten.TabIndex = 7;
             this.m_btnBuchungBearbeiten.Text = "Buchung Bearbeiten";
             this.m_btnBuchungBearbeiten.UseVisualStyleBackColor = true;
             this.m_btnBuchungBearbeiten.Click += new System.EventHandler(this.BtnBuchungBearbeiten_Click);
@@ -178,7 +181,7 @@ namespace TimeChip_App
             this.m_btnBuchungLöschen.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnBuchungLöschen.Name = "m_btnBuchungLöschen";
             this.m_btnBuchungLöschen.Size = new System.Drawing.Size(95, 49);
-            this.m_btnBuchungLöschen.TabIndex = 10;
+            this.m_btnBuchungLöschen.TabIndex = 8;
             this.m_btnBuchungLöschen.Text = "Buchung Löschen";
             this.m_btnBuchungLöschen.UseVisualStyleBackColor = true;
             this.m_btnBuchungLöschen.Click += new System.EventHandler(this.BtnBuchungLöschen_Click);
@@ -190,7 +193,7 @@ namespace TimeChip_App
             this.m_btnSchule.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnSchule.Name = "m_btnSchule";
             this.m_btnSchule.Size = new System.Drawing.Size(95, 49);
-            this.m_btnSchule.TabIndex = 11;
+            this.m_btnSchule.TabIndex = 9;
             this.m_btnSchule.Text = "Schule";
             this.m_btnSchule.UseVisualStyleBackColor = true;
             this.m_btnSchule.Click += new System.EventHandler(this.BtnSchule_Click);
@@ -214,7 +217,7 @@ namespace TimeChip_App
             this.m_btnUnentschuldigt.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnUnentschuldigt.Name = "m_btnUnentschuldigt";
             this.m_btnUnentschuldigt.Size = new System.Drawing.Size(95, 49);
-            this.m_btnUnentschuldigt.TabIndex = 13;
+            this.m_btnUnentschuldigt.TabIndex = 11;
             this.m_btnUnentschuldigt.Text = "Zeitaus-\r\ngleich";
             this.m_btnUnentschuldigt.UseVisualStyleBackColor = true;
             this.m_btnUnentschuldigt.Click += new System.EventHandler(this.BtnUnentschuldigt_Click);
@@ -226,7 +229,7 @@ namespace TimeChip_App
             this.m_btnRefresh.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnRefresh.Name = "m_btnRefresh";
             this.m_btnRefresh.Size = new System.Drawing.Size(293, 49);
-            this.m_btnRefresh.TabIndex = 14;
+            this.m_btnRefresh.TabIndex = 5;
             this.m_btnRefresh.Text = "Aktualisieren";
             this.m_btnRefresh.UseVisualStyleBackColor = true;
             this.m_btnRefresh.Click += new System.EventHandler(this.BtnRefresh_Click);
@@ -334,7 +337,7 @@ namespace TimeChip_App
             this.m_btnKrank.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnKrank.Name = "m_btnKrank";
             this.m_btnKrank.Size = new System.Drawing.Size(95, 49);
-            this.m_btnKrank.TabIndex = 16;
+            this.m_btnKrank.TabIndex = 10;
             this.m_btnKrank.Text = "Krank";
             this.m_btnKrank.UseVisualStyleBackColor = true;
             this.m_btnKrank.Click += new System.EventHandler(this.BtnKrank_Click);
@@ -409,7 +412,7 @@ namespace TimeChip_App
             this.m_btnPrint.Location = new System.Drawing.Point(7, 13);
             this.m_btnPrint.Name = "m_btnPrint";
             this.m_btnPrint.Size = new System.Drawing.Size(295, 45);
-            this.m_btnPrint.TabIndex = 18;
+            this.m_btnPrint.TabIndex = 0;
             this.m_btnPrint.Text = "Monatsübersicht Drucken";
             this.m_btnPrint.UseVisualStyleBackColor = true;
             this.m_btnPrint.Click += new System.EventHandler(this.BtnPrint_Click);

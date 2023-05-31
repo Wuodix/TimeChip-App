@@ -12,7 +12,7 @@ namespace TimeChip_App
         {
             List<ClsBuchung> buchungen1 = DataProvider.SelectAllBuchungen("buchungen_temp");
             //TEMP
-            DataProvider.WriteBerechnungsDateToCSV(new DateTime(2022, 12, 19, 00, 00, 01));
+            DataProvider.WriteBerechnungsDateToCSV(new DateTime(2023, 05, 28, 00, 00, 01));
 
             DateTime lastBerechnung = DataProvider.ReadBerechnungsDateFromCSV();
 

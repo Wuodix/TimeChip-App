@@ -12,9 +12,14 @@ namespace TimeChip_App
         {
             InitializeComponent();
 
+            UpdateTagesListe();
+
             m_lbxTage.DataSource = m_tagesliste;
 
-            UpdateTagesListe();
+            if (m_tagesliste.Count > 0)
+            {
+                m_lbxTage.SelectedIndex = 0;
+            }
         }
 
         public static BindingList<ClsTag> Tagesliste { get { return m_tagesliste; } set { m_tagesliste = value; } }
