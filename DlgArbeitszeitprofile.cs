@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+<<<<<<< Updated upstream
 using System.Diagnostics;
+=======
+>>>>>>> Stashed changes
 using System.Linq;
 using System.Windows.Forms;
 

@@ -7,7 +7,9 @@ namespace TimeChip_App
 {
     public class ClsBerechnung
     {
-
+        /// <summary>
+        /// Berechnet alle vollständig vergangenen Tage seit dem letzten Berechnungszeitpunkt für alle Mitarbeiter
+        /// </summary>
         public static void Berechnen()
         {
             List<ClsBuchung> buchungen1 = DataProvider.SelectAllBuchungen("buchungen_temp");
@@ -64,6 +66,14 @@ namespace TimeChip_App
             }
         }
 
+        /// <summary>
+        /// Berechnet einen einzelnen Tag
+        /// </summary>
+        /// <param name="day">Zuberechnender Tag</param>
+        /// <param name="mtbtr">Mitarbeiter dessen Tag berechnet werden soll</param>
+        /// <param name="ersteBerechnung">True: Er nimmt die Buchungen aus buchungen_temp
+        /// False: er nimmt die Buchungen aus buchungen</param>
+        /// <returns>Ein ausgewerteter Tag Objekt mit den berechneten Daten</returns>
         public static ClsAusgewerteter_Tag Berechnen(DateTime day, ref ClsMitarbeiter mtbtr, bool ersteBerechnung)
         {
             List<ClsBuchung> buchungen;
