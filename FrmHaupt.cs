@@ -51,6 +51,8 @@ namespace TimeChip_App
 
                 UpdateMtbtrList();
                 UpdateLbxBuchungen();
+
+                m_lbxMitarbeiter.SelectedItem = m_mitarbeiterliste.ToList().Find(x=>x.ID.Equals(mtbtr.ID));
             }
         }
 
@@ -81,6 +83,8 @@ namespace TimeChip_App
                 DataProvider.UpdateMitarbeiter(zubearbeitender);
                 UpdateMtbtrList();
                 UpdateDataView();
+
+                m_lbxMitarbeiter.SelectedItem = m_mitarbeiterliste.ToList().Find(x => x.ID.Equals(zubearbeitender.ID));
             }
         }
 
@@ -155,14 +159,20 @@ namespace TimeChip_App
 
             if (dlgBuchung.ShowDialog() == DialogResult.OK) 
             {
-                DataProvider.InsertBuchung(dlgBuchung.Buchungstyp, dlgBuchung.GetDateTime(), dlgBuchung.Mitarbeiter);
+                ClsBuchung buchung = DataProvider.InsertBuchung(dlgBuchung.Buchungstyp, dlgBuchung.GetDateTime(), dlgBuchung.Mitarbeiter);
 
                 if(DataProvider.SelectAllBuchungenFromDay(mitarbeiter, dlgBuchung.GetDateTime(), "buchungen_temp").Count > 1)
                 {
                     ClsBerechnung.Berechnen(dlgBuchung.Datum, ref mitarbeiter, false);
                 }
+                else
+                {
+                    MessageBox.Show("Zu wenige Buchungen an diesem Tag für die Berechnung","Achtung!",MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
 
                 UpdateLbxBuchungen();
+
+                m_lbxBuchungen.SelectedItem = m_buchungsliste.ToList().Find(x => x.Buchungsnummer.Equals(buchung.Buchungsnummer));
             }
         }
 
@@ -193,8 +203,14 @@ namespace TimeChip_App
                     {
                         ClsBerechnung.Berechnen(dlgBuchung.GetDateTime(), ref mtbtr, false);
                     }
+                    else
+                    {
+                        MessageBox.Show("Zu wenige Buchungen an diesem Tag für die Berechnung", "Achtung!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
 
                     UpdateLbxBuchungen();
+
+                    m_lbxBuchungen.SelectedItem = m_buchungsliste.ToList().Find(x => x.Buchungsnummer.Equals(zubearbeiten.Buchungsnummer));
                 }
             }
         }
@@ -209,6 +225,10 @@ namespace TimeChip_App
                 if (DataProvider.SelectAllBuchungenFromDay(mtbtr, buchung.Zeit, "buchungen").Count > 1)
                 {
                     ClsBerechnung.Berechnen(buchung.Zeit, ref mtbtr, false);
+                }
+                else
+                {
+                    MessageBox.Show("Zu wenige Buchungen an diesem Tag für die Berechnung", "Achtung!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 UpdateLbxBuchungen();
             }

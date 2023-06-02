@@ -57,11 +57,6 @@ namespace TimeChip_App
             m_lbxArbeitszeitprofile.SelectedItem = m_arbeitsprofilliste.ToList().Find(x=>x.ID == Aktualisieren.ID);
         }
 
-        private ClsTag FindTag(ClsTag tag)
-        {
-            return DlgTag.Tagesliste.ToList().Find(x=>x.ID == tag.ID);
-        }
-
         private void BtnNeu_Click(object sender, EventArgs e)
         {
             m_tbxName.Text = "";
@@ -77,10 +72,11 @@ namespace TimeChip_App
 
         private void BtnErstellen_Click(object sender, EventArgs e)
         {
-            ClsArbeitsprofil abzp =  DataProvider.InsertArbeitszeitprofil(m_tbxName.Text, m_cmbxMontag.SelectedItem as ClsTag,
+            ClsArbeitsprofil abzp = DataProvider.InsertArbeitszeitprofil(m_tbxName.Text, m_cmbxMontag.SelectedItem as ClsTag,
                 m_cmbxDienstag.SelectedItem as ClsTag, m_cmbxMittwoch.SelectedItem as ClsTag,
                 m_cmbxDonnerstag.SelectedItem as ClsTag, m_cmbxFreitag.SelectedItem as ClsTag,
                 m_cmbxSamstag.SelectedItem as ClsTag, m_cmbxSonntag.SelectedItem as ClsTag, m_cbGleitzeit.Checked);
+            
             UpdateAbzpList();
 
             m_tbxName.Text = "";
@@ -94,7 +90,6 @@ namespace TimeChip_App
             m_cbGleitzeit.Checked = false;
 
             m_lbxArbeitszeitprofile.SelectedItem = m_arbeitsprofilliste.ToList().Find(x => x.ID == abzp.ID);
-            LbxArbeitszeitprofile_SelectedIndexChanged(this, EventArgs.Empty);
         }
 
         private void BtnLöschen_Click(object sender, EventArgs e)
@@ -126,7 +121,9 @@ namespace TimeChip_App
         {
             m_arbeitsprofilliste.Clear();
 
-            foreach (ClsArbeitsprofil abzp in DataProvider.SelectAllArbeitszeitprofil())
+            List<ClsArbeitsprofil> alleabzps = DataProvider.SelectAllArbeitszeitprofil();
+
+            foreach (ClsArbeitsprofil abzp in alleabzps)
             {
                 m_arbeitsprofilliste.Add(abzp);
             }
@@ -164,41 +161,31 @@ namespace TimeChip_App
             }
             */
         }
-
+        int i = 0;
         private void LbxArbeitszeitprofile_SelectedIndexChanged(object sender, EventArgs e)
         {   
             if(m_arbeitsprofilliste.Count >0)
             {
+                Debug.WriteLine("Selected Index Changed ausgelöst!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " + i);
+                i++;
+
                 ClsArbeitsprofil Auswählen = m_lbxArbeitszeitprofile.SelectedItem as ClsArbeitsprofil;
 
                 m_tbxName.Text = Auswählen.Name;
 
-                //m_cmbxMontag.SelectedItem = FindTag(Auswählen.Montag);
-                //m_cmbxDienstag.SelectedItem = FindTag(Auswählen.Dienstag);
-                //m_cmbxMittwoch.SelectedItem = FindTag(Auswählen.Mittwoch);
-                //m_cmbxDonnerstag.SelectedItem = FindTag(Auswählen.Donnerstag);
-                //m_cmbxFreitag.SelectedItem = FindTag(Auswählen.Freitag);
-                //m_cmbxSamstag.SelectedItem = FindTag(Auswählen.Samstag);
-                //m_cmbxSonntag.SelectedItem = FindTag(Auswählen.Sonntag);
-                //m_cbGleitzeit.Checked = Auswählen.Gleitzeit;
-
-                //m_cmbxMontag.SelectedItem = DlgTag.Tagesliste.ToList().Find(x=>x.ID.Equals(Auswählen.Montag.ID));
-                //m_cmbxDienstag.SelectedItem = DlgTag.Tagesliste.ToList().Find(x=>x.ID.Equals(Auswählen.Dienstag.ID));
-                //m_cmbxMittwoch.SelectedItem = DlgTag.Tagesliste.ToList().Find(x => x.ID.Equals(Auswählen.Mittwoch.ID));
-                //m_cmbxDonnerstag.SelectedItem = DlgTag.Tagesliste.ToList().Find(x => x.ID.Equals(Auswählen.Donnerstag.ID));
-                //m_cmbxFreitag.SelectedItem = DlgTag.Tagesliste.ToList().Find(x => x.ID.Equals(Auswählen.Freitag.ID));
-                //m_cmbxSamstag.SelectedItem = DlgTag.Tagesliste.ToList().Find(x => x.ID.Equals(Auswählen.Samstag.ID));
-                //m_cmbxSonntag.SelectedItem = DlgTag.Tagesliste.ToList().Find(x => x.ID.Equals(Auswählen.Sonntag.ID));
-                //m_cbGleitzeit.Checked = Auswählen.Gleitzeit;
-
-                m_cmbxMontag.SelectedIndex = DlgTag.Tagesliste.ToList().FindIndex(x => x.ID.Equals(Auswählen.Montag.ID));
-                m_cmbxDienstag.SelectedIndex = DlgTag.Tagesliste.ToList().FindIndex(x => x.ID.Equals(Auswählen.Dienstag.ID));
-                m_cmbxMittwoch.SelectedIndex = DlgTag.Tagesliste.ToList().FindIndex(x => x.ID.Equals(Auswählen.Mittwoch.ID));
-                m_cmbxDonnerstag.SelectedIndex = DlgTag.Tagesliste.ToList().FindIndex(x => x.ID.Equals(Auswählen.Donnerstag.ID));
-                m_cmbxFreitag.SelectedIndex = DlgTag.Tagesliste.ToList().FindIndex(x => x.ID.Equals(Auswählen.Freitag.ID));
-                m_cmbxSamstag.SelectedIndex = DlgTag.Tagesliste.ToList().FindIndex(x => x.ID.Equals(Auswählen.Samstag.ID));
-                m_cmbxSonntag.SelectedIndex = DlgTag.Tagesliste.ToList().FindIndex(x => x.ID.Equals(Auswählen.Sonntag.ID));
-                m_cbGleitzeit.Checked = Auswählen.Gleitzeit;
+                if (m_cmbxMontag.Items.Count > 0)
+                {
+                    UpdateCMBX();
+                    
+                    m_cmbxMontag.SelectedItem = DlgTag.Tagesliste.ToList().Find(x => x.ID.Equals(Auswählen.Montag.ID));
+                    m_cmbxDienstag.SelectedItem = DlgTag.Tagesliste.ToList().Find(x => x.ID.Equals(Auswählen.Dienstag.ID));
+                    m_cmbxMittwoch.SelectedItem = DlgTag.Tagesliste.ToList().Find(x => x.ID.Equals(Auswählen.Mittwoch.ID));
+                    m_cmbxDonnerstag.SelectedItem = DlgTag.Tagesliste.ToList().Find(x => x.ID.Equals(Auswählen.Donnerstag.ID));
+                    m_cmbxFreitag.SelectedItem = DlgTag.Tagesliste.ToList().Find(x => x.ID.Equals(Auswählen.Freitag.ID));
+                    m_cmbxSamstag.SelectedItem = DlgTag.Tagesliste.ToList().Find(x => x.ID.Equals(Auswählen.Samstag.ID));
+                    m_cmbxSonntag.SelectedItem = DlgTag.Tagesliste.ToList().Find(x => x.ID.Equals(Auswählen.Sonntag.ID));
+                    m_cbGleitzeit.Checked = Auswählen.Gleitzeit;
+                }
             }
         }
     }

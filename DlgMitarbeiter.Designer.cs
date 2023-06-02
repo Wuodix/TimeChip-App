@@ -83,7 +83,7 @@ namespace TimeChip_App
             this.m_tbxVorname.Multiline = true;
             this.m_tbxVorname.Name = "m_tbxVorname";
             this.m_tbxVorname.Size = new System.Drawing.Size(194, 24);
-            this.m_tbxVorname.TabIndex = 2;
+            this.m_tbxVorname.TabIndex = 0;
             // 
             // m_tbxNachname
             // 
@@ -92,7 +92,7 @@ namespace TimeChip_App
             this.m_tbxNachname.Multiline = true;
             this.m_tbxNachname.Name = "m_tbxNachname";
             this.m_tbxNachname.Size = new System.Drawing.Size(194, 24);
-            this.m_tbxNachname.TabIndex = 4;
+            this.m_tbxNachname.TabIndex = 1;
             // 
             // label3
             // 
@@ -113,7 +113,7 @@ namespace TimeChip_App
             this.m_cmbxAProfil.Margin = new System.Windows.Forms.Padding(2);
             this.m_cmbxAProfil.Name = "m_cmbxAProfil";
             this.m_cmbxAProfil.Size = new System.Drawing.Size(194, 21);
-            this.m_cmbxAProfil.TabIndex = 5;
+            this.m_cmbxAProfil.TabIndex = 4;
             // 
             // label4
             // 
@@ -133,7 +133,7 @@ namespace TimeChip_App
             this.m_dtpArbeitsb.Margin = new System.Windows.Forms.Padding(2);
             this.m_dtpArbeitsb.Name = "m_dtpArbeitsb";
             this.m_dtpArbeitsb.Size = new System.Drawing.Size(194, 20);
-            this.m_dtpArbeitsb.TabIndex = 7;
+            this.m_dtpArbeitsb.TabIndex = 5;
             // 
             // label5
             // 
@@ -178,7 +178,7 @@ namespace TimeChip_App
             this.m_btnAddFinger.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnAddFinger.Name = "m_btnAddFinger";
             this.m_btnAddFinger.Size = new System.Drawing.Size(220, 31);
-            this.m_btnAddFinger.TabIndex = 11;
+            this.m_btnAddFinger.TabIndex = 6;
             this.m_btnAddFinger.Text = "Finger hinzufügen";
             this.m_btnAddFinger.UseVisualStyleBackColor = true;
             this.m_btnAddFinger.Click += new System.EventHandler(this.BtnAddFinger_Click);
@@ -190,7 +190,7 @@ namespace TimeChip_App
             this.m_btnAddCard.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnAddCard.Name = "m_btnAddCard";
             this.m_btnAddCard.Size = new System.Drawing.Size(220, 31);
-            this.m_btnAddCard.TabIndex = 12;
+            this.m_btnAddCard.TabIndex = 7;
             this.m_btnAddCard.Text = "NFC Karte hinzufügen";
             this.m_btnAddCard.UseVisualStyleBackColor = true;
             this.m_btnAddCard.Click += new System.EventHandler(this.BtnAddCard_Click);
@@ -214,7 +214,7 @@ namespace TimeChip_App
             this.m_tbxUrlaub.Multiline = true;
             this.m_tbxUrlaub.Name = "m_tbxUrlaub";
             this.m_tbxUrlaub.Size = new System.Drawing.Size(58, 24);
-            this.m_tbxUrlaub.TabIndex = 14;
+            this.m_tbxUrlaub.TabIndex = 3;
             // 
             // m_tbxÜberstunden
             // 
@@ -223,7 +223,7 @@ namespace TimeChip_App
             this.m_tbxÜberstunden.Multiline = true;
             this.m_tbxÜberstunden.Name = "m_tbxÜberstunden";
             this.m_tbxÜberstunden.Size = new System.Drawing.Size(58, 24);
-            this.m_tbxÜberstunden.TabIndex = 16;
+            this.m_tbxÜberstunden.TabIndex = 2;
             // 
             // label6
             // 
@@ -244,6 +244,7 @@ namespace TimeChip_App
             this.m_lbxFinger.Name = "m_lbxFinger";
             this.m_lbxFinger.Size = new System.Drawing.Size(194, 95);
             this.m_lbxFinger.TabIndex = 17;
+            this.m_lbxFinger.TabStop = false;
             // 
             // m_btnDeleteFinger
             // 
@@ -252,7 +253,7 @@ namespace TimeChip_App
             this.m_btnDeleteFinger.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnDeleteFinger.Name = "m_btnDeleteFinger";
             this.m_btnDeleteFinger.Size = new System.Drawing.Size(194, 31);
-            this.m_btnDeleteFinger.TabIndex = 19;
+            this.m_btnDeleteFinger.TabIndex = 8;
             this.m_btnDeleteFinger.Text = "Finger löschen";
             this.m_btnDeleteFinger.UseVisualStyleBackColor = true;
             this.m_btnDeleteFinger.Click += new System.EventHandler(this.BtnDeleteFinger_Click);

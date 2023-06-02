@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace TimeChip_App
 {
@@ -76,7 +78,7 @@ namespace TimeChip_App
             TimeSpan arbeitszeit = m_dtpArbeitszeit.Value.TimeOfDay;
             TimeSpan pausendauer = m_dtpPausendauer.Value.TimeOfDay;
 
-            DataProvider.InsertTag(m_tbxName.Text, arbeitsbeginn, arbeitsende, arbeitszeit, pausenbeginn, pausenende, pausendauer, m_cbPause.Checked);
+            ClsTag tag =  DataProvider.InsertTag(m_tbxName.Text, arbeitsbeginn, arbeitsende, arbeitszeit, pausenbeginn, pausenende, pausendauer, m_cbPause.Checked);
             UpdateTagesListe();
 
             m_tbxName.Text = "";
@@ -87,6 +89,8 @@ namespace TimeChip_App
             m_dtpArbeitszeit.Value = DateTime.Today;
             m_dtpPausendauer.Value = DateTime.Today;
             m_cbPause.Checked = false;
+
+            m_lbxTage.SelectedItem = m_tagesliste.ToList().Find(x => x.ID == tag.ID);
         }
 
         private void BtnAktualisieren_Click(object sender, EventArgs e)
@@ -103,8 +107,9 @@ namespace TimeChip_App
             Aktualisieren.Pause = m_cbPause.Checked;
 
             DataProvider.UpdateTag(Aktualisieren);
-
             m_tagesliste.ResetBindings();
+
+            m_lbxTage.SelectedItem = m_tagesliste.ToList().Find(x => x.ID == Aktualisieren.ID);
         }
 
         private void UpdateTagesListe()

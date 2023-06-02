@@ -48,7 +48,6 @@ namespace TimeChip_App
             this.label7 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.m_cbPause = new System.Windows.Forms.CheckBox();
-            this.m_btnAbbrechen = new System.Windows.Forms.Button();
             this.m_btnOK = new System.Windows.Forms.Button();
             this.m_lbxTage = new System.Windows.Forms.ListBox();
             this.m_btnAktualisieren = new System.Windows.Forms.Button();
@@ -63,7 +62,7 @@ namespace TimeChip_App
             this.m_btnNeu.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnNeu.Name = "m_btnNeu";
             this.m_btnNeu.Size = new System.Drawing.Size(104, 38);
-            this.m_btnNeu.TabIndex = 30;
+            this.m_btnNeu.TabIndex = 9;
             this.m_btnNeu.Text = "Neu";
             this.m_btnNeu.UseVisualStyleBackColor = true;
             this.m_btnNeu.Click += new System.EventHandler(this.BtnNeu_Click);
@@ -75,7 +74,7 @@ namespace TimeChip_App
             this.m_btnLöschen.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnLöschen.Name = "m_btnLöschen";
             this.m_btnLöschen.Size = new System.Drawing.Size(97, 38);
-            this.m_btnLöschen.TabIndex = 29;
+            this.m_btnLöschen.TabIndex = 11;
             this.m_btnLöschen.Text = "Löschen";
             this.m_btnLöschen.UseVisualStyleBackColor = true;
             this.m_btnLöschen.Click += new System.EventHandler(this.BtnLöschen_Click);
@@ -126,7 +125,7 @@ namespace TimeChip_App
             this.m_dtpPausendauer.Name = "m_dtpPausendauer";
             this.m_dtpPausendauer.ShowUpDown = true;
             this.m_dtpPausendauer.Size = new System.Drawing.Size(53, 20);
-            this.m_dtpPausendauer.TabIndex = 36;
+            this.m_dtpPausendauer.TabIndex = 7;
             this.m_dtpPausendauer.Value = new System.DateTime(2022, 12, 31, 0, 0, 0, 0);
             // 
             // m_dtpArbeitszeit
@@ -139,7 +138,7 @@ namespace TimeChip_App
             this.m_dtpArbeitszeit.Name = "m_dtpArbeitszeit";
             this.m_dtpArbeitszeit.ShowUpDown = true;
             this.m_dtpArbeitszeit.Size = new System.Drawing.Size(53, 20);
-            this.m_dtpArbeitszeit.TabIndex = 35;
+            this.m_dtpArbeitszeit.TabIndex = 6;
             this.m_dtpArbeitszeit.Value = new System.DateTime(2022, 12, 31, 0, 0, 0, 0);
             // 
             // m_dtpPausenende
@@ -152,7 +151,7 @@ namespace TimeChip_App
             this.m_dtpPausenende.Name = "m_dtpPausenende";
             this.m_dtpPausenende.ShowUpDown = true;
             this.m_dtpPausenende.Size = new System.Drawing.Size(53, 20);
-            this.m_dtpPausenende.TabIndex = 34;
+            this.m_dtpPausenende.TabIndex = 5;
             this.m_dtpPausenende.Value = new System.DateTime(2022, 12, 31, 0, 0, 0, 0);
             // 
             // m_dtpPausenbeginn
@@ -165,7 +164,7 @@ namespace TimeChip_App
             this.m_dtpPausenbeginn.Name = "m_dtpPausenbeginn";
             this.m_dtpPausenbeginn.ShowUpDown = true;
             this.m_dtpPausenbeginn.Size = new System.Drawing.Size(53, 20);
-            this.m_dtpPausenbeginn.TabIndex = 33;
+            this.m_dtpPausenbeginn.TabIndex = 4;
             this.m_dtpPausenbeginn.Value = new System.DateTime(2022, 12, 31, 0, 0, 0, 0);
             // 
             // m_dtpArbeitsende
@@ -178,7 +177,7 @@ namespace TimeChip_App
             this.m_dtpArbeitsende.Name = "m_dtpArbeitsende";
             this.m_dtpArbeitsende.ShowUpDown = true;
             this.m_dtpArbeitsende.Size = new System.Drawing.Size(53, 20);
-            this.m_dtpArbeitsende.TabIndex = 32;
+            this.m_dtpArbeitsende.TabIndex = 2;
             this.m_dtpArbeitsende.Value = new System.DateTime(2022, 12, 31, 0, 0, 0, 0);
             // 
             // m_dtpArbeitsbeginn
@@ -191,7 +190,7 @@ namespace TimeChip_App
             this.m_dtpArbeitsbeginn.Name = "m_dtpArbeitsbeginn";
             this.m_dtpArbeitsbeginn.ShowUpDown = true;
             this.m_dtpArbeitsbeginn.Size = new System.Drawing.Size(53, 20);
-            this.m_dtpArbeitsbeginn.TabIndex = 31;
+            this.m_dtpArbeitsbeginn.TabIndex = 1;
             this.m_dtpArbeitsbeginn.Value = new System.DateTime(2022, 12, 31, 0, 0, 0, 0);
             // 
             // label10
@@ -237,7 +236,7 @@ namespace TimeChip_App
             this.m_tbxName.Margin = new System.Windows.Forms.Padding(2);
             this.m_tbxName.Name = "m_tbxName";
             this.m_tbxName.Size = new System.Drawing.Size(149, 20);
-            this.m_tbxName.TabIndex = 22;
+            this.m_tbxName.TabIndex = 0;
             // 
             // label6
             // 
@@ -305,20 +304,8 @@ namespace TimeChip_App
             this.m_cbPause.Location = new System.Drawing.Point(220, 152);
             this.m_cbPause.Name = "m_cbPause";
             this.m_cbPause.Size = new System.Drawing.Size(15, 14);
-            this.m_cbPause.TabIndex = 30;
+            this.m_cbPause.TabIndex = 3;
             this.m_cbPause.UseVisualStyleBackColor = true;
-            // 
-            // m_btnAbbrechen
-            // 
-            this.m_btnAbbrechen.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.m_btnAbbrechen.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.m_btnAbbrechen.Location = new System.Drawing.Point(314, 441);
-            this.m_btnAbbrechen.Margin = new System.Windows.Forms.Padding(2);
-            this.m_btnAbbrechen.Name = "m_btnAbbrechen";
-            this.m_btnAbbrechen.Size = new System.Drawing.Size(150, 38);
-            this.m_btnAbbrechen.TabIndex = 26;
-            this.m_btnAbbrechen.Text = "Abbrechen";
-            this.m_btnAbbrechen.UseVisualStyleBackColor = true;
             // 
             // m_btnOK
             // 
@@ -327,8 +314,8 @@ namespace TimeChip_App
             this.m_btnOK.Location = new System.Drawing.Point(159, 441);
             this.m_btnOK.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnOK.Name = "m_btnOK";
-            this.m_btnOK.Size = new System.Drawing.Size(150, 38);
-            this.m_btnOK.TabIndex = 25;
+            this.m_btnOK.Size = new System.Drawing.Size(302, 38);
+            this.m_btnOK.TabIndex = 12;
             this.m_btnOK.Text = "OK";
             this.m_btnOK.UseVisualStyleBackColor = true;
             // 
@@ -340,6 +327,7 @@ namespace TimeChip_App
             this.m_lbxTage.Name = "m_lbxTage";
             this.m_lbxTage.Size = new System.Drawing.Size(134, 368);
             this.m_lbxTage.TabIndex = 24;
+            this.m_lbxTage.TabStop = false;
             this.m_lbxTage.SelectedIndexChanged += new System.EventHandler(this.LbxTage_SelectedIndexChanged);
             // 
             // m_btnAktualisieren
@@ -349,7 +337,7 @@ namespace TimeChip_App
             this.m_btnAktualisieren.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnAktualisieren.Name = "m_btnAktualisieren";
             this.m_btnAktualisieren.Size = new System.Drawing.Size(134, 81);
-            this.m_btnAktualisieren.TabIndex = 32;
+            this.m_btnAktualisieren.TabIndex = 8;
             this.m_btnAktualisieren.Text = "Aktualisieren";
             this.m_btnAktualisieren.UseVisualStyleBackColor = true;
             this.m_btnAktualisieren.Click += new System.EventHandler(this.BtnAktualisieren_Click);
@@ -361,7 +349,7 @@ namespace TimeChip_App
             this.m_btnErstellen.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnErstellen.Name = "m_btnErstellen";
             this.m_btnErstellen.Size = new System.Drawing.Size(97, 38);
-            this.m_btnErstellen.TabIndex = 33;
+            this.m_btnErstellen.TabIndex = 10;
             this.m_btnErstellen.Text = "Erstellen";
             this.m_btnErstellen.UseVisualStyleBackColor = true;
             this.m_btnErstellen.Click += new System.EventHandler(this.BtnErstellen_Click);
@@ -376,7 +364,6 @@ namespace TimeChip_App
             this.Controls.Add(this.m_btnNeu);
             this.Controls.Add(this.m_btnLöschen);
             this.Controls.Add(this.tableLayoutPanel1);
-            this.Controls.Add(this.m_btnAbbrechen);
             this.Controls.Add(this.m_btnOK);
             this.Controls.Add(this.m_lbxTage);
             this.Margin = new System.Windows.Forms.Padding(2);
@@ -400,7 +387,6 @@ namespace TimeChip_App
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox m_tbxName;
-        private System.Windows.Forms.Button m_btnAbbrechen;
         private System.Windows.Forms.Button m_btnOK;
         private System.Windows.Forms.ListBox m_lbxTage;
         private System.Windows.Forms.Button m_btnAktualisieren;

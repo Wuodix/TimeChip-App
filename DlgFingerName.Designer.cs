@@ -51,7 +51,7 @@
             this.m_tbxFingerName.Location = new System.Drawing.Point(226, 29);
             this.m_tbxFingerName.Name = "m_tbxFingerName";
             this.m_tbxFingerName.Size = new System.Drawing.Size(239, 20);
-            this.m_tbxFingerName.TabIndex = 3;
+            this.m_tbxFingerName.TabIndex = 0;
             // 
             // m_btnOK
             // 
@@ -61,7 +61,7 @@
             this.m_btnOK.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnOK.Name = "m_btnOK";
             this.m_btnOK.Size = new System.Drawing.Size(126, 38);
-            this.m_btnOK.TabIndex = 10;
+            this.m_btnOK.TabIndex = 1;
             this.m_btnOK.Text = "OK";
             this.m_btnOK.UseVisualStyleBackColor = true;
             // 
@@ -73,7 +73,7 @@
             this.button1.Margin = new System.Windows.Forms.Padding(2);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(126, 38);
-            this.button1.TabIndex = 11;
+            this.button1.TabIndex = 2;
             this.button1.Text = "Abbrechen";
             this.button1.UseVisualStyleBackColor = true;
             // 
