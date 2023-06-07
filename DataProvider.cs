@@ -11,7 +11,7 @@ namespace TimeChip_App
 {
     public class DataProvider
     {
-        private static readonly string m_connectionString = "SERVER=localhost;DATABASE=apotheke_time_chip;UID=root;";
+        private static readonly string m_connectionString = "SERVER=localhost;DATABASE=apotheke_time_chip2;UID=root;";
 
         public static ClsBuchung InsertBuchung(Buchungstyp buchungstyp, DateTime zeit, ClsMitarbeiter mtbtr)
         {

@@ -12,7 +12,6 @@ namespace TimeChip_App
         /// </summary>
         public static void Berechnen()
         {
-            List<ClsBuchung> buchungen1 = DataProvider.SelectAllBuchungen("buchungen_temp");
             //TEMP
             DataProvider.WriteBerechnungsDateToCSV(new DateTime(2023, 05, 28, 00, 00, 01));
 
@@ -25,14 +24,12 @@ namespace TimeChip_App
                 DateTime compare = new DateTime(lastBerechnung.Year, lastBerechnung.Month, lastBerechnung.Day, 0, 0, 0);
 
                 // Eine Liste aus Buchungen der einzelnen Tage
-                List<List<ClsBuchung>> TagesBuchungen = new List<List<ClsBuchung>>();
                 List<DateTime> Tage = new List<DateTime>();
 
                 //Es werden alle Tage gesucht, die berechnet werden müssen
                 while (compare.CompareTo(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0)) < 0)
                 {
                     Debug.WriteLine(compare.ToString());
-                    TagesBuchungen.Add(buchungen1.FindAll(x => x.Zeit.ToShortDateString().Equals(compare.ToShortDateString())));
 
                     Tage.Add(compare);
                     compare = compare.AddDays(1);
@@ -43,7 +40,15 @@ namespace TimeChip_App
                     foreach (ClsMitarbeiter mitarbeiter in FrmHaupt.Mitarbeiterliste)
                     {
                         ClsMitarbeiter mtbtr = mitarbeiter;
-                        Berechnen(tag, ref mtbtr, true);
+                        List<ClsBuchung> buchungen = DataProvider.SelectAllBuchungenFromDay(mtbtr, tag, "buchungen_temp");
+                        if(buchungen.Count < 1)
+                        {
+                            Berechnen(tag, ref mtbtr, true);
+                        }
+                        else
+                        {
+                            DataProvider.InsertAusgewerteterTag(tag, mtbtr.ID, new TimeSpan(1),0);
+                        }
                     }
                 }
 
@@ -90,7 +95,7 @@ namespace TimeChip_App
 
             buchungen.Sort(Comparer<ClsBuchung>.Create((x, y) => x.Buchungsnummer.CompareTo(y.Buchungsnummer)));
             bool first = true;
-            DateTime temp = new DateTime(0);
+            DateTime temp = new DateTime(1);
             TimeSpan Arbeitszeit = new TimeSpan(0);
 
             foreach (ClsBuchung buchung in buchungen)
@@ -111,6 +116,7 @@ namespace TimeChip_App
                         Debug.WriteLine("HI2");
                         temp = buchung.Zeit;
 
+                        first = false;
                         break;
                     case Buchungstyp.Gehen:
                         if (first || temp.Ticks == 1) { break; }
@@ -131,8 +137,6 @@ namespace TimeChip_App
                         temp = new DateTime(1);
                         break;
                 }
-
-                first = false;
             }
 
             Debug.WriteLine("Arbeitszeit vor Pause Abzug: " + Arbeitszeit.ToString());
@@ -178,8 +182,42 @@ namespace TimeChip_App
 
             if (!pauseberechnet)
             {
-                //Wenn nicht: Zeit, die letze Buchung nach Pausenbeginn liegt, als Pausendauer abziehen
-                TimeSpan Pausendauer = buchungen.LastOrDefault().Zeit.TimeOfDay.Subtract(GetPausenbeginnOfDayOfWeek(day, mtbtr));
+                ClsBuchung tempBuchung = null;
+                TimeSpan Pausendauer = TimeSpan.Zero;
+                //Braucht vll noch Kontrolle ob erste Buchung kommen oder gehen ist
+                foreach(ClsBuchung buchung in buchungen)
+                {
+                    //Speichert Kommen Buchung von Kommen/Gehen Block zwischen
+                    if(buchung.Buchungstyp == Buchungstyp.Kommen)
+                    {
+                        tempBuchung = buchung;
+                    }
+                    //Kommt erst nach Pausenbeginn (tempBuchung) und geht schon vor Pausenende
+                    if (tempBuchung != null && buchung.Buchungstyp == Buchungstyp.Gehen && tempBuchung.Zeit.TimeOfDay.CompareTo(GetPausenbeginnOfDayOfWeek(day, mtbtr)) > 0
+                        && buchung.Zeit.TimeOfDay.CompareTo(GetPausenendeOfDayOfWeek(day, mtbtr)) < 0)
+                    {
+                        Pausendauer = Pausendauer.Add(new TimeSpan(buchung.Zeit.Ticks - tempBuchung.Zeit.Ticks));
+
+                        tempBuchung = null;
+                    }
+                    //Kommt erst nach Pausenbeginn (tempBuchung) aber geht erst nach Pausenende
+                    if(tempBuchung != null && buchung.Buchungstyp == Buchungstyp.Gehen && tempBuchung.Zeit.TimeOfDay.CompareTo(GetPausenbeginnOfDayOfWeek(day,mtbtr)) > 0
+                        && buchung.Zeit.TimeOfDay.CompareTo(GetPausenendeOfDayOfWeek(day,mtbtr)) > 0)
+                    {
+                        Pausendauer = Pausendauer.Add(new TimeSpan(GetPausenendeOfDayOfWeek(day,mtbtr).Ticks-tempBuchung.Zeit.Ticks));
+
+                        tempBuchung = null;
+                    }
+                    //Kommt vor Pausenbeginn (tempBuchung) und geht schon vor Pausenende
+                    if(tempBuchung != null && buchung.Buchungstyp == Buchungstyp.Gehen && tempBuchung.Zeit.TimeOfDay.CompareTo(GetPausenbeginnOfDayOfWeek(day,mtbtr)) < 0
+                        && buchung.Zeit.TimeOfDay.CompareTo(GetPausenendeOfDayOfWeek(day, mtbtr)) < 0)
+                    {
+                        Pausendauer = Pausendauer.Add(new TimeSpan(buchung.Zeit.Ticks - GetPausenbeginnOfDayOfWeek(day,mtbtr).Ticks));
+
+                        tempBuchung = null;
+                    }
+                }
+
                 Debug.WriteLine("Pause bei schleißige mtbtr");
 
                 Arbeitszeit -= Pausendauer;

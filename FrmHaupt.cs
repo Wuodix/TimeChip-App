@@ -28,7 +28,10 @@ namespace TimeChip_App
                 UpdateLbxBuchungen();
                 m_lbxBuchungen.DataSource = m_buchungsliste;
 
-                ClsBerechnung.Berechnen();
+                //ClsBerechnung.Berechnen();
+                
+                UpdateDataView();
+                UpdateCldKalender();
             }
         }
 
