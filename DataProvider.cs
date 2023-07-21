@@ -366,52 +366,51 @@ namespace TimeChip_App
         public static List<ClsBuchung> SelectAllBuchungenFromDay(ClsMitarbeiter mtbtr, DateTime date, string Table)
         {
             List<ClsBuchung> list = new List<ClsBuchung>();
-            if (Table == "buchungen")
+            using (MySqlConnection conn = new MySqlConnection(m_connectionString))
             {
-                string query = "SELECT * FROM buchungen WHERE MtbtrID=@mtbtrID AND (Zeit BETWEEN @zeit1 AND @zeit2)";
+                conn.Open();
 
-                using (MySqlConnection conn = new MySqlConnection(m_connectionString))
+                string query = "SELECT * FROM " + Table + " WHERE MtbtrID=@mtbtrID AND (Zeit BETWEEN @zeit1 AND @zeit2)";
+
+                MySqlCommand cmd = new MySqlCommand(query, conn);
+
+                DateTime dt1 = new DateTime(date.Year, date.Month, date.Day, 0, 0, 0);
+                DateTime dt2 = new DateTime(date.Year, date.Month, date.Day, 23, 59, 59);
+
+                cmd.Parameters.AddWithValue("mtbtrID", mtbtr.ID);
+                cmd.Parameters.AddWithValue("zeit1", dt1);
+                cmd.Parameters.AddWithValue("zeit2", dt2);
+
+                MySqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
                 {
-                    conn.Open();
-
-                    MySqlCommand cmd = new MySqlCommand(query, conn);
-
-                    DateTime dt1 = new DateTime(date.Year, date.Month, date.Day, 0, 0, 0);
-                    DateTime dt2 = new DateTime(date.Year, date.Month, date.Day, 23, 59, 59);
-
-                    cmd.Parameters.AddWithValue("mtbtrID", mtbtr.ID);
-                    cmd.Parameters.AddWithValue("zeit1", dt1);
-                    cmd.Parameters.AddWithValue("zeit2", dt2);
-
-                    MySqlDataReader reader = cmd.ExecuteReader();
-
-                    while (reader.Read())
+                    DateTime datetime;
+                    if (Table == "buchungen")
                     {
-                        ClsBuchung buchung = new ClsBuchung(reader.GetInt16("Buchungsnummer"),
-                            reader.GetInt16("MtbtrID"), reader.GetDateTime("Zeit"),
-                            StringToBuchungstyp(reader.GetString("Buchungstyp")));
-
-                        list.Add(buchung);
+                        datetime = reader.GetDateTime("Zeit");
+                    }
+                    else
+                    {
+                        datetime = StringToDateTime(reader.GetString("Zeit"));
                     }
 
-                    cmd.Dispose();
-                    reader.Dispose();
+                    ClsBuchung buchung = new ClsBuchung(reader.GetInt16("Buchungsnummer"),
+                        reader.GetInt16("MtbtrID"), datetime,
+                        StringToBuchungstyp(reader.GetString("Buchungstyp")));
+                    list.Add(buchung);
                 }
-            }
-            else if(Table == "buchungen_temp")
-            {
-                List<ClsBuchung> buchungen = SelectAllBuchungenFromMtbtr(mtbtr, "buchungen_temp");
 
-                list = buchungen.FindAll(x => x.Zeit.ToShortDateString().Equals(date.ToShortDateString()));
+                cmd.Dispose();
+                reader.Close();
             }
-
             return list;
         }
         public static ClsAusgewerteter_Tag SelectAusgewerteterTag(DateTime date, int MtbtrID)
         {
             List<ClsAusgewerteter_Tag> list = new List<ClsAusgewerteter_Tag>();
 
-            string query = "SELECT * FROM ausgewertete_tage WHERE Datum=@date AND MtbtrID=@mtbtrID";
+            string query = "SELECT * FROM ausgewertete_tage WHERE (Datum BETWEEN @zeit1 AND @zeit2) AND MtbtrID=@mtbtrID";
 
             using(MySqlConnection conn = new MySqlConnection(m_connectionString))
             {
@@ -419,7 +418,11 @@ namespace TimeChip_App
 
                 MySqlCommand cmd = new MySqlCommand(query, conn);
 
-                cmd.Parameters.AddWithValue("date", date);
+                DateTime dt1 = new DateTime(date.Year, date.Month, date.Day, 0, 0, 0);
+                DateTime dt2 = new DateTime(date.Year, date.Month, date.Day, 23, 59, 59);
+
+                cmd.Parameters.AddWithValue("zeit1", dt1);
+                cmd.Parameters.AddWithValue("zeit2", dt2);
                 cmd.Parameters.AddWithValue("mtbtrID", MtbtrID);
 
                 MySqlDataReader reader = cmd.ExecuteReader();

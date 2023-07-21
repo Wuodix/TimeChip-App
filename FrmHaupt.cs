@@ -11,8 +11,8 @@ namespace TimeChip_App
 {
     public partial class FrmHaupt : Form
     {
-        static List<ClsMitarbeiter> m_mitarbeiterliste = new List<ClsMitarbeiter>();
-        static readonly List<ClsBuchung> m_buchungsliste = new List<ClsBuchung>();
+        static BindingList<ClsMitarbeiter> m_mitarbeiterliste = new BindingList<ClsMitarbeiter>();
+        static BindingList<ClsBuchung> m_buchungsliste = new BindingList<ClsBuchung>();
 
         public FrmHaupt()
         {
@@ -29,13 +29,10 @@ namespace TimeChip_App
                 m_lbxBuchungen.DataSource = m_buchungsliste;
 
                 //ClsBerechnung.Berechnen();
-                
-                UpdateDataView();
-                UpdateCldKalender();
             }
         }
 
-        public static List<ClsMitarbeiter> Mitarbeiterliste { get { return m_mitarbeiterliste; } set { m_mitarbeiterliste = value; } }
+        public static BindingList<ClsMitarbeiter> Mitarbeiterliste { get { return m_mitarbeiterliste; } set { m_mitarbeiterliste = value; } }
 
         private void BtnNeu_Click(object sender, EventArgs e)
         {
@@ -116,6 +113,7 @@ namespace TimeChip_App
             {
                 m_mitarbeiterliste.Add(mtbtr);
             }
+            m_mitarbeiterliste.ResetBindings();
         }
 
         private void LbxMitarbeiterChanged(object sender, EventArgs e)
@@ -131,7 +129,9 @@ namespace TimeChip_App
         {
             if (m_lbxMitarbeiter.SelectedItem != null)
             {
-                List<ClsBuchung> Buchungen = DataProvider.SelectAllBuchungenFromDay(m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter, m_cldKalender.SelectionStart, "buchungen_temp");
+                List<ClsBuchung> Buchungen = DataProvider.SelectAllBuchungenFromDay(m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter, m_cldKalender.SelectionStart, "buchungen");
+
+                Debug.WriteLine("Buchungen Count: " + Buchungen.Count);
 
                 //List<ClsBuchung> Buchungen2 = Buchungen.FindAll(x => x.Zeit.Date.Equals(m_cldKalender.SelectionStart));
 
@@ -140,6 +140,7 @@ namespace TimeChip_App
                 {
                     m_buchungsliste.Add(buchung);
                 }
+                m_buchungsliste.ResetBindings();
 
                 UpdateCldKalender();
                 UpdateDataView();
@@ -164,7 +165,7 @@ namespace TimeChip_App
             {
                 ClsBuchung buchung = DataProvider.InsertBuchung(dlgBuchung.Buchungstyp, dlgBuchung.GetDateTime(), dlgBuchung.Mitarbeiter);
 
-                if(DataProvider.SelectAllBuchungenFromDay(mitarbeiter, dlgBuchung.GetDateTime(), "buchungen_temp").Count > 1)
+                if(DataProvider.SelectAllBuchungenFromDay(mitarbeiter, dlgBuchung.GetDateTime(), "buchungen").Count > 1)
                 {
                     ClsBerechnung.Berechnen(dlgBuchung.Datum, ref mitarbeiter, false);
                 }
@@ -202,7 +203,7 @@ namespace TimeChip_App
                     ClsMitarbeiter mtbtr = m_mitarbeiterliste.ToList().Find(x => x.ID.Equals(zubearbeiten.MtbtrID));
 
                     DataProvider.UpdateBuchung(zubearbeiten);
-                    if (DataProvider.SelectAllBuchungenFromDay(mtbtr, dlgBuchung.GetDateTime(), "buchungen_temp").Count > 1)
+                    if (DataProvider.SelectAllBuchungenFromDay(mtbtr, dlgBuchung.GetDateTime(), "buchungen").Count > 1)
                     {
                         ClsBerechnung.Berechnen(dlgBuchung.GetDateTime(), ref mtbtr, false);
                     }
@@ -386,7 +387,7 @@ namespace TimeChip_App
                 for (int i = 1; i <= DateTime.DaysInMonth(date.Year, date.Month); i++)
                 {
                     DateTime date1 = new DateTime(date.Year, date.Month, i);
-                    List<ClsBuchung> buchungen = DataProvider.SelectAllBuchungenFromDay(mtbtr, date1, "buchungen_temp");
+                    List<ClsBuchung> buchungen = DataProvider.SelectAllBuchungenFromDay(mtbtr, date1, "buchungen");
                     TimeSpan SollZeit = ClsBerechnung.GetSollArbeitszeit(date1, mtbtr);
                     ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(date1, mtbtr.ID);
                     TimeSpan IstZeit = new TimeSpan();

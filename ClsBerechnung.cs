@@ -93,6 +93,8 @@ namespace TimeChip_App
                 buchungen = DataProvider.SelectAllBuchungenFromDay(mtbtr, day, "buchungen_temp");
             }
 
+            Debug.WriteLine("BuchungsCount: " + buchungen.Count);
+            Debug.WriteLine("Tag: " + tag.Date);
             buchungen.Sort(Comparer<ClsBuchung>.Create((x, y) => x.Buchungsnummer.CompareTo(y.Buchungsnummer)));
             bool first = true;
             DateTime temp = new DateTime(1);
@@ -111,11 +113,12 @@ namespace TimeChip_App
                         {
                             temp = new DateTime(buchung.Zeit.Year, buchung.Zeit.Month, buchung.Zeit.Day, Arbeitsbeginn.Hours, Arbeitsbeginn.Minutes, Arbeitsbeginn.Seconds);
                             Debug.WriteLine("HI");
+                            first = false;
                             break;
                         }
                         Debug.WriteLine("HI2");
                         temp = buchung.Zeit;
-
+                        Debug.WriteLine(temp);
                         first = false;
                         break;
                     case Buchungstyp.Gehen:
@@ -196,7 +199,7 @@ namespace TimeChip_App
                     if (tempBuchung != null && buchung.Buchungstyp == Buchungstyp.Gehen && tempBuchung.Zeit.TimeOfDay.CompareTo(GetPausenbeginnOfDayOfWeek(day, mtbtr)) > 0
                         && buchung.Zeit.TimeOfDay.CompareTo(GetPausenendeOfDayOfWeek(day, mtbtr)) < 0)
                     {
-                        Pausendauer = Pausendauer.Add(new TimeSpan(buchung.Zeit.Ticks - tempBuchung.Zeit.Ticks));
+                        Pausendauer = Pausendauer.Add(new TimeSpan(buchung.Zeit.TimeOfDay.Ticks - tempBuchung.Zeit.TimeOfDay.Ticks));
 
                         tempBuchung = null;
                     }
@@ -204,7 +207,7 @@ namespace TimeChip_App
                     if(tempBuchung != null && buchung.Buchungstyp == Buchungstyp.Gehen && tempBuchung.Zeit.TimeOfDay.CompareTo(GetPausenbeginnOfDayOfWeek(day,mtbtr)) > 0
                         && buchung.Zeit.TimeOfDay.CompareTo(GetPausenendeOfDayOfWeek(day,mtbtr)) > 0)
                     {
-                        Pausendauer = Pausendauer.Add(new TimeSpan(GetPausenendeOfDayOfWeek(day,mtbtr).Ticks-tempBuchung.Zeit.Ticks));
+                        Pausendauer = Pausendauer.Add(new TimeSpan(GetPausenendeOfDayOfWeek(day,mtbtr).Ticks-tempBuchung.Zeit.TimeOfDay.Ticks));
 
                         tempBuchung = null;
                     }
@@ -212,7 +215,7 @@ namespace TimeChip_App
                     if(tempBuchung != null && buchung.Buchungstyp == Buchungstyp.Gehen && tempBuchung.Zeit.TimeOfDay.CompareTo(GetPausenbeginnOfDayOfWeek(day,mtbtr)) < 0
                         && buchung.Zeit.TimeOfDay.CompareTo(GetPausenendeOfDayOfWeek(day, mtbtr)) < 0)
                     {
-                        Pausendauer = Pausendauer.Add(new TimeSpan(buchung.Zeit.Ticks - GetPausenbeginnOfDayOfWeek(day,mtbtr).Ticks));
+                        Pausendauer = Pausendauer.Add(new TimeSpan(buchung.Zeit.TimeOfDay.Ticks - GetPausenbeginnOfDayOfWeek(day,mtbtr).Ticks));
 
                         tempBuchung = null;
                     }
