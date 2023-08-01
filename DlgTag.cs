@@ -106,7 +106,9 @@ namespace TimeChip_App_1._0
         {
             m_tagesliste.Clear();
 
-            foreach (ClsTag tag in DataProvider.SelectAllTage())
+            List<ClsTag> Tage = DataProvider.SelectAllTage();
+
+            foreach (ClsTag tag in Tage)
             {
                 m_tagesliste.Add(tag);
             }

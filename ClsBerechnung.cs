@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace TimeChip_App_1._0
 {
@@ -10,14 +12,12 @@ namespace TimeChip_App_1._0
 
         public static void Berechnen()
         {
-            List<ClsBuchung> buchungen1 = DataProvider.SelectAllBuchungen("buchungen_temp");
+            List<ClsBuchung> buchungen = DataProvider.SelectAllBuchungen("buchungen_temp");
 
             DateTime lastBerechnung = DataProvider.ReadBerechnungsDateFromCSV();
 
             if (lastBerechnung.CompareTo(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0)) < 0)
             {
-                Debug.WriteLine("BERECHNUNG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-
                 DateTime compare = new DateTime(lastBerechnung.Year, lastBerechnung.Month, lastBerechnung.Day, 0, 0, 0);
 
                 // Eine Liste aus Buchungen der einzelnen Tage
@@ -27,54 +27,60 @@ namespace TimeChip_App_1._0
                 //Es werden alle Tage gesucht, die berechnet werden müssen
                 while (compare.CompareTo(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0)) < 0)
                 {
-                    Debug.WriteLine(compare.ToString());
-                    TagesBuchungen.Add(buchungen1.FindAll(x => x.Zeit.ToShortDateString().Equals(compare.ToShortDateString())));
+                    TagesBuchungen.Add(buchungen.FindAll(x => x.Zeit.ToShortDateString().Equals(compare.ToShortDateString())));
 
                     Tage.Add(compare);
                     compare = compare.AddDays(1);
                 }
 
-                foreach(DateTime tag in Tage)
+                ClsMitarbeiter mtbtr = new ClsMitarbeiter();
+                List<ClsAusgewerteter_Tag> ausgewerteteTage = new List<ClsAusgewerteter_Tag>();
+                foreach (ClsMitarbeiter mitarbeiter in FrmHaupt.Mitarbeiterliste)
                 {
-                    foreach (ClsMitarbeiter mitarbeiter in FrmHaupt.Mitarbeiterliste)
+                    mtbtr = mitarbeiter;
+                    foreach(DateTime tag in Tage)
                     {
-                        ClsMitarbeiter mtbtr = mitarbeiter;
-                        Berechnen(tag, ref mtbtr, true);
+                        List<ClsBuchung> TagBuchungen = buchungen.FindAll(x => x.Zeit.ToShortDateString().Equals(tag.ToShortDateString()) && x.Mitarbeiternummer.Equals(mitarbeiter.Mitarbeiternummer));
+                        ausgewerteteTage.Add(Berechnen(tag, ref mtbtr, true, TagBuchungen));
                     }
+
+                    DataProvider.UpdateMitarbeiter(mtbtr);
                 }
 
-
+                DataProvider.InsertMultipleAusgewerteterTag(ausgewerteteTage);
                 DataProvider.WriteBerechnungsDateToCSV(DateTime.Now);
 
 
-                List<ClsBuchung> buchungen = DataProvider.SelectAllBuchungen("buchungen_temp");
+                List<ClsBuchung> TransferBuchungen = new List<ClsBuchung>();
                 foreach (DateTime date in Tage)
                 {
-                    List<ClsBuchung> Buchungen = buchungen.FindAll(x => x.Zeit.ToShortDateString().Equals(date.ToShortDateString()));
-
-                    foreach (ClsBuchung buchung in Buchungen)
-                    {
-                        DataProvider.InsertBuchung(buchung.Buchungstyp, buchung.Zeit, buchung.Mitarbeiternummer);
-                        DataProvider.DeleteBuchung(buchung, "buchungen_temp");
-                    }
+                    TransferBuchungen.AddRange(buchungen.FindAll(x => x.Zeit.ToShortDateString().Equals(date.ToShortDateString()))); 
                 }
-
+                DataProvider.TransferBuchungs(TransferBuchungen);
             }
         }
 
-        public static ClsAusgewerteter_Tag Berechnen(DateTime day, ref ClsMitarbeiter mtbtr, bool ersteBerechnung)
+        public static ClsAusgewerteter_Tag Berechnen(DateTime day, ref ClsMitarbeiter mtbtr, bool ersteBerechnung, List<ClsBuchung> TagesBuchungen = null)
         {
             List<ClsBuchung> buchungen;
             ClsAusgewerteter_Tag tag = new ClsAusgewerteter_Tag();
-            if (!ersteBerechnung)
+            if(TagesBuchungen is null)
             {
-                buchungen = DataProvider.SelectAllBuchungenFromDay(mtbtr, day,"buchungen");
-                tag = DataProvider.SelectAusgewerteterTag(day, mtbtr.Mitarbeiternummer);
+                if (!ersteBerechnung)
+                {
+                    buchungen = DataProvider.SelectAllBuchungenFromDay(mtbtr, day, "buchungen");
+                    tag = DataProvider.SelectAusgewerteterTag(day, mtbtr.Mitarbeiternummer);
+                }
+                else
+                {
+                    buchungen = DataProvider.SelectAllBuchungenFromDay(mtbtr, day, "buchungen_temp");
+                }
             }
             else
             {
-                buchungen = DataProvider.SelectAllBuchungenFromDay(mtbtr, day, "buchungen_temp");
+                buchungen = TagesBuchungen;
             }
+
 
             buchungen.Sort(Comparer<ClsBuchung>.Create((x, y) => x.Buchungsnummer.CompareTo(y.Buchungsnummer)));
             bool first = true;
@@ -83,8 +89,6 @@ namespace TimeChip_App_1._0
 
             foreach (ClsBuchung buchung in buchungen)
             {
-                Debug.WriteLine(buchung.Buchungsnummer);
-
                 switch (buchung.Buchungstyp)
                 {
                     case Buchungstyp.Kommen:
@@ -93,10 +97,8 @@ namespace TimeChip_App_1._0
                             Arbeitsbeginn.TotalSeconds != 0)
                         {
                             temp = new DateTime(buchung.Zeit.Year, buchung.Zeit.Month, buchung.Zeit.Day, Arbeitsbeginn.Hours, Arbeitsbeginn.Minutes, Arbeitsbeginn.Seconds);
-                            Debug.WriteLine("HI");
                             break;
                         }
-                        Debug.WriteLine("HI2");
                         temp = buchung.Zeit;
 
                         break;
@@ -113,9 +115,6 @@ namespace TimeChip_App_1._0
                             Arbeitszeit += new TimeSpan(buchung.Zeit.Ticks - temp.Ticks);
                         }
 
-                        Debug.WriteLine("Erste Zeit: " + temp);
-                        Debug.WriteLine("Zweite Zeit: " + buchung.Zeit);
-                        Debug.WriteLine("Durchrechnen Arbeitszeit: " + Arbeitszeit);
                         temp = new DateTime(1);
                         break;
                 }
@@ -123,7 +122,6 @@ namespace TimeChip_App_1._0
                 first = false;
             }
 
-            Debug.WriteLine("Arbeitszeit vor Pause Abzug: " + Arbeitszeit.ToString());
             TimeSpan Überstunden = new TimeSpan(0);
 
             //Pausenabzug
@@ -147,7 +145,6 @@ namespace TimeChip_App_1._0
                             {
                                 Arbeitszeit -= GetSollPausendauer(day, mtbtr);
 
-                                Debug.WriteLine("Pause Normal berechnet");
                                 pauseberechnet = true;
                             }
                         }
@@ -168,14 +165,11 @@ namespace TimeChip_App_1._0
             {
                 //Wenn nicht: Zeit, die letze Buchung nach Pausenbeginn liegt, als Pausendauer abziehen
                 TimeSpan Pausendauer = buchungen.LastOrDefault().Zeit.TimeOfDay.Subtract(GetPausenbeginnOfDayOfWeek(day, mtbtr));
-                Debug.WriteLine("Pause bei schleißige mtbtr");
 
                 Arbeitszeit -= Pausendauer;
             }
 
             Überstunden = Arbeitszeit - GetSollArbeitszeit(day, mtbtr);
-            Debug.WriteLine("Arbeitszeit nach Pause Abzug: " + Arbeitszeit.ToString());
-            Debug.WriteLine("Überstunden: " + Überstunden.ToString());
 
             if(ersteBerechnung == false)
             {
@@ -186,15 +180,11 @@ namespace TimeChip_App_1._0
 
                 DataProvider.UpdateMitarbeiter(mtbtr);
 
-                Debug.WriteLine("Arbeitszeit: " + Arbeitszeit);
-                Debug.WriteLine("Tag Arbeitszeit: " + tag.Arbeitszeit);
-
                 return DataProvider.InsertAusgewerteterTag(day, mtbtr.Mitarbeiternummer, Arbeitszeit, tag.Status);
             }
             mtbtr.Überstunden += Überstunden;
-            DataProvider.UpdateMitarbeiter(mtbtr);
 
-            return DataProvider.InsertAusgewerteterTag(day, mtbtr.Mitarbeiternummer, Arbeitszeit, 0);
+            return new ClsAusgewerteter_Tag(1, mtbtr.Mitarbeiternummer, Arbeitszeit, day, tag.Status);
         }
 
         public static void TagesStatusÄnderung(ClsAusgewerteter_Tag tag, int alterStatus)
@@ -223,7 +213,6 @@ namespace TimeChip_App_1._0
                         case 3:
                             //Überstunden wieder hinzufügen und Urlaub einen Tag abziehen
                             mitarbeiter.Urlaub = mitarbeiter.Urlaub.Subtract(GetSollArbeitszeit(tag.Date, mitarbeiter));
-                            Debug.WriteLine(mitarbeiter.Urlaub);
                             break;
                     }
                     break;

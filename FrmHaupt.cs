@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection.Emit;
 using System.Windows.Forms;
 
 namespace TimeChip_App_1._0
@@ -105,8 +104,6 @@ namespace TimeChip_App_1._0
             foreach(ClsMitarbeiter mtbtr in DataProvider.SelectAllMitarbeiter())
             {
                 m_mitarbeiterliste.Add(mtbtr);
-                Debug.WriteLine(mtbtr.Überstunden);
-                Debug.WriteLine(mtbtr.Urlaub);
             }
 
             m_mitarbeiterliste.ResetBindings();
@@ -225,18 +222,19 @@ namespace TimeChip_App_1._0
             DateTime ausgewählter_tag = m_cldKalender.SelectionStart;
             ClsMitarbeiter mitarbeiter = m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter;
 
+            DateTime startdate = new DateTime(ausgewählter_tag.Year, ausgewählter_tag.Month, 1);
+            DateTime enddate = new DateTime(ausgewählter_tag.Year, ausgewählter_tag.Month, DateTime.DaysInMonth(ausgewählter_tag.Year, ausgewählter_tag.Month));
+            List<ClsAusgewerteter_Tag> AusgewerteteTage = DataProvider.SelectAusgewerteteTage(startdate, enddate, mitarbeiter.Mitarbeiternummer);
+
             for (int i = 1; i<=DateTime.DaysInMonth(ausgewählter_tag.Year, ausgewählter_tag.Month); i++)
             {
                 DateTime tag = new DateTime(ausgewählter_tag.Year, ausgewählter_tag.Month, i);
                 if(tag.CompareTo(DateTime.Now) < 0 && tag.CompareTo(mitarbeiter.Arbeitsbeginn) > 0)
                 {
-                    ClsAusgewerteter_Tag ausgewtag = DataProvider.SelectAusgewerteterTag(tag, mitarbeiter.Mitarbeiternummer);
+                    ClsAusgewerteter_Tag ausgewtag = AusgewerteteTage.Find(x => x.MitarbeiterNummer.Equals(mitarbeiter.Mitarbeiternummer) && x.Date.Equals(tag));
 
                     if(ausgewtag != null)
                     {
-                        Debug.WriteLine(ausgewtag.Date);
-                        Debug.WriteLine(ausgewtag.Arbeitszeit);
-                        Debug.WriteLine(ClsBerechnung.GetSollArbeitszeit(tag, mitarbeiter));
 
                         if (ausgewtag.Arbeitszeit.Ticks < ClsBerechnung.GetSollArbeitszeit(tag, mitarbeiter).Ticks)
                         {
@@ -246,7 +244,6 @@ namespace TimeChip_App_1._0
                     else
                     {
                         BoldedDates.Add(tag);
-                        Debug.WriteLine(tag.ToString());
                     }
                 }
             }
@@ -269,8 +266,6 @@ namespace TimeChip_App_1._0
                 
                 if(tag != null)
                 {
-                    Debug.WriteLine(tag.ID);
-                    Debug.WriteLine(tag.Status);
                     m_lblIst.Text = tag.Arbeitszeit.ToString(@"hh\:mm");
                     switch (tag.Status)
                     {

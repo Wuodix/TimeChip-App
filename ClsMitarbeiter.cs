@@ -10,6 +10,7 @@ namespace TimeChip_App_1._0
         private TimeSpan m_überstunden, m_urlaub;
         private ClsArbeitsprofil m_arbeitszeitprofil;
 
+        public ClsMitarbeiter() { } //Wird in Cls Berechnung gebraucht um keinen vollständigen Mitarbeiter erstellen zu müssen
         public ClsMitarbeiter(int ID, int Mitarbeiternummer, string Vorname, string Nachname, ClsArbeitsprofil Arbeitszeitprofil, DateTime Arbeitsbeginn, TimeSpan Urlaub, TimeSpan Überstunden)
         {
             m_id = ID;

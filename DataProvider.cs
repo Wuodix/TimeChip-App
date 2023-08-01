@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -28,6 +29,43 @@ namespace TimeChip_App_1._0
             ClsMitarbeiter mtbtr = mtbtrs.Find(x => x.Mitarbeiternummer.Equals(mitarbeiternr));
 
             return new ClsBuchung(SelectAllBuchungenFromDay(mtbtr, zeit, "buchungen").Last().Buchungsnummer, mitarbeiternr, zeit, buchungstyp);
+        }
+        public static void TransferBuchungs(List<ClsBuchung> buchungen)
+        {
+            string query = "INSERT INTO `buchungen` (`Buchungstyp`, `Zeit`, `Mitarbeiternummer`) VALUES ";
+            string query1 = "DELETE FROM `buchungen_temp` WHERE Buchungsnummer IN (";
+
+            int i = 0;
+
+            foreach (ClsBuchung buchung in buchungen)
+            {
+                if(buchungen.FindIndex(x => x.Buchungsnummer.Equals(buchung.Buchungsnummer)) != 0)
+                {
+                    query += ", ";
+                    query1 += ", ";
+                }
+                string paraname = "@zeit" + i;
+                query += "('" + buchung.Buchungstyp + "', " + paraname + ", '" + buchung.Mitarbeiternummer + "')";
+                query1 += buchung.Buchungsnummer;
+
+                i++;
+            }
+
+            query += ";";
+            query1 += ");";
+
+            MySqlCommand cmd = new MySqlCommand(query);
+
+            int k = 0;
+            foreach(ClsBuchung buchung in buchungen)
+            {
+                string paraname = "zeit" + k;
+                cmd.Parameters.AddWithValue(paraname, buchung.Zeit);
+                k++;
+            }
+
+            ExecuteNonQuery(cmd);
+            ExecuteNonQuery(query1);
         }
         public static ClsTag InsertTag(string name, TimeSpan arbeitsbeginn, TimeSpan arbeitsende, TimeSpan arbeitszeit, TimeSpan pausenbeginn, TimeSpan pausenende, TimeSpan pausendauer, bool pause)
         {
@@ -122,7 +160,40 @@ namespace TimeChip_App_1._0
 
             return new ClsAusgewerteter_Tag(SelectAusgewerteterTag(date, Mitarbeiternummer).ID, Mitarbeiternummer, Arbeitszeit, date, Status);
         }
+        public static void InsertMultipleAusgewerteterTag(List<ClsAusgewerteter_Tag> Tage)
+        {
+            string query = "INSERT INTO ausgewertete_tage (Datum, Mitarbeiternummer, Arbeitszeit, Status) VALUES ";
 
+            int i = 0;
+            foreach(ClsAusgewerteter_Tag tag in Tage)
+            {
+                if(i != 0)
+                {
+                    query += ", ";
+                }
+                string paraname = "@zeit" + i;
+                string paraname1 = "@arbeitszeit" + i;
+                query += "(" + paraname + ", " + tag.MitarbeiterNummer + ", " + paraname1 + ", " + tag.Status + ")";
+
+                i++;
+            }
+            query += ";";
+
+            MySqlCommand cmd = new MySqlCommand(query);
+            i = 0;
+            foreach(ClsAusgewerteter_Tag tag in Tage)
+            {
+                string paraname = "zeit" + i;
+                string paraname1 = "arbeitszeit" + i;
+
+                cmd.Parameters.AddWithValue(paraname, tag.Date);
+                cmd.Parameters.AddWithValue(paraname1, tag.Arbeitszeit);
+
+                i++;
+            }
+
+            ExecuteNonQuery(cmd);
+        }
         public static List<ClsBuchung> SelectAllBuchungen(string Table)
         {
             List<ClsBuchung> list = new List<ClsBuchung>();
@@ -379,6 +450,35 @@ namespace TimeChip_App_1._0
             }
 
             return list.FirstOrDefault();
+        }
+        public static List<ClsAusgewerteter_Tag> SelectAusgewerteteTage(DateTime startdate, DateTime enddate, int Mitarbeiternr)
+        {
+            List<ClsAusgewerteter_Tag> list = new List<ClsAusgewerteter_Tag>();
+
+            string query = "SELECT * FROM ausgewertete_tage WHERE (Datum BETWEEN @date1 AND @date2) AND Mitarbeiternummer=@mtbtrnr";
+
+            using (MySqlConnection conn = new MySqlConnection(m_connectionString))
+            {
+                conn.Open();
+
+                MySqlCommand cmd = new MySqlCommand(query, conn);
+
+                cmd.Parameters.AddWithValue("date1", startdate);
+                cmd.Parameters.AddWithValue("date2", enddate);
+                cmd.Parameters.AddWithValue("mtbtrnr", Mitarbeiternr);
+
+                MySqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    ClsAusgewerteter_Tag ausgewerteterTag = new ClsAusgewerteter_Tag(reader.GetInt32("ID"), reader.GetInt32("Mitarbeiternummer"),
+                        reader.GetTimeSpan("Arbeitszeit"), reader.GetDateTime("Datum"), reader.GetInt32("Status"));
+
+                    list.Add(ausgewerteterTag);
+                }
+            }
+
+            return list;
         }
         public static ClsAusgewerteter_Tag SelectLastAusgewerteterTag()
         {
