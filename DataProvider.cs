@@ -537,7 +537,7 @@ namespace TimeChip_App_1._0
 
             MySqlCommand cmd = new MySqlCommand(query);
             cmd.Parameters.AddWithValue("mtbtrnr", Buchung.Mitarbeiternummer);
-            cmd.Parameters.AddWithValue("btyp", Buchung.Buchungstyp);
+            cmd.Parameters.AddWithValue("btyp", Buchung.Buchungstyp.ToString());;
             cmd.Parameters.AddWithValue("zeit", Buchung.Zeit);
             cmd.Parameters.AddWithValue("bnr", Buchung.Buchungsnummer);
 

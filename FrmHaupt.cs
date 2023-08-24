@@ -191,7 +191,8 @@ namespace TimeChip_App_1._0
                     DataProvider.UpdateBuchung(zubearbeiten);
                     if (DataProvider.SelectAllBuchungenFromDay(mtbtr, dlgBuchung.GetDateTime(), "buchungen").Count > 1)
                     {
-                        ClsBerechnung.Berechnen(dlgBuchung.GetDateTime(), ref mtbtr, false);
+                        DateTime date = new DateTime(dlgBuchung.GetDateTime().Year, dlgBuchung.GetDateTime().Month, dlgBuchung.GetDateTime().Day);
+                        ClsBerechnung.Berechnen(date, ref mtbtr, false);
                     }
 
                     UpdateLbxBuchungen();
