@@ -12,7 +12,7 @@ namespace TimeChip_App_1._0
 {
     public class DataProvider
     {
-        private static readonly string m_connectionString = "SERVER=10.100.128.1;DATABASE=apotheke_time_chip;UID=Hauptapp;Password=oo/1X)ZV1jlmTyEm;";
+        private static readonly string m_connectionString = "SERVER=localhost;DATABASE=apotheke_time_chip1;UID=Hauptapp;Password=oo/1X)ZV1jlmTyEm;";
 
         public static ClsBuchung InsertBuchung(Buchungstyp buchungstyp, DateTime zeit, int mitarbeiternr)
         {
@@ -537,7 +537,7 @@ namespace TimeChip_App_1._0
 
             MySqlCommand cmd = new MySqlCommand(query);
             cmd.Parameters.AddWithValue("mtbtrnr", Buchung.Mitarbeiternummer);
-            cmd.Parameters.AddWithValue("btyp", Buchung.Buchungstyp);
+            cmd.Parameters.AddWithValue("btyp", Buchung.Buchungstyp.ToString());;
             cmd.Parameters.AddWithValue("zeit", Buchung.Zeit);
             cmd.Parameters.AddWithValue("bnr", Buchung.Buchungsnummer);
 

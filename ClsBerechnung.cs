@@ -56,7 +56,10 @@ namespace TimeChip_App_1._0
                 {
                     TransferBuchungen.AddRange(buchungen.FindAll(x => x.Zeit.ToShortDateString().Equals(date.ToShortDateString()))); 
                 }
-                DataProvider.TransferBuchungs(TransferBuchungen);
+                if(TransferBuchungen.Count != 0)
+                {
+                    DataProvider.TransferBuchungs(TransferBuchungen);
+                }
             }
         }
 
