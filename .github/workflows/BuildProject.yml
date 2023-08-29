@@ -40,6 +40,10 @@ name: .NET Core Desktop
 
 on:
   workflow_dispatch:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
     
 
 jobs:
@@ -63,6 +67,20 @@ jobs:
       uses: actions/checkout@v3
       with:
         fetch-depth: 0
+    
+    - name: Update Version Number
+      shell: pwsh
+      run: |
+        $manifest= [xml](get-content ".\Verpackungsprojekt\Package.appxmanifest")
+        ${{vars.VERSION}}
+        $versionold= "${{vars.VERSION}}" -split '\.'
+        $versionold
+        $versionend= [int]$versionold[3] += 1
+        $version= -join($versionold[0],".",$versionold[1],".",$versionold[2],".",$versionend)
+        $manifest.Package.Identity.Version = $version
+
+        $manifest.Save(".\Verpackungsprojekt\Package.appxmanifest")
+        $manifest.Package.Identity.Version
 
     # Install the .NET Core workload
     - name: Install .NET Core
@@ -72,7 +90,7 @@ jobs:
 
     # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe
-      uses: microsoft/setup-msbuild@v1.0.2
+      uses: microsoft/setup-msbuild@v1.1
       
     # Restore the application to populate the obj folder with RuntimeIdentifiers
     - name: Restore the application
@@ -89,7 +107,7 @@ jobs:
 
     # Create the app package by building and packaging the Windows Application Packaging project
     - name: Create the app package
-      run: msbuild $env:Wap_Project_Path /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }} /p:AppxBundlePlatforms=$env:Appx_Bundle_Platforms
+      run: msbuild $env:Wap_Project_Path /p:Configuration=$env:Configuration /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }} /p:AppxBundlePlatforms=$env:Appx_Bundle_Platforms
       env:
         Appx_Bundle: Always
         Appx_Bundle_Platforms: x86
