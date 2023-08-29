@@ -20,7 +20,7 @@
 # Next, use PowerShell to encode the .pfx file using Base64 encoding
 # by running the following Powershell script to generate the output string:
 #
-# $pfx_cert = Get-Content '.\SigningCertificate.pfx' -Encoding Byte
+# $pfx_cert = Get-Content 'Verpackungsprojekt_TemporaryKey.pfx' -Encoding Byte
 # [System.Convert]::ToBase64String($pfx_cert) | Out-File 'SigningCertificate_Encoded.txt'
 #
 # Open the output file, SigningCertificate_Encoded.txt, and copy the
