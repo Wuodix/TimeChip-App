@@ -78,6 +78,7 @@ jobs:
         $version= -join($year,".",$month,".",$day,".0")
         $manifest.Package.Identity.Version = $version
         Write-Host "$version"
+        Write-Host "$manifest"
         
 
     # Install the .NET Core workload
