@@ -75,7 +75,7 @@ jobs:
         $year= Get-Date -Format "yyyy"
         $month= Get-Date -Format "MM"
         $day= Get-Date -Format "dd"
-        $manifest.Package.Identity.Version = "$(year).$(month).$(day).0"
+        $manifest.Package.Identity.Version = "$year.$month.$day.0"
 
     # Install the .NET Core workload
     - name: Install .NET Core
