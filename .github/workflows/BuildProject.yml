@@ -100,9 +100,9 @@ jobs:
         $day= Get-Date -Format "dd"
         $version= -join($year,".",$month,".",$day,".0")
         $manifest.Package.Identity.Version = $version
-        Write-Host "$version"
-        Write-Host "$manifest"
-        Write-Host "$manifest.Package.Identity.Version.ToString()"
+
+        $manifest.Save(".\Verpackungsprojekt\Package.appxmanifest")
+        $manifest.Package.Identity.Version
 
     # Create the app package by building and packaging the Windows Application Packaging project
     - name: Create the app package
