@@ -67,6 +67,20 @@ jobs:
       uses: actions/checkout@v3
       with:
         fetch-depth: 0
+    
+    - name: Update Version Number
+      shell: pwsh
+      run: |
+        [xml]$manifest= get-content ".\Verpackungsprojekt\Package.appxmanifest"
+        $year= Get-Date -Format "yyyy"
+        $month= Get-Date -Format "MM"
+        $day= Get-Date -Format "dd"
+        $versionold= $manifest.Package.Identity.Version -spilt "."
+        $version= -join($versionold[0],".",$versionold[1],".",$versionold[2],".",[int]$versionold[3] += 1)
+        $manifest.Package.Identity.Version = $version
+
+        $manifest.Save(".\Verpackungsprojekt\Package.appxmanifest")
+        $manifest.Package.Identity.Version
 
     # Install the .NET Core workload
     - name: Install .NET Core
@@ -90,19 +104,6 @@ jobs:
         $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.Base64_Encoded_Pfx }}")
         $certificatePath = Join-Path -Path $env:Wap_Project_Directory -ChildPath GitHubActionsWorkflow.pfx
         [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
-
-    - name: Update Version Number
-      shell: pwsh
-      run: |
-        [xml]$manifest= get-content ".\Verpackungsprojekt\Package.appxmanifest"
-        $year= Get-Date -Format "yyyy"
-        $month= Get-Date -Format "MM"
-        $day= Get-Date -Format "dd"
-        $version= -join($year,".",$month,".",$day,".0")
-        $manifest.Package.Identity.Version = $version
-
-        $manifest.Save(".\Verpackungsprojekt\Package.appxmanifest")
-        $manifest.Package.Identity.Version
 
     # Create the app package by building and packaging the Windows Application Packaging project
     - name: Create the app package
