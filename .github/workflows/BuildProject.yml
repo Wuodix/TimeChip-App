@@ -68,20 +68,6 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Update Version Number
-      shell: pwsh
-      run: |
-        [xml]$manifest= get-content ".\Verpackungsprojekt\Package.appxmanifest"
-        $year= Get-Date -Format "yyyy"
-        $month= Get-Date -Format "MM"
-        $day= Get-Date -Format "dd"
-        $version= -join($year,".",$month,".",$day,".0")
-        $manifest.Package.Identity.Version = $version
-        Write-Host "$version"
-        Write-Host "$manifest"
-        Write-Host "$manifest.Package.Identity.Version"
-        
-
     # Install the .NET Core workload
     - name: Install .NET Core
       uses: actions/setup-dotnet@v3
@@ -104,6 +90,19 @@ jobs:
         $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.Base64_Encoded_Pfx }}")
         $certificatePath = Join-Path -Path $env:Wap_Project_Directory -ChildPath GitHubActionsWorkflow.pfx
         [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
+
+    - name: Update Version Number
+      shell: pwsh
+      run: |
+        [xml]$manifest= get-content ".\Verpackungsprojekt\Package.appxmanifest"
+        $year= Get-Date -Format "yyyy"
+        $month= Get-Date -Format "MM"
+        $day= Get-Date -Format "dd"
+        $version= -join($year,".",$month,".",$day,".0")
+        $manifest.Package.Identity.Version = $version
+        Write-Host "$version"
+        Write-Host "$manifest"
+        Write-Host "$manifest.Package.Identity.Version.ToString()"
 
     # Create the app package by building and packaging the Windows Application Packaging project
     - name: Create the app package
