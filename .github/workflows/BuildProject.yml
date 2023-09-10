@@ -72,6 +72,8 @@ jobs:
       shell: pwsh
       run: |
         $manifest= [xml](get-content ".\Verpackungsprojekt\Package.appxmanifest")
+        $VERSION
+        ${{vars.VERSION}}
         $versionold= $VERSION -split '\.'
         $versionend= [int]$versionold[3] += 1
         $version= -join($versionold[0],".",$versionold[1],".",$versionold[2],".",$versionend)
