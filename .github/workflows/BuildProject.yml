@@ -81,6 +81,10 @@ jobs:
         $versionx.GetType()
         $versionold= $versionx -split "."
         $versionold
+        Write-Host "Versionold[0] " $versionold[0]
+        Write-Host "Versionold[1] " $versionold[1]
+        Write-Host "Versionold[2] " $versionold[2]
+        Write-Host "Versionold[3] " $versionold[3]
         $versionend= [int]$versionold[3] += 1
         $version= -join($versionold[0],".",$versionold[1],".",$versionold[2],".",$versionend)
         $version
