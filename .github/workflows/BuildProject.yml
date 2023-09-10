@@ -71,16 +71,15 @@ jobs:
     - name: Update Version Number
       shell: pwsh
       run: |
-        [xml]$manifest= get-content ".\Verpackungsprojekt\Package.appxmanifest"
+        $manifest= [xml](get-content \Verpackungsprojekt\Package.appxmanifest)
         $year= Get-Date -Format "yyyy"
         $month= Get-Date -Format "MM"
         $day= Get-Date -Format "dd"
         $manifest.Package.Identity.Version.GetType()
-        $manifest.Package.Identity.Version
-        $versionx= $manifest.Package.Identity.SelectSingleNode("Version")
+        $manifest.Package.Identity.Name
+        $versionx= ($manifest | Where-Object { $_.key -eq 'Version' }).Value
         $versionx
-        $versionx.GetType()
-        $versionold= $manifest.Package.Identity.Version.spilt(".")
+        $versionold= $versionx.spilt(".")
         $versionold
         $versionend= [int]$versionold[3] += 1
         $version= -join($versionold[0],".",$versionold[1],".",$versionold[2],".",$versionend)
