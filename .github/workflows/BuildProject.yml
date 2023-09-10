@@ -88,6 +88,8 @@ jobs:
       run: |
         ${{steps.UpdateVersion.outputs.version}}
         gh variable set VERSION --body ${{steps.UpdateVersion.outputs.version}}
+      env:
+        GH_TOKEN: ${{secrets.API_TOKEN}}
         
       
     # Install the .NET Core workload
