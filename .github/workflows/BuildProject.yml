@@ -72,22 +72,9 @@ jobs:
       shell: pwsh
       run: |
         $manifest= [xml](get-content ".\Verpackungsprojekt\Package.appxmanifest")
-        $year= Get-Date -Format "yyyy"
-        $month= Get-Date -Format "MM"
-        $day= Get-Date -Format "dd"
-        $manifest.Package.Identity.Version.GetType()
-        $versionx= [string]($manifest.Package.Identity.Version)
-        $versionx
-        $versionx.GetType()
-        $versionold= $versionx -split '\.'
-        $versionold
-        Write-Host "Versionold[0]" $versionold[0]
-        Write-Host "Versionold[1]" $versionold[1]
-        Write-Host "Versionold[2]" $versionold[2]
-        Write-Host "Versionold[3]" $versionold[3]
+        $versionold= $manifest.Package.Identity.Version -split '\.'
         $versionend= [int]$versionold[3] += 1
         $version= -join($versionold[0],".",$versionold[1],".",$versionold[2],".",$versionend)
-        $version
         $manifest.Package.Identity.Version = $version
 
         $manifest.Save(".\Verpackungsprojekt\Package.appxmanifest")
