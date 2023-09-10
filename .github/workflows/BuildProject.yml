@@ -75,7 +75,8 @@ jobs:
         $year= Get-Date -Format "yyyy"
         $month= Get-Date -Format "MM"
         $day= Get-Date -Format "dd"
-        $versionold= $manifest.Package.Identity.Version.Spilt(".")
+        $manifest.Package.Identity.Version
+        $versionold= $manifest.Package.Identity.Version.spilt(".")
         $versionold
         $versionend= [int]$versionold[3] += 1
         $version= -join($versionold[0],".",$versionold[1],".",$versionold[2],".",$versionend)
