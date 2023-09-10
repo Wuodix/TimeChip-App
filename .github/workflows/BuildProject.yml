@@ -72,13 +72,15 @@ jobs:
       shell: pwsh
       run: |
         $manifest= [xml](get-content ".\Verpackungsprojekt\Package.appxmanifest")
-        $versionold= $manifest.Package.Identity.Version -split '\.'
+        $versionold= $VERSION -split '\.'
         $versionend= [int]$versionold[3] += 1
         $version= -join($versionold[0],".",$versionold[1],".",$versionold[2],".",$versionend)
         $manifest.Package.Identity.Version = $version
 
         $manifest.Save(".\Verpackungsprojekt\Package.appxmanifest")
         $manifest.Package.Identity.Version
+      env:
+        VERSION: ${{vars.VERSION}}
 
     # Install the .NET Core workload
     - name: Install .NET Core
