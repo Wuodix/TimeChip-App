@@ -71,7 +71,7 @@ jobs:
     - name: Update Version Number
       shell: pwsh
       run: |
-        [xml]$manifest= get-content ".\Verpackungsprojekt\Package.appxmanifest"
+        $manifest= [xml](get-content ".\Verpackungsprojekt\Package.appxmanifest")
         $year= Get-Date -Format "yyyy"
         $month= Get-Date -Format "MM"
         $day= Get-Date -Format "dd"
