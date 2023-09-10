@@ -79,7 +79,7 @@ jobs:
         $versionx= [string]($manifest.Package.Identity.Version)
         $versionx
         $versionx.GetType()
-        $versionold= $versionx -split "."
+        $versionold= $versionx -split '.'
         $versionold
         Write-Host "Versionold[0] " [string]$versionold[0]
         Write-Host "Versionold[1] " [string]$versionold[1]
