@@ -79,7 +79,7 @@ jobs:
         $versionx= [string]($manifest.Package.Identity.Version)
         $versionx
         $versionx.GetType()
-        $versionold= $versionx.spilt(".")
+        $versionold= $versionx -split "."
         $versionold
         $versionend= [int]$versionold[3] += 1
         $version= -join($versionold[0],".",$versionold[1],".",$versionold[2],".",$versionend)
