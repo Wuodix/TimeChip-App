@@ -61,7 +61,7 @@ jobs:
       Solution_Name: TimeChip App 1.0.sln                      # Replace with your solution name, i.e. MyWpfApp.sln.
       Wap_Project_Directory: Verpackungsprojekt    # Replace with the Wap project directory relative to the solution, i.e. MyWpfApp.Package.
       Wap_Project_Path: Verpackungsprojekt\Verpackungsprojekt.wapproj                 # Replace with the path to your Wap project, i.e. MyWpf.App.Package\MyWpfApp.Package.wapproj.
-
+      
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -78,11 +78,13 @@ jobs:
         $versionend= [int]$versionold[3] += 1
         $version= -join($versionold[0],".",$versionold[1],".",$versionold[2],".",$versionend)
         $manifest.Package.Identity.Version = $version
-        ${{vars.VERSION= $version}}
 
         $manifest.Save(".\Verpackungsprojekt\Package.appxmanifest")
         $manifest.Package.Identity.Version
-
+        
+    - name: Edit Repo Version Variable
+      run: gh variable set VERSION -b $version
+      
     # Install the .NET Core workload
     - name: Install .NET Core
       uses: actions/setup-dotnet@v3
