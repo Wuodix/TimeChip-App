@@ -77,7 +77,8 @@ jobs:
         $day= Get-Date -Format "dd"
         $versionold= $manifest.Package.Identity.Version.Spilt(".")
         $versionold
-        $version= -join($versionold[0],".",$versionold[1],".",$versionold[2],".",[int]$versionold[3] += 1)
+        $versionend= [int]$versionold[3] += 1
+        $version= -join($versionold[0],".",$versionold[1],".",$versionold[2],".",$versionend)
         $manifest.Package.Identity.Version = $version
 
         $manifest.Save(".\Verpackungsprojekt\Package.appxmanifest")
