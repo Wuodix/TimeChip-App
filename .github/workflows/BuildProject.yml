@@ -83,6 +83,7 @@ jobs:
         $versionold
         $versionend= [int]$versionold[3] += 1
         $version= -join($versionold[0],".",$versionold[1],".",$versionold[2],".",$versionend)
+        $version
         $manifest.Package.Identity.Version = $version
 
         $manifest.Save(".\Verpackungsprojekt\Package.appxmanifest")
