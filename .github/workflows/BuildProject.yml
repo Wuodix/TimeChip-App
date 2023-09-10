@@ -79,6 +79,7 @@ jobs:
         $manifest.Package.Identity.Version
         $versionx= $manifest.Package.Identity.SelectSingleNode("Version")
         $versionx
+        $versionx.GetType()
         $versionold= $manifest.Package.Identity.Version.spilt(".")
         $versionold
         $versionend= [int]$versionold[3] += 1
