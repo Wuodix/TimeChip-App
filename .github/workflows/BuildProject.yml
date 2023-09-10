@@ -69,6 +69,7 @@ jobs:
         fetch-depth: 0
     
     - name: Update Version Number
+      id: UpdateVersion
       shell: pwsh
       run: |
         $manifest= [xml](get-content ".\Verpackungsprojekt\Package.appxmanifest")
@@ -78,15 +79,15 @@ jobs:
         $versionend= [int]$versionold[3] += 1
         $version= -join($versionold[0],".",$versionold[1],".",$versionold[2],".",$versionend)
         $manifest.Package.Identity.Version = $version
-        echo "version=$version" >> $GITHUB_OUTPUT
 
         $manifest.Save(".\Verpackungsprojekt\Package.appxmanifest")
         $manifest.Package.Identity.Version
+      
         
     - name: Edit Repo Version Variable
       run: |
-        echo ${{steps.vars.outputs.version}}
-        gh variable set VERSION --body ${{steps.vars.outputs.version}}
+        echo ${{steps.UpdateVersion.outputs.version}}
+        gh variable set VERSION --body ${{steps.UpdateVersion.outputs.version}}
         
       
     # Install the .NET Core workload
