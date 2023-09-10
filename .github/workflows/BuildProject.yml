@@ -75,7 +75,6 @@ jobs:
         $manifest= [xml](get-content ".\Verpackungsprojekt\Package.appxmanifest")
         ${{vars.VERSION}}
         $versionold= "${{vars.VERSION}}" -split '\.'
-        $versionold
         $versionend= [int]$versionold[3] += 1
         $version= -join($versionold[0],".",$versionold[1],".",$versionold[2],".",$versionend)
         $manifest.Package.Identity.Version = $version
@@ -86,7 +85,6 @@ jobs:
         
     - name: Edit Repo Version Variable
       run: |
-        echo ${{steps.UpdateVersion.outputs.version}}
         gh variable set VERSION --body ${{steps.UpdateVersion.outputs.version}}
         
       
