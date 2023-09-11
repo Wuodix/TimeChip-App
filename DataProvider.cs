@@ -7,7 +7,7 @@ using System.Net;
 using System.Text;
 using System.Windows.Forms;
 using MySql.Data.MySqlClient;
-using Org.BouncyCastle.Utilities.Encoders;
+using TimeChip_App_1._0.Properties;
 
 namespace TimeChip_App_1._0
 {
@@ -764,28 +764,19 @@ namespace TimeChip_App_1._0
 
         public static void WriteBerechnungsDateToCSV(DateTime date)
         {
-            using (StreamWriter sw = new StreamWriter(@"Resources\Berechnungsdate.csv", false))
-            {
-                sw.WriteLine(date.ToString());
-            }
+            Settings.Default.Berechnungsdate = date;
+            Settings.Default.Save();
         }
 
         public static DateTime ReadBerechnungsDateFromCSV()
         {
-            DateTime date = new DateTime();
-            if (File.Exists(@"Resources\Berechnungsdate.csv"))
+            DateTime Berechnungsdate = Settings.Default.Berechnungsdate;
+            if (Berechnungsdate == new DateTime(1999, 01, 01, 0, 1, 0))
             {
-                using (StreamReader sr = new StreamReader(@"Resources\Berechnungsdate.csv"))
-                {
-                    while (!sr.EndOfStream)
-                    {
-                        string zeile = sr.ReadLine();
-
-                        date = Convert.ToDateTime(zeile);
-                    }
-                }
+                Settings.Default.Berechnungsdate = DateTime.Now;
+                Settings.Default.Save();
             }
-            return date;
+            return Settings.Default.Berechnungsdate;
         }
 
         //Helper Funktionen
@@ -825,41 +816,18 @@ namespace TimeChip_App_1._0
         public static void GetConnectionString()
         {
             string connectionstring = "";
-            if (File.Exists(@"Resources\Settings.csv"))
-            {
-                using (StreamReader sr = new StreamReader(@"Resources\Settings.csv"))
-                {
-                    int i = 0;
-                    while (!sr.EndOfStream)
-                    {
-                        string zeile = sr.ReadLine();
-                        string[] teile = zeile.Split(';');
 
-                        if(i == 4)
-                        {
-                            break;
-                        }
+            connectionstring += "SERVER=";
+            connectionstring += Settings.Default.Server;
+            connectionstring += ";DATABASE=";
+            connectionstring += Settings.Default.Database;
+            connectionstring += ";UID=";
+            connectionstring += Settings.Default.UID;
+            connectionstring += ";Password=";
+            var Bytes = Convert.FromBase64String(Settings.Default.Password);
+            connectionstring += Encoding.UTF8.GetString(Bytes);
+            connectionstring += ";";
 
-                        if(i != 3)
-                        {
-                            connectionstring += teile[0];
-                            connectionstring += "=";
-                            connectionstring += teile[1];
-                            connectionstring += ";";
-                        }
-                        else
-                        {
-                            connectionstring += teile[0];
-                            connectionstring += "=";
-                            var Bytes = Convert.FromBase64String(teile[1]);
-                            connectionstring += Encoding.UTF8.GetString(Bytes);
-                            connectionstring += ";";
-                        }
-
-                        i++;
-                    }
-                }
-            }
             m_connectionString =  connectionstring;
         }
         public static void SaveConnectionString()
@@ -871,21 +839,15 @@ namespace TimeChip_App_1._0
 
             string[] teile = m_connectionString.Split('=', ';');
 
+            Settings.Default.Server = teile[1];
+            Settings.Default.Database = teile[3];
+            Settings.Default.UID = teile[5];
+
             var Bytes = Encoding.UTF8.GetBytes(teile[7]);
             string password = Convert.ToBase64String(Bytes);
 
-            string zeile1 = teile[0] + ";" + teile[1];
-            string zeile2 = teile[2] + ";" + teile[3];
-            string zeile3 = teile[4] + ";" + teile[5];
-            string zeile4 = teile[6] + ";" + password;
-
-            using (StreamWriter sw = new StreamWriter(@"Resources\Settings.csv", false))
-            {
-                sw.WriteLine(zeile1);
-                sw.WriteLine(zeile2);
-                sw.WriteLine(zeile3);
-                sw.WriteLine(zeile4);
-            }
+            Settings.Default.Password = password;
+            Settings.Default.Save();
         }
         public static int ExecuteNonQuery(string query)
         {

@@ -23,8 +23,6 @@ namespace TimeChip_App_1._0
             m_lbxMitarbeiter.DataSource = m_mitarbeiterliste;
             m_lbxBuchungen.DataSource= m_buchungsliste;
 
-            MessageBox.Show(Directory.GetCurrentDirectory());
-
             try
             {
                 UpdateMtbtrList();
@@ -564,9 +562,9 @@ namespace TimeChip_App_1._0
             DlgSettings settings = new DlgSettings();
 
             string connectionstring;
-            
-            if(settings.ShowDialog() == DialogResult.OK)
-            {   
+
+            if (settings.ShowDialog() == DialogResult.OK)
+            {
                 connectionstring = "SERVER=";
                 connectionstring += settings.IP;
                 connectionstring += ";DATABASE=";
@@ -580,7 +578,7 @@ namespace TimeChip_App_1._0
                 DataProvider.ConnectionString = connectionstring;
                 DataProvider.SaveConnectionString();
 
-                if(MessageBox.Show("Die App wird neu gestartet um die Änderungen verarbeiten zu können!", "Achtung!",MessageBoxButtons.OK, MessageBoxIcon.Warning)== DialogResult.OK)
+                if (MessageBox.Show("Die App wird neu gestartet um die Änderungen verarbeiten zu können!", "Achtung!", MessageBoxButtons.OK, MessageBoxIcon.Warning) == DialogResult.OK)
                 {
                     Application.Restart();
                 }
