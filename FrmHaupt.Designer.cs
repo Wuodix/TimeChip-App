@@ -58,6 +58,7 @@ namespace TimeChip_App_1._0
             this.label1 = new System.Windows.Forms.Label();
             this.m_lblTagesstatus = new System.Windows.Forms.Label();
             this.m_btnPrint = new System.Windows.Forms.Button();
+            this.m_Settings = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.SuspendLayout();
@@ -80,10 +81,10 @@ namespace TimeChip_App_1._0
             this.m_lbxMitarbeiter.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.m_lbxMitarbeiter.FormattingEnabled = true;
             this.m_lbxMitarbeiter.ItemHeight = 20;
-            this.m_lbxMitarbeiter.Location = new System.Drawing.Point(9, 175);
+            this.m_lbxMitarbeiter.Location = new System.Drawing.Point(9, 195);
             this.m_lbxMitarbeiter.Margin = new System.Windows.Forms.Padding(2);
             this.m_lbxMitarbeiter.Name = "m_lbxMitarbeiter";
-            this.m_lbxMitarbeiter.Size = new System.Drawing.Size(294, 264);
+            this.m_lbxMitarbeiter.Size = new System.Drawing.Size(294, 244);
             this.m_lbxMitarbeiter.TabIndex = 1;
             this.m_lbxMitarbeiter.SelectedIndexChanged += new System.EventHandler(this.LbxMitarbeiterChanged);
             this.m_lbxMitarbeiter.SelectedValueChanged += new System.EventHandler(this.LbxMitarbeiterChanged);
@@ -91,7 +92,7 @@ namespace TimeChip_App_1._0
             // m_btnNeuerMitarbeiter
             // 
             this.m_btnNeuerMitarbeiter.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.m_btnNeuerMitarbeiter.Location = new System.Drawing.Point(8, 115);
+            this.m_btnNeuerMitarbeiter.Location = new System.Drawing.Point(7, 134);
             this.m_btnNeuerMitarbeiter.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnNeuerMitarbeiter.Name = "m_btnNeuerMitarbeiter";
             this.m_btnNeuerMitarbeiter.Size = new System.Drawing.Size(95, 49);
@@ -103,7 +104,7 @@ namespace TimeChip_App_1._0
             // m_btnBearbeiten
             // 
             this.m_btnBearbeiten.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.m_btnBearbeiten.Location = new System.Drawing.Point(108, 115);
+            this.m_btnBearbeiten.Location = new System.Drawing.Point(107, 134);
             this.m_btnBearbeiten.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnBearbeiten.Name = "m_btnBearbeiten";
             this.m_btnBearbeiten.Size = new System.Drawing.Size(95, 49);
@@ -115,7 +116,7 @@ namespace TimeChip_App_1._0
             // m_btnLöschen
             // 
             this.m_btnLöschen.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.m_btnLöschen.Location = new System.Drawing.Point(207, 115);
+            this.m_btnLöschen.Location = new System.Drawing.Point(206, 134);
             this.m_btnLöschen.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnLöschen.Name = "m_btnLöschen";
             this.m_btnLöschen.Size = new System.Drawing.Size(95, 49);
@@ -127,7 +128,7 @@ namespace TimeChip_App_1._0
             // m_btnarbeitszeitprofil
             // 
             this.m_btnarbeitszeitprofil.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.m_btnarbeitszeitprofil.Location = new System.Drawing.Point(8, 62);
+            this.m_btnarbeitszeitprofil.Location = new System.Drawing.Point(7, 81);
             this.m_btnarbeitszeitprofil.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnarbeitszeitprofil.Name = "m_btnarbeitszeitprofil";
             this.m_btnarbeitszeitprofil.Size = new System.Drawing.Size(295, 49);
@@ -406,7 +407,7 @@ namespace TimeChip_App_1._0
             // m_btnPrint
             // 
             this.m_btnPrint.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.m_btnPrint.Location = new System.Drawing.Point(7, 13);
+            this.m_btnPrint.Location = new System.Drawing.Point(6, 32);
             this.m_btnPrint.Name = "m_btnPrint";
             this.m_btnPrint.Size = new System.Drawing.Size(295, 45);
             this.m_btnPrint.TabIndex = 18;
@@ -414,11 +415,24 @@ namespace TimeChip_App_1._0
             this.m_btnPrint.UseVisualStyleBackColor = true;
             this.m_btnPrint.Click += new System.EventHandler(this.BtnPrint_Click);
             // 
+            // m_Settings
+            // 
+            this.m_Settings.BackgroundImage = global::TimeChip_App_1._0.Properties.Resources.Zahnrad;
+            this.m_Settings.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.m_Settings.Location = new System.Drawing.Point(6, 2);
+            this.m_Settings.Name = "m_Settings";
+            this.m_Settings.Size = new System.Drawing.Size(30, 30);
+            this.m_Settings.TabIndex = 19;
+            this.m_Settings.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.m_Settings.UseVisualStyleBackColor = false;
+            this.m_Settings.Click += new System.EventHandler(this.Settings_Click);
+            // 
             // FrmHaupt
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(891, 464);
+            this.Controls.Add(this.m_Settings);
             this.Controls.Add(this.m_btnPrint);
             this.Controls.Add(this.tableLayoutPanel2);
             this.Controls.Add(this.m_btnKrank);
@@ -481,6 +495,7 @@ namespace TimeChip_App_1._0
         private System.Windows.Forms.Label m_lblÜberstunden;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Button m_btnPrint;
+        private System.Windows.Forms.Button m_Settings;
     }
 }
 

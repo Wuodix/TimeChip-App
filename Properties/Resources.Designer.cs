@@ -59,5 +59,15 @@ namespace TimeChip_App_1._0.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Sucht eine lokalisierte Ressource vom Typ System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Zahnrad {
+            get {
+                object obj = ResourceManager.GetObject("Zahnrad", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
     }
 }

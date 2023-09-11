@@ -7,12 +7,15 @@ using System.Net;
 using System.Text;
 using System.Windows.Forms;
 using MySql.Data.MySqlClient;
+using Org.BouncyCastle.Utilities.Encoders;
 
 namespace TimeChip_App_1._0
 {
     public class DataProvider
     {
-        private static readonly string m_connectionString = "SERVER=10.100.128.1;DATABASE=apotheke_time_chip;UID=Hauptapp;Password=oo/1X)ZV1jlmTyEm;";
+        private static string m_connectionString = null;
+
+        public static string ConnectionString { get { return m_connectionString; } set { m_connectionString = value; } }
 
         public static ClsBuchung InsertBuchung(Buchungstyp buchungstyp, DateTime zeit, int mitarbeiternr)
         {
@@ -819,9 +822,79 @@ namespace TimeChip_App_1._0
                     return Buchungstyp.Gehen;
             }
         }
+        public static void GetConnectionString()
+        {
+            string connectionstring = "";
+            if (File.Exists(@"Resources\Settings.csv"))
+            {
+                using (StreamReader sr = new StreamReader(@"Resources\Settings.csv"))
+                {
+                    int i = 0;
+                    while (!sr.EndOfStream)
+                    {
+                        string zeile = sr.ReadLine();
+                        string[] teile = zeile.Split(';');
+
+                        if(i == 4)
+                        {
+                            break;
+                        }
+
+                        if(i != 3)
+                        {
+                            connectionstring += teile[0];
+                            connectionstring += "=";
+                            connectionstring += teile[1];
+                            connectionstring += ";";
+                        }
+                        else
+                        {
+                            connectionstring += teile[0];
+                            connectionstring += "=";
+                            var Bytes = Convert.FromBase64String(teile[1]);
+                            connectionstring += Encoding.UTF8.GetString(Bytes);
+                            connectionstring += ";";
+                        }
+
+                        i++;
+                    }
+                }
+            }
+            m_connectionString =  connectionstring;
+        }
+        public static void SaveConnectionString()
+        {
+            if(m_connectionString == null)
+            {
+                return;
+            }
+
+            string[] teile = m_connectionString.Split('=', ';');
+
+            var Bytes = Encoding.UTF8.GetBytes(teile[7]);
+            string password = Convert.ToBase64String(Bytes);
+
+            string zeile1 = teile[0] + ";" + teile[1];
+            string zeile2 = teile[2] + ";" + teile[3];
+            string zeile3 = teile[4] + ";" + teile[5];
+            string zeile4 = teile[6] + ";" + password;
+
+            using (StreamWriter sw = new StreamWriter(@"Resources\Settings.csv", false))
+            {
+                sw.WriteLine(zeile1);
+                sw.WriteLine(zeile2);
+                sw.WriteLine(zeile3);
+                sw.WriteLine(zeile4);
+            }
+        }
         public static int ExecuteNonQuery(string query)
         {
             int result = 0;
+
+            if(m_connectionString is null)
+            {
+                GetConnectionString();
+            }
 
             using (MySqlConnection conn = new MySqlConnection(m_connectionString))
             {
@@ -838,6 +911,11 @@ namespace TimeChip_App_1._0
         public static int ExecuteNonQuery(MySqlCommand cmd)
         {
             int result = 0;
+
+            if (m_connectionString is null)
+            {
+                GetConnectionString();
+            }
 
             using (MySqlConnection conn = new MySqlConnection(m_connectionString))
             {
