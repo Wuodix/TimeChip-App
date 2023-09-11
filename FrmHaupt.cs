@@ -15,24 +15,39 @@ namespace TimeChip_App_1._0
 
         public FrmHaupt()
         {
+            AppDomain currentDomain = AppDomain.CurrentDomain;
+            currentDomain.UnhandledException += new UnhandledExceptionEventHandler(ExceptionHandler);
+            
             InitializeComponent();
 
             m_lbxMitarbeiter.DataSource = m_mitarbeiterliste;
             m_lbxBuchungen.DataSource= m_buchungsliste;
 
-            UpdateMtbtrList();
-
-            if(m_mitarbeiterliste.Count  > 0)
+            try
             {
-                m_lbxMitarbeiter.SelectedIndex = 0;
+                UpdateMtbtrList();
 
-                
-                UpdateLbxBuchungen();
-                ClsBerechnung.Berechnen();
-                
-                UpdateDataView();
-                UpdateCldKalender();
+                if (m_mitarbeiterliste.Count > 0)
+                {
+                    m_lbxMitarbeiter.SelectedIndex = 0;
+
+
+                    UpdateLbxBuchungen();
+                    ClsBerechnung.Berechnen();
+
+                    UpdateDataView();
+                    UpdateCldKalender();
+                }
             }
+            catch(MySql.Data.MySqlClient.MySqlException)
+            {
+            
+            }
+        }
+
+        static void ExceptionHandler(object sender, UnhandledExceptionEventArgs e)
+        {
+            MessageBox.Show("Handler caught: " + ((Exception)e.ExceptionObject).Message);
         }
 
         public static BindingList<ClsMitarbeiter> Mitarbeiterliste { get { return m_mitarbeiterliste; } set { m_mitarbeiterliste = value; } }
@@ -261,13 +276,13 @@ namespace TimeChip_App_1._0
                 m_lblUrlaub.Text = StundenRunderStr(mitarbeiter.Urlaub);
                 m_lblÜberstunden.Text = StundenRunderStr(mitarbeiter.Überstunden);
 
-                m_lblSoll.Text = ClsBerechnung.GetSollArbeitszeit(SelectedDay, mitarbeiter).ToString(@"hh\:mm");
+                m_lblSoll.Text = StundenRunderStr(ClsBerechnung.GetSollArbeitszeit(SelectedDay, mitarbeiter));
 
                 ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(SelectedDay, mitarbeiter.Mitarbeiternummer);
                 
                 if(tag != null)
                 {
-                    m_lblIst.Text = tag.Arbeitszeit.ToString(@"hh\:mm");
+                    m_lblIst.Text = StundenRunderStr(tag.Arbeitszeit);
                     switch (tag.Status)
                     {
                         case 0:
@@ -540,6 +555,34 @@ namespace TimeChip_App_1._0
                     return "Sonntag";
             }
             return date.Day.ToString();
+        }
+
+        private void Settings_Click(object sender, EventArgs e)
+        {
+            DlgSettings settings = new DlgSettings();
+
+            string connectionstring;
+
+            if (settings.ShowDialog() == DialogResult.OK)
+            {
+                connectionstring = "SERVER=";
+                connectionstring += settings.IP;
+                connectionstring += ";DATABASE=";
+                connectionstring += settings.Database;
+                connectionstring += ";UID=";
+                connectionstring += settings.UID;
+                connectionstring += ";Password=";
+                connectionstring += settings.Password;
+                connectionstring += ";";
+
+                DataProvider.ConnectionString = connectionstring;
+                DataProvider.SaveConnectionString();
+
+                if (MessageBox.Show("Die App wird neu gestartet um die Änderungen verarbeiten zu können!", "Achtung!", MessageBoxButtons.OK, MessageBoxIcon.Warning) == DialogResult.OK)
+                {
+                    Application.Restart();
+                }
+            }
         }
     }
 }

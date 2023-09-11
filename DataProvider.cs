@@ -7,12 +7,15 @@ using System.Net;
 using System.Text;
 using System.Windows.Forms;
 using MySql.Data.MySqlClient;
+using TimeChip_App_1._0.Properties;
 
 namespace TimeChip_App_1._0
 {
     public class DataProvider
     {
-        private static readonly string m_connectionString = "SERVER=10.100.128.1;DATABASE=apotheke_time_chip;UID=Hauptapp;Password=oo/1X)ZV1jlmTyEm;";
+        private static string m_connectionString = null;
+
+        public static string ConnectionString { get { return m_connectionString; } set { m_connectionString = value; } }
 
         public static ClsBuchung InsertBuchung(Buchungstyp buchungstyp, DateTime zeit, int mitarbeiternr)
         {
@@ -761,28 +764,19 @@ namespace TimeChip_App_1._0
 
         public static void WriteBerechnungsDateToCSV(DateTime date)
         {
-            using (StreamWriter sw = new StreamWriter(@"Resources\Berechnungsdate.csv", false))
-            {
-                sw.WriteLine(date.ToString());
-            }
+            Settings.Default.Berechnungsdate = date;
+            Settings.Default.Save();
         }
 
         public static DateTime ReadBerechnungsDateFromCSV()
         {
-            DateTime date = new DateTime();
-            if (File.Exists(@"Resources\Berechnungsdate.csv"))
+            DateTime Berechnungsdate = Settings.Default.Berechnungsdate;
+            if (Berechnungsdate == new DateTime(1999, 01, 01, 0, 1, 0))
             {
-                using (StreamReader sr = new StreamReader(@"Resources\Berechnungsdate.csv"))
-                {
-                    while (!sr.EndOfStream)
-                    {
-                        string zeile = sr.ReadLine();
-
-                        date = Convert.ToDateTime(zeile);
-                    }
-                }
+                Settings.Default.Berechnungsdate = DateTime.Now;
+                Settings.Default.Save();
             }
-            return date;
+            return Settings.Default.Berechnungsdate;
         }
 
         //Helper Funktionen
@@ -819,9 +813,50 @@ namespace TimeChip_App_1._0
                     return Buchungstyp.Gehen;
             }
         }
+        public static void GetConnectionString()
+        {
+            string connectionstring = "";
+
+            connectionstring += "SERVER=";
+            connectionstring += Settings.Default.Server;
+            connectionstring += ";DATABASE=";
+            connectionstring += Settings.Default.Database;
+            connectionstring += ";UID=";
+            connectionstring += Settings.Default.UID;
+            connectionstring += ";Password=";
+            var Bytes = Convert.FromBase64String(Settings.Default.Password);
+            connectionstring += Encoding.UTF8.GetString(Bytes);
+            connectionstring += ";";
+
+            m_connectionString =  connectionstring;
+        }
+        public static void SaveConnectionString()
+        {
+            if(m_connectionString == null)
+            {
+                return;
+            }
+
+            string[] teile = m_connectionString.Split('=', ';');
+
+            Settings.Default.Server = teile[1];
+            Settings.Default.Database = teile[3];
+            Settings.Default.UID = teile[5];
+
+            var Bytes = Encoding.UTF8.GetBytes(teile[7]);
+            string password = Convert.ToBase64String(Bytes);
+
+            Settings.Default.Password = password;
+            Settings.Default.Save();
+        }
         public static int ExecuteNonQuery(string query)
         {
             int result = 0;
+
+            if(m_connectionString is null)
+            {
+                GetConnectionString();
+            }
 
             using (MySqlConnection conn = new MySqlConnection(m_connectionString))
             {
@@ -838,6 +873,11 @@ namespace TimeChip_App_1._0
         public static int ExecuteNonQuery(MySqlCommand cmd)
         {
             int result = 0;
+
+            if (m_connectionString is null)
+            {
+                GetConnectionString();
+            }
 
             using (MySqlConnection conn = new MySqlConnection(m_connectionString))
             {
