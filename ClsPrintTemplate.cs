@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace TimeChip_App_1._0
+namespace TimeChip_App
 {
     internal class ClsPrintTemplate
     {

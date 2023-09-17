@@ -5,7 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
-namespace TimeChip_App_1._0
+namespace TimeChip_App
 {
     public class ClsBerechnung
     {
@@ -13,6 +13,8 @@ namespace TimeChip_App_1._0
         public static void Berechnen()
         {
             List<ClsBuchung> buchungen = DataProvider.SelectAllBuchungen("buchungen_temp");
+
+            DataProvider.WriteBerechnungsDateToCSV(new DateTime(2023, 6, 2));
 
             DateTime lastBerechnung = DataProvider.ReadBerechnungsDateFromCSV();
 

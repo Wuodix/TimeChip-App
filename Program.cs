@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace TimeChip_App_1._0
+namespace TimeChip_App
 {
     static class Program
     {

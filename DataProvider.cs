@@ -7,9 +7,9 @@ using System.Net;
 using System.Text;
 using System.Windows.Forms;
 using MySql.Data.MySqlClient;
-using TimeChip_App_1._0.Properties;
+using TimeChip_App.Properties;
 
-namespace TimeChip_App_1._0
+namespace TimeChip_App
 {
     public class DataProvider
     {
@@ -766,6 +766,7 @@ namespace TimeChip_App_1._0
         {
             Settings.Default.Berechnungsdate = date;
             Settings.Default.Save();
+            
         }
 
         public static DateTime ReadBerechnungsDateFromCSV()

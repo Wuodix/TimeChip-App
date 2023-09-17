@@ -1,5 +1,5 @@
 ﻿
-namespace TimeChip_App_1._0
+namespace TimeChip_App
 {
     partial class DlgMitarbeiter
     {
@@ -45,9 +45,9 @@ namespace TimeChip_App_1._0
             this.m_btnAddCard = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.m_tbxUrlaub = new System.Windows.Forms.TextBox();
-            this.clsArbeitsprofilBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.m_tbxÜberstunden = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
+            this.clsArbeitsprofilBindingSource = new System.Windows.Forms.BindingSource(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.clsArbeitsprofilBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
@@ -214,10 +214,6 @@ namespace TimeChip_App_1._0
             this.m_tbxUrlaub.Size = new System.Drawing.Size(58, 24);
             this.m_tbxUrlaub.TabIndex = 14;
             // 
-            // clsArbeitsprofilBindingSource
-            // 
-            this.clsArbeitsprofilBindingSource.DataSource = typeof(TimeChip_App_1._0.ClsArbeitsprofil);
-            // 
             // m_tbxÜberstunden
             // 
             this.m_tbxÜberstunden.Location = new System.Drawing.Point(379, 200);
@@ -238,6 +234,10 @@ namespace TimeChip_App_1._0
             this.label6.Size = new System.Drawing.Size(123, 22);
             this.label6.TabIndex = 15;
             this.label6.Text = "Überstunden:";
+            // 
+            // clsArbeitsprofilBindingSource
+            // 
+            this.clsArbeitsprofilBindingSource.DataSource = typeof(TimeChip_App.ClsArbeitsprofil);
             // 
             // DlgMitarbeiter
             // 
@@ -261,6 +261,7 @@ namespace TimeChip_App_1._0
             this.Controls.Add(this.m_tbxVorname);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.m_lblTitel);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "DlgMitarbeiter";
             this.Text = "Neu";

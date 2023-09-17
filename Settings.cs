@@ -1,4 +1,4 @@
-﻿namespace TimeChip_App_1._0.Properties {
+﻿namespace TimeChip_App.Properties {
     
     
     // Diese Klasse ermöglicht die Behandlung bestimmter Ereignisse der Einstellungsklasse:

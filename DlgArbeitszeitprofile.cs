@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace TimeChip_App_1._0
+namespace TimeChip_App
 {
     public partial class DlgArbeitszeitprofile : Form
     {
@@ -28,10 +28,8 @@ namespace TimeChip_App_1._0
         private void BtnTage_Click(object sender, EventArgs e)
         {
             DlgTag Tag = new DlgTag();
-            if(Tag.ShowDialog() == DialogResult.OK)
-            {
-                UpdateCMBX();
-            }
+            Tag.ShowDialog();
+            UpdateCMBX();
         }
 
         private void BtnAktualisieren_Click(object sender, EventArgs e)
