@@ -1,5 +1,5 @@
 ﻿
-namespace TimeChip_App_1._0
+namespace TimeChip_App
 {
     partial class DlgBuchung
     {
@@ -154,7 +154,7 @@ namespace TimeChip_App_1._0
             // 
             // clsArbeitsprofilBindingSource
             // 
-            this.clsArbeitsprofilBindingSource.DataSource = typeof(TimeChip_App_1._0.ClsArbeitsprofil);
+            this.clsArbeitsprofilBindingSource.DataSource = typeof(TimeChip_App.ClsArbeitsprofil);
             // 
             // DlgBuchung
             // 
@@ -171,6 +171,7 @@ namespace TimeChip_App_1._0
             this.Controls.Add(this.m_cmbxMitarbeiter);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.m_lblTitel);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "DlgBuchung";
             this.Text = "Neu";

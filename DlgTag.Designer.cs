@@ -1,5 +1,5 @@
 ﻿
-namespace TimeChip_App_1._0
+namespace TimeChip_App
 {
     partial class DlgTag
     {
@@ -379,6 +379,7 @@ namespace TimeChip_App_1._0
             this.Controls.Add(this.m_btnAbbrechen);
             this.Controls.Add(this.m_btnOK);
             this.Controls.Add(this.m_lbxTage);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "DlgTag";
             this.Text = "Tage";

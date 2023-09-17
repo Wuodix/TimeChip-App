@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace TimeChip_App_1._0
+namespace TimeChip_App
 {
     public partial class FrmHaupt : Form
     {
@@ -22,6 +22,8 @@ namespace TimeChip_App_1._0
 
             m_lbxMitarbeiter.DataSource = m_mitarbeiterliste;
             m_lbxBuchungen.DataSource= m_buchungsliste;
+
+            m_cldKalender.SelectionStart = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Subtract(new TimeSpan(1, 0, 0, 0)).Day);
 
             try
             {
@@ -174,7 +176,8 @@ namespace TimeChip_App_1._0
 
                 if(DataProvider.SelectAllBuchungenFromDay(mitarbeiter, dlgBuchung.GetDateTime(), "buchungen").Count > 1)
                 {
-                    ClsBerechnung.Berechnen(dlgBuchung.Datum, ref mitarbeiter, false);
+                    DateTime date = new DateTime(dlgBuchung.GetDateTime().Year, dlgBuchung.GetDateTime().Month, dlgBuchung.GetDateTime().Day);
+                    ClsBerechnung.Berechnen(date, ref mitarbeiter, false);
                 }
 
                 UpdateLbxBuchungen();
@@ -224,7 +227,8 @@ namespace TimeChip_App_1._0
                 ClsMitarbeiter mtbtr = m_mitarbeiterliste.ToList().Find(x => x.Mitarbeiternummer.Equals(buchung.Mitarbeiternummer));
                 if (DataProvider.SelectAllBuchungenFromDay(mtbtr, buchung.Zeit, "buchungen").Count > 1)
                 {
-                    ClsBerechnung.Berechnen(buchung.Zeit, ref mtbtr, false);
+                    DateTime date = new DateTime(buchung.Zeit.Year,buchung.Zeit.Month, buchung.Zeit.Day);
+                    ClsBerechnung.Berechnen(date, ref mtbtr, false);
                 }
                 UpdateLbxBuchungen();
             }
@@ -366,82 +370,74 @@ namespace TimeChip_App_1._0
             ClsMitarbeiter mtbtr = m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter;
             string datestr = GetMonthStr(date) + " " + date.Year.ToString();
 
-            using (StreamWriter sw = new StreamWriter("Export.html", false))
+            ClsPrintTemplate doc = new ClsPrintTemplate(mtbtr.ToString(), datestr);
+            TimeSpan Monat = new TimeSpan();
+            TimeSpan GesSoll = new TimeSpan();
+            TimeSpan GesIst = new TimeSpan();
+
+
+            for (int i = 1; i <= DateTime.DaysInMonth(date.Year, date.Month); i++)
             {
-                ClsPrintTemplate doc = new ClsPrintTemplate(mtbtr.ToString(),datestr);
-                TimeSpan Monat = new TimeSpan();
-                TimeSpan GesSoll = new TimeSpan();
-                TimeSpan GesIst = new TimeSpan();
-
-                
-                for (int i = 1; i <= DateTime.DaysInMonth(date.Year, date.Month); i++)
+                DateTime date1 = new DateTime(date.Year, date.Month, i);
+                List<ClsBuchung> buchungen = DataProvider.SelectAllBuchungenFromDay(mtbtr, date1, "buchungen");
+                TimeSpan SollZeit = ClsBerechnung.GetSollArbeitszeit(date1, mtbtr);
+                ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(date1, mtbtr.Mitarbeiternummer);
+                TimeSpan IstZeit = new TimeSpan();
+                if (tag != null)
                 {
-                    DateTime date1 = new DateTime(date.Year, date.Month, i);
-                    List<ClsBuchung> buchungen = DataProvider.SelectAllBuchungenFromDay(mtbtr, date1, "buchungen");
-                    TimeSpan SollZeit = ClsBerechnung.GetSollArbeitszeit(date1, mtbtr);
-                    ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(date1, mtbtr.Mitarbeiternummer);
-                    TimeSpan IstZeit = new TimeSpan();
-                    if(tag != null)
-                    {
-                        IstZeit = tag.Arbeitszeit;
-                    }
-                    else
-                    {
-                        MessageBox.Show("Monat ist noch nicht beendet!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
-
-                    string Status;
-                    switch (tag.Status)
-                    {
-                        case 1:
-                            Status = "Krank";
-                            break;
-                        case 2:
-                            Status = "Schule";
-                            break;
-                        case 3:
-                            Status = "Urlaub";
-                            break;
-                        default:
-                            Status = "Zeitausgleich";
-                            break;
-                    }
-                    TimeSpan Überstunden = new TimeSpan(IstZeit.Ticks-SollZeit.Ticks);
-                    if(tag.Status == 0)
-                    {
-                        Monat = Monat.Add(Überstunden);
-                    }
-                    string Monatstr = StundenRunderStr(Monat);
-                    string Überstundenstr = Überstunden.ToString(@"hh\:mm");
-                    string SollZeitstr = SollZeit.ToString(@"hh\:mm");
-                    string IstZeitstr = IstZeit.ToString(@"hh\:mm");
-                    string Tag = GetDayofWeekStr(date1) + ", " + date1.Day;
-
-                    GesSoll = GesSoll.Add(SollZeit);
-                    GesIst = GesIst.Add(IstZeit);
-
-                    doc.AddLine(Tag,buchungen, SollZeitstr, IstZeitstr, Status, Überstundenstr, Monatstr);
+                    IstZeit = tag.Arbeitszeit;
+                }
+                else
+                {
+                    MessageBox.Show("Monat ist noch nicht beendet!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
                 }
 
-                string GesSollstr = StundenRunderStr(GesSoll);
+                string Status;
+                switch (tag.Status)
+                {
+                    case 1:
+                        Status = "Krank";
+                        break;
+                    case 2:
+                        Status = "Schule";
+                        break;
+                    case 3:
+                        Status = "Urlaub";
+                        break;
+                    default:
+                        Status = "Zeitausgleich";
+                        break;
+                }
+                TimeSpan Überstunden = new TimeSpan(IstZeit.Ticks - SollZeit.Ticks);
+                if (tag.Status == 0)
+                {
+                    Monat = Monat.Add(Überstunden);
+                }
+                string Monatstr = StundenRunderStr(Monat);
+                string Überstundenstr = Überstunden.ToString(@"hh\:mm");
+                string SollZeitstr = SollZeit.ToString(@"hh\:mm");
+                string IstZeitstr = IstZeit.ToString(@"hh\:mm");
+                string Tag = GetDayofWeekStr(date1) + ", " + date1.Day;
 
-                string GesIststr = StundenRunderStr(GesIst);
+                GesSoll = GesSoll.Add(SollZeit);
+                GesIst = GesIst.Add(IstZeit);
 
-                string Monatsüberstunden = StundenRunderStr(Monat);
-
-
-                string GesÜberstunden = StundenRunderStr(GetOldÜberstunden(date, mtbtr));
-
-
-                string GesUrlaub = mtbtr.Urlaub.TotalHours.ToString() + ":00";
-
-                sw.WriteLine(doc.GetDoc(GesSollstr,GesIststr,Monatsüberstunden,GesÜberstunden,GesUrlaub));
+                doc.AddLine(Tag, buchungen, SollZeitstr, IstZeitstr, Status, Überstundenstr, Monatstr);
             }
 
+            string GesSollstr = StundenRunderStr(GesSoll);
+
+            string GesIststr = StundenRunderStr(GesIst);
+
+            string Monatsüberstunden = StundenRunderStr(Monat);
+
+            string GesÜberstunden = StundenRunderStr(GetOldÜberstunden(date, mtbtr));
+
+            string GesUrlaub = mtbtr.Urlaub.TotalHours.ToString() + ":00";
+
             WebBrowser PrintBrowser = new WebBrowser();
-            string Filepath = Directory.GetCurrentDirectory().ToString() + @"\Export.html";
-            PrintBrowser.Url = new Uri(Filepath);
+            PrintBrowser.DocumentText = doc.GetDoc(GesSollstr, GesIststr, Monatsüberstunden, GesÜberstunden, GesUrlaub);
             PrintBrowser.DocumentCompleted += PrintBrower_DocumentCompleted;
         }
 

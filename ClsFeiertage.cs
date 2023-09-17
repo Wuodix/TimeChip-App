@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace TimeChip_App_1._0
+namespace TimeChip_App
 {
     public class Feiertag : IComparable<Feiertag>
     {

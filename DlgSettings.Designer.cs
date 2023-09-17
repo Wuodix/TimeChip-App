@@ -1,4 +1,4 @@
-﻿namespace TimeChip_App_1._0
+﻿namespace TimeChip_App
 {
     partial class DlgSettings
     {
@@ -152,8 +152,9 @@
             this.Controls.Add(this.m_tbxDatabase);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.m_tbxIP);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "DlgSettings";
-            this.Text = "DlgSettings";
+            this.Text = "Einstellungen";
             this.ResumeLayout(false);
             this.PerformLayout();
 

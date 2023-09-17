@@ -1,5 +1,5 @@
 ﻿
-namespace TimeChip_App_1._0
+namespace TimeChip_App
 {
     partial class FrmHaupt
     {
@@ -416,8 +416,8 @@ namespace TimeChip_App_1._0
             this.m_btnPrint.Click += new System.EventHandler(this.BtnPrint_Click);
             // 
             // m_Settings
-            // 
-            this.m_Settings.BackgroundImage = global::TimeChip_App_1._0.Properties.Resources.Zahnrad;
+            //
+            this.m_Settings.BackgroundImage = global::TimeChip_App.Properties.Resources.Zahnrad;
             this.m_Settings.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.m_Settings.Location = new System.Drawing.Point(6, 2);
             this.m_Settings.Name = "m_Settings";
