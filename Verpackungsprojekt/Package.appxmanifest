@@ -9,7 +9,7 @@
   <Identity
     Name="e35dbac3-f438-4f05-a726-b46aa80e3c3c"
     Publisher="CN=Julian"
-    Version="1.0.1.0" />
+    Version="1.0.8.0" />
 
   <Properties>
     <DisplayName>TimeChipApp</DisplayName>
@@ -45,7 +45,6 @@
   </Applications>
 
   <Capabilities>
-    <Capability Name="internetClient" />
     <rescap:Capability Name="runFullTrust" />
   </Capabilities>
 </Package>

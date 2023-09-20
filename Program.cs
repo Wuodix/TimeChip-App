@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using TimeChip_App.Properties;
 
 namespace TimeChip_App
 {
@@ -13,6 +14,13 @@ namespace TimeChip_App
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
+            if (Settings.Default.UpgradeRequired)
+            {
+                Settings.Default.Upgrade();
+                Settings.Default.UpgradeRequired = false;
+                Settings.Default.Save();
+            }
 
             try
             {
