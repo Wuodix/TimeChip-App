@@ -82,11 +82,6 @@ jobs:
 
         $manifest.Save(".\Verpackungsprojekt\Package.appxmanifest")
         $manifest.Package.Identity.Version
-
-    - name: Install certificate
-      shell: pwsh
-      run: |
-        sn.exe -i ".\Verpackungsprojekt\Verpackungsprojekt_TemporaryKey.pfx" "VS_KEY_1BEB78738BB069D0"
       
         
     - name: Edit Repo Version Variable
