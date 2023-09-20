@@ -108,6 +108,7 @@ jobs:
       env:
         Configuration: ${{ matrix.configuration }}
 
+
     # Decode the base 64 encoded pfx and save the Signing_Certificate
     - name: Decode the pfx
       run: |
