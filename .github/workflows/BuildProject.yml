@@ -127,7 +127,7 @@ jobs:
 
     - name: Sign Code
       run: |
-        & 'C:/Program Files (x86)/Windows Kits/10/bin/10.0.17763.0/x86/signtool.exe' sign /f GitHubActionsWorkflow.pfx /p '${{ secrets.PFX_KEY }}' /t http://timestamp.comodoca.com/authenticode TimeChip_App\bin\Release\TimeChip_App.exe
+        & 'C:/Program Files (x86)/Windows Kits/10/bin/10.0.17763.0/x86/signtool.exe' sign /f Verpackungsprojekt\GitHubActionsWorkflow.pfx /p '${{ secrets.PFX_KEY }}' /t http://timestamp.comodoca.com/authenticode TimeChip_App\bin\Release\TimeChip_App.exe
     # Remove the pfx
     - name: Remove the pfx
       run: Remove-Item -path $env:Wap_Project_Directory\GitHubActionsWorkflow.pfx
