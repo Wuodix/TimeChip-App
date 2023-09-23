@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using System.Configuration;
 using TimeChip_App.Properties;
 
 namespace TimeChip_App
@@ -20,7 +21,12 @@ namespace TimeChip_App
                 Settings.Default.Upgrade();
                 Settings.Default.UpgradeRequired = false;
                 Settings.Default.Save();
+                MessageBox.Show(Settings.Default.Server);
             }
+
+            MessageBox.Show(ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath);
+            MessageBox.Show(ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoaming).FilePath);
+            MessageBox.Show(ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).FilePath);
 
             try
             {
