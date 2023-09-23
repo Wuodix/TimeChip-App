@@ -108,7 +108,6 @@ jobs:
       env:
         Configuration: ${{ matrix.configuration }}
 
-
     # Decode the base 64 encoded pfx and save the Signing_Certificate
     - name: Decode the pfx
       run: |
@@ -118,7 +117,7 @@ jobs:
 
     # Create the app package by building and packaging the Windows Application Packaging project
     - name: Create the app package
-      run: msbuild $env:Wap_Project_Path /p:Configuration=$env:Configuration /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }} /p:AppxBundlePlatforms=$env:Appx_Bundle_Platforms
+      run: msbuild $env:Wap_Project_Path /p:Configuration=$env:Configuration /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }} /p:AppxBundlePlatforms=$env:Appx_Bundle_Platforms /p:PackageAsSingleFile=true
       env:
         Appx_Bundle: Always
         Appx_Bundle_Platforms: x86
