@@ -14,8 +14,6 @@ namespace TimeChip_App
         {
             List<ClsBuchung> buchungen = DataProvider.SelectAllBuchungen("buchungen_temp");
 
-            DataProvider.WriteBerechnungsDateToCSV(new DateTime(2023, 6, 2));
-
             DateTime lastBerechnung = DataProvider.ReadBerechnungsDateFromCSV();
 
             if (lastBerechnung.CompareTo(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0)) < 0)
