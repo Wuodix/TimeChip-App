@@ -51,6 +51,11 @@ namespace TimeChip_App
             UpdateAbzpList();
         }
 
+        /// <summary>
+        /// Findet das Tag-Objekt aus der Tagesliste mit der gleichen ID wie tag
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <returns>Falls gefunden das Tag-Objekt andernfalls null</returns>
         private ClsTag FindTag(ClsTag tag)
         {
             foreach(ClsTag tag1 in DlgTag.Tagesliste)
@@ -121,6 +126,9 @@ namespace TimeChip_App
             }
         }
 
+        /// <summary>
+        /// Aktualisiert die Objekte, die in der Listbox, die sämtliche Arbeitszeitprofile anzeigt, angezeigt werden
+        /// </summary>
         private void UpdateAbzpList()
         {
             m_arbeitsprofilliste.Clear();
@@ -132,6 +140,10 @@ namespace TimeChip_App
 
             m_arbeitsprofilliste.ResetBindings();
         }
+
+        /// <summary>
+        /// Aktualisiert die ComboBoxen aus denen man die einzelnen Tage für die Wochentage auswählen kann.
+        /// </summary>
         private void UpdateCMBX()
         {
             m_cmbxMontag.Items.Clear();
@@ -154,6 +166,11 @@ namespace TimeChip_App
             }
         }
 
+        /// <summary>
+        /// Aktualisiert die Daten in den Feldern für die Anzeige des ausgewählten Arbeitszeitprofils, sollte ein neues ausgewählt werden
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void LbxArbeitszeitprofile_SelectedIndexChanged(object sender, EventArgs e)
         {
             if(m_arbeitsprofilliste.Count >0)

@@ -9,23 +9,26 @@ namespace TimeChip_App
 {
     public class ClsBerechnung
     {
-
+        /// <summary>
+        /// Berechnet die Arbeitszeit und die Überstunden aller Mitarbeiter an allen Tagen seit der letzten Berechnung und aktualisiert diese Daten in der Datenbank.
+        /// Zusätzlich werden die Buchungen aus buchungen_temp in die buchungen Tabelle übertragen
+        /// </summary>
         public static void Berechnen()
         {
             List<ClsBuchung> buchungen = DataProvider.SelectAllBuchungen("buchungen_temp");
 
-            DateTime lastBerechnung = DataProvider.ReadBerechnungsDateFromCSV();
+            DateTime lastBerechnung = DataProvider.ReadBerechnungsdate();
 
-            if (lastBerechnung.CompareTo(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0)) < 0)
+            if (lastBerechnung.CompareTo(DateTime.Now.Date) < 0)
             {
-                DateTime compare = new DateTime(lastBerechnung.Year, lastBerechnung.Month, lastBerechnung.Day, 0, 0, 0);
+                DateTime compare = lastBerechnung.Date;
 
                 // Eine Liste aus Buchungen der einzelnen Tage
                 List<List<ClsBuchung>> TagesBuchungen = new List<List<ClsBuchung>>();
                 List<DateTime> Tage = new List<DateTime>();
 
                 //Es werden alle Tage gesucht, die berechnet werden müssen
-                while (compare.CompareTo(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0)) < 0)
+                while (compare.CompareTo(DateTime.Now.Date) < 0)
                 {
                     TagesBuchungen.Add(buchungen.FindAll(x => x.Zeit.ToShortDateString().Equals(compare.ToShortDateString())));
 
@@ -48,7 +51,7 @@ namespace TimeChip_App
                 }
 
                 DataProvider.InsertMultipleAusgewerteterTag(ausgewerteteTage);
-                DataProvider.WriteBerechnungsDateToCSV(DateTime.Now);
+                DataProvider.SaveBerechnungsdate(DateTime.Now);
 
 
                 List<ClsBuchung> TransferBuchungen = new List<ClsBuchung>();
@@ -63,6 +66,14 @@ namespace TimeChip_App
             }
         }
 
+        /// <summary>
+        /// Berechnet die Arbeitszeit und die Überstunden eines Mitarbeiters an einem bestimmten Tag und aktualisiert diese Daten gegebenenfalls in der Datenbank
+        /// </summary>
+        /// <param name="day">Der zu berechnende Tag</param>
+        /// <param name="mtbtr">Der Mitarbeiter dessen Daten berechnet werden sollen</param>
+        /// <param name="ersteBerechnung">Gibt an ob der Tag bereits berechnet wurde oder ob dies die erste Berechnung ist</param>
+        /// <param name="TagesBuchungen">Eine Liste mit den Buchungen von mtbtr an day</param>
+        /// <returns>Die berechneten Daten als Ausgewerteter Tag</returns>
         public static ClsAusgewerteter_Tag Berechnen(DateTime day, ref ClsMitarbeiter mtbtr, bool ersteBerechnung, List<ClsBuchung> TagesBuchungen = null)
         {
             List<ClsBuchung> buchungen;
@@ -190,12 +201,17 @@ namespace TimeChip_App
             return new ClsAusgewerteter_Tag(1, mtbtr.Mitarbeiternummer, Arbeitszeit, day, tag.Status);
         }
 
+        /// <summary>
+        /// Berechnet bei etwaiger Statusänderung eines Tages die Änderung in den Überstunden bzw. beim verbleibenden Urlaub eines Mitarbeiters
+        /// </summary>
+        /// <param name="tag">Der Tag, dessen Status geändert wird</param>
+        /// <param name="alterStatus">Der Wert des Status vor der Änderung; 0 = Zeitausgleich, 1 = Krank, 2 = Schule, 3 = Urlaub</param>
         public static void TagesStatusÄnderung(ClsAusgewerteter_Tag tag, int alterStatus)
         {
             ClsMitarbeiter mitarbeiter = FrmHaupt.Mitarbeiterliste.ToList().Find(x => x.Mitarbeiternummer.Equals(tag.MitarbeiterNummer));
             TimeSpan Überstunden = tag.Arbeitszeit - GetSollArbeitszeit(tag.Date, mitarbeiter);
             //Status Codes:
-            //0 = Überstunden
+            //0 = Zeitausgleich
             //1 = Krank
             //2 = Schule
             //3 = Urlaub
@@ -323,6 +339,12 @@ namespace TimeChip_App
             DataProvider.WriteDateToCSV(strings);
         }
 
+        /// <summary>
+        /// Ruft die Arbeitszeit ab, die mitarbeiter an date laut Arbeitszeitprofil zu arbeiten hat
+        /// </summary>
+        /// <param name="date"></param>
+        /// <param name="mitarbeiter"></param>
+        /// <returns></returns>
         public static TimeSpan GetSollArbeitszeit(DateTime date, ClsMitarbeiter mitarbeiter)
         {
             FeiertagLogic feiertage = FeiertagLogic.GetInstance(date.Year);
@@ -351,6 +373,13 @@ namespace TimeChip_App
                     return new TimeSpan(0);
             }
         }
+
+        /// <summary>
+        /// Ruft die Dauer der Pause ab, die mitarbeiter an date zu verrichten hat
+        /// </summary>
+        /// <param name="date"></param>
+        /// <param name="mitarbeiter"></param>
+        /// <returns></returns>
         private static TimeSpan GetSollPausendauer(DateTime date, ClsMitarbeiter mitarbeiter)
         {
             switch (date.DayOfWeek)
@@ -373,6 +402,13 @@ namespace TimeChip_App
                     return new TimeSpan(0);
             }
         }
+
+        /// <summary>
+        /// Ruft die Uhrzeit ab, zu der die Pause von mitarbeiter an date beginnt
+        /// </summary>
+        /// <param name="date"></param>
+        /// <param name="mitarbeiter"></param>
+        /// <returns></returns>
         private static TimeSpan GetPausenbeginnOfDayOfWeek(DateTime date, ClsMitarbeiter mitarbeiter)
         {
             switch (date.DayOfWeek)
@@ -394,7 +430,12 @@ namespace TimeChip_App
                 default:
                     return new TimeSpan(0);
             }
-        }
+        }/// <summary>
+        /// Ruft die Uhrzeit ab, zu der die Pause von mitarbeiter an date endet
+        /// </summary>
+        /// <param name="date"></param>
+        /// <param name="mitarbeiter"></param>
+        /// <returns></returns>
         private static TimeSpan GetPausenendeOfDayOfWeek(DateTime date, ClsMitarbeiter mitarbeiter)
         {
             switch (date.DayOfWeek)
@@ -417,6 +458,13 @@ namespace TimeChip_App
                     return new TimeSpan(0);
             }
         }
+
+        /// <summary>
+        /// Ruft die Uhrzeit ab an der die Arbeitszeit von mitarbeiter an date beginnt
+        /// </summary>
+        /// <param name="date"></param>
+        /// <param name="mitarbeiter"></param>
+        /// <returns></returns>
         private static TimeSpan GetArbeitsbeginnOfDayOfWeek(DateTime date, ClsMitarbeiter mitarbeiter)
         {
             switch (date.DayOfWeek)
@@ -439,6 +487,13 @@ namespace TimeChip_App
                     return new TimeSpan(0);
             }
         }
+
+        /// <summary>
+        /// Ruft die Uhrzeit ab, zu der die Arbeitszeit von mitarbeiter an date endet
+        /// </summary>
+        /// <param name="date"></param>
+        /// <param name="mitarbeiter"></param>
+        /// <returns></returns>
         private static TimeSpan GetArbeitsendeOfDayOfWeek(DateTime date, ClsMitarbeiter mitarbeiter)
         {
             switch (date.DayOfWeek)
@@ -461,6 +516,13 @@ namespace TimeChip_App
                     return new TimeSpan(0);
             }
         }
+
+        /// <summary>
+        /// Ruft ab ob mitarbeiter an date eine Pause hat
+        /// </summary>
+        /// <param name="date"></param>
+        /// <param name="mitarbeiter"></param>
+        /// <returns></returns>
         private static bool GetPauseOfDayOfWeek(DateTime date, ClsMitarbeiter mitarbeiter)
         {
             switch (date.DayOfWeek)

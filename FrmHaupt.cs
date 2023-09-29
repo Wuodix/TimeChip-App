@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using TimeChip_App.Properties;
 
 namespace TimeChip_App
 {
@@ -114,6 +115,9 @@ namespace TimeChip_App
             UpdateMtbtrList();
         }
 
+        /// <summary>
+        /// Erneuert die angezeigten Objekte in der ListBox in der alle Mitarbeiter angezeigt werden
+        /// </summary>
         private void UpdateMtbtrList()
         {
             m_mitarbeiterliste.Clear();
@@ -135,6 +139,9 @@ namespace TimeChip_App
             UpdateLbxBuchungen();
         }
 
+        /// <summary>
+        /// Erneuert die angezeigten Objekte in der ListBox, in der die Buchungen des ausgewählten Mitarbeiters, die am ausgewählten Tag getätigt wurden, angezeicht werden
+        /// </summary>
         private void UpdateLbxBuchungen()
         {
             if (m_lbxMitarbeiter.SelectedItem != null)
@@ -234,6 +241,9 @@ namespace TimeChip_App
             }
         }
 
+        /// <summary>
+        /// Erneuert die fett gedruckten Tage im Tagesauswahlfeld
+        /// </summary>
         private void UpdateCldKalender()
         {
             List<DateTime> BoldedDates = new List<DateTime>();
@@ -270,6 +280,9 @@ namespace TimeChip_App
             m_cldKalender.BoldedDates = BoldedDates.ToArray();
         }
 
+        /// <summary>
+        /// Erneuert die Informationen des rechten unteren Teils des Hauptbildschirms
+        /// </summary>
         private void UpdateDataView()
         {
             if(m_lbxMitarbeiter.SelectedItems != null)
@@ -441,6 +454,12 @@ namespace TimeChip_App
             PrintBrowser.DocumentCompleted += PrintBrower_DocumentCompleted;
         }
 
+        /// <summary>
+        /// Rechnet zurück wie viele Überstunden mtbtr am Ende des Monats von date hatte
+        /// </summary>
+        /// <param name="date"></param>
+        /// <param name="mtbtr"></param>
+        /// <returns></returns>
         public TimeSpan GetOldÜberstunden(DateTime date, ClsMitarbeiter mtbtr)
         {
             TimeSpan aktuelleÜberstunden = mtbtr.Überstunden;
@@ -455,6 +474,11 @@ namespace TimeChip_App
             return aktuelleÜberstunden;
         }
 
+        /// <summary>
+        /// Stellt eine Zeitspanne rein mit Stunden anstelle von Tagen dar. Zb.: 1 Tag 5h 25 min --> 29:25
+        /// </summary>
+        /// <param name="Zeit">Darzustellende Zeitspanne</param>
+        /// <returns>Umgewandelte Zeitspanne als String</returns>
         public string StundenRunderStr(TimeSpan Zeit)
         {
             string result = Convert.ToInt32(Math.Round(Math.Abs(Zeit.TotalHours) - 0.49, 0, MidpointRounding.AwayFromZero)).ToString("D2") + ":" + Math.Abs(Zeit.Minutes).ToString("D2");
@@ -466,6 +490,11 @@ namespace TimeChip_App
         }
 
         int m_druckzähler = 0;
+        /// <summary>
+        /// Wird ausgeführt sobald der Print Browser das Laden der zu druckenden Seite vollendet hat
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void PrintBrower_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
             m_druckzähler++;
@@ -499,6 +528,11 @@ namespace TimeChip_App
             }
         }
 
+        /// <summary>
+        /// Gibt den Namen des Monats von date zurück. Zb.: 1 --> Jänner; 2 --> Februar etc.
+        /// </summary>
+        /// <param name="date">Datum, dessen Monats Name gesucht wird</param>
+        /// <returns>Name des Monats</returns>
         public string GetMonthStr(DateTime date)
         {
             switch (date.Month)
@@ -531,6 +565,11 @@ namespace TimeChip_App
             return date.Month.ToString();
         }
 
+        /// <summary>
+        /// Gibt den Namen des Wochentags von date zurück
+        /// </summary>
+        /// <param name="date">Datum dessen Wochentags Name gesucht wird</param>
+        /// <returns>Den Namen des Wochentags von date</returns>
         public string GetDayofWeekStr(DateTime date)
         {
             switch (date.DayOfWeek)
@@ -573,6 +612,8 @@ namespace TimeChip_App
 
                 DataProvider.ConnectionString = connectionstring;
                 DataProvider.SaveConnectionString();
+
+                DataProvider.SaveBerechnungsdate(settings.Berechnungsdate);
 
                 if (MessageBox.Show("Die App wird neu gestartet um die Änderungen verarbeiten zu können!", "Achtung!", MessageBoxButtons.OK, MessageBoxIcon.Warning) == DialogResult.OK)
                 {

@@ -17,9 +17,6 @@ namespace TimeChip_App
 
         }
 
-        /// <summary>
-        /// Beschreibung: 
-        /// </summary>
         public string Name
         {
             get
@@ -33,9 +30,6 @@ namespace TimeChip_App
         }
 
 
-        /// <summary>
-        /// Beschreibung: 
-        /// </summary>
         public DateTime Datum
         {
             get
@@ -48,10 +42,6 @@ namespace TimeChip_App
             }
         }
 
-
-        /// <summary>
-        /// Beschreibung: 
-        /// </summary>
         public bool IsFix
         {
             get
