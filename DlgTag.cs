@@ -102,6 +102,9 @@ namespace TimeChip_App
             m_tagesliste.ResetBindings();
         }
 
+        /// <summary>
+        /// Aktualisiert die Listbox in der die gesamten gespeicherten Tage angezeigt werden
+        /// </summary>
         private void UpdateTagesListe()
         {
             m_tagesliste.Clear();

@@ -174,7 +174,7 @@ namespace TimeChip_App
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "DlgBuchung";
-            this.Text = "Neu";
+            this.Text = "s";
             ((System.ComponentModel.ISupportInitialize)(this.clsArbeitsprofilBindingSource)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

@@ -29,6 +29,10 @@ namespace TimeChip_App
         public TimeSpan Überstunden { get { return GetTimeSpans(false); }set { m_tbxÜberstunden.Text = Stundenrunder(value); } }
         public TimeSpan Urlaub { get { return GetTimeSpans(true); } set { m_tbxUrlaub.Text = Stundenrunder(value); } }
 
+        /// <summary>
+        /// Verändert Werte, wie den Titel des Forms um dieses auf das Bearbeiten eines Mitarbeiters vorzubereiten
+        /// </summary>
+        /// <param name="Bearbeitender"></param>
         public void Bearbeiten(ClsMitarbeiter Bearbeitender)
         {
             m_bearbeiten = true;
@@ -55,6 +59,11 @@ namespace TimeChip_App
             if(m_fingerprintRFID.RFIDUID != "NaN") { m_card = true; }
         }
 
+        /// <summary>
+        /// Stellt eine Zeitspanne rein mit Stunden anstelle von Tagen dar. Zb.: 1 Tag 5h 25 min --> 29:25
+        /// </summary>
+        /// <param name="Zeit">Darzustellende Zeitspanne</param>
+        /// <returns>Umgewandelte Zeitspanne als String</returns>
         private string Stundenrunder(TimeSpan Zeit)
         {
             string result = Convert.ToInt32(Math.Round(Math.Abs(Zeit.TotalHours) - 0.49, 0, MidpointRounding.AwayFromZero)).ToString("D2") + ":" + Math.Abs(Zeit.Minutes).ToString("D2");
@@ -67,6 +76,9 @@ namespace TimeChip_App
             return result;
         }
 
+        /// <summary>
+        /// Verändert Werte, wie den Titel des Forms um dieses auf das Erstellen eines neuen Mitarbeiters vorzubereiten
+        /// </summary>
         public void Neu()
         {
             m_lblTitel.Text = "Neuer:e Mitarbeiter:in";
@@ -77,6 +89,11 @@ namespace TimeChip_App
             m_bearbeiten = false;
         }
 
+        /// <summary>
+        /// Liest den Urlaub und die Überstunden des Mitarbeiters aus
+        /// </summary>
+        /// <param name="which">true = Urlaub; false = Überstunden</param>
+        /// <returns></returns>
         private TimeSpan GetTimeSpans(bool which)
         {
             string[] teile;
@@ -106,6 +123,9 @@ namespace TimeChip_App
             return result;
         }
 
+        /// <summary>
+        /// Wählt eine neue Mitarbeiternummer, für einen neuen Mitarbeiter, die möglichst niedrig und noch nicht belegt ist
+        /// </summary>
         private void SetMitarbeiternummer()
         {
             List<ClsFingerprintRFID> list = DataProvider.SelectAllFingerprintRFID();
