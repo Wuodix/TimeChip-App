@@ -85,16 +85,20 @@ jobs:
 
     # Create the app package by building and packaging the Windows Application Packaging project
     - name: Create the app package
-      run: msbuild $env:Wap_Project_Path /p:Configuration=$env:Configuration /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }} /p:AppxBundle=$env:Appx_Bundle /p:SignAssembly=true /p:AssemblyOriginatorKeyFile=GitHubActionsWorkflow.snk /p:AppxBundlePlatforms=$env:Appx_Bundle_Platforms
+      run: msbuild $env:Wap_Project_Path /p:Configuration=$env:Configuration /p:PackageCertificateKeyFile=GitHubActionsWorkflowpfx.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }} /p:AppxBundle=$env:Appx_Bundle /p:SignAssembly=true /p:AssemblyOriginatorKeyFile=GitHubActionsWorkflow.snk /p:AppxBundlePlatforms=$env:Appx_Bundle_Platforms
       env:
         Appx_Bundle: Always
         Appx_Bundle_Platforms: x86
         Appx_Package_Build_Mode: StoreUpload
         Configuration: ${{ matrix.configuration }}
 
+    # Remove the snk
+    - name: Remove the snk
+      run: Remove-Item -path $env:Wap_Project_Directory\GitHubActionsWorkflow.snk
+
     # Remove the pfx
     - name: Remove the pfx
-      run: Remove-Item -path $env:Wap_Project_Directory\GitHubActionsWorkflow.pfx
+      run: Remove-Item -path $env:Wap_Project_Directory\GitHubActionsWorkflowpfx.pfx
 
     # Upload the MSIX package: https://github.com/marketplace/actions/upload-a-build-artifact
     - name: Upload build artifacts
