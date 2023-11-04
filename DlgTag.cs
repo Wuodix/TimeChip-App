@@ -15,6 +15,22 @@ namespace TimeChip_App
             m_lbxTage.DataSource = m_tagesliste;
 
             UpdateTagesListe();
+
+            m_lbxTage.TabIndex = 1;
+            m_tbxName.TabIndex = 2;
+            m_dtpArbeitsbeginn.TabIndex = 3;
+            m_dtpArbeitsende.TabIndex = 4;
+            m_cbPause.TabIndex = 5;
+            m_dtpPausenbeginn.TabIndex = 6;
+            m_dtpPausenende.TabIndex = 7;
+            m_dtpArbeitszeit.TabIndex = 8;
+            m_dtpPausendauer.TabIndex = 9;
+            m_btnAktualisieren.TabIndex = 10;
+            m_btnNeu.TabIndex = 11;
+            m_btnErstellen.TabIndex = 12;
+            m_btnLöschen.TabIndex = 13;
+            m_btnOK.TabIndex = 14;
+            m_btnAbbrechen.TabIndex = 15;
         }
 
         public static BindingList<ClsTag> Tagesliste { get { return m_tagesliste; } set { m_tagesliste = value; } }

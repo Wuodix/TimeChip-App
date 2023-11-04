@@ -24,10 +24,6 @@ namespace TimeChip_App
                 MessageBox.Show(Settings.Default.Server);
             }
 
-            MessageBox.Show(ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath);
-            MessageBox.Show(ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoaming).FilePath);
-            MessageBox.Show(ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).FilePath);
-
             try
             {
                 DataProvider.GetConnectionString();

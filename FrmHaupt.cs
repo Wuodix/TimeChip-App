@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using TimeChip_App.Properties;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace TimeChip_App
 {
@@ -46,6 +47,24 @@ namespace TimeChip_App
             {
             
             }
+
+            m_btnSettings.TabIndex = 1;
+            m_btnPrint.TabIndex = 2;
+            m_btnarbeitszeitprofil.TabIndex = 3;
+            m_btnNeuerMitarbeiter.TabIndex = 4;
+            m_btnBearbeiten.TabIndex = 5;
+            m_btnLöschen.TabIndex = 6;
+            m_lbxMitarbeiter.TabIndex = 7;
+            m_btnRefresh.TabIndex = 8;
+            m_btnNeueBuchung.TabIndex = 9;
+            m_btnBuchungBearbeiten.TabIndex = 10;
+            m_btnBuchungLöschen.TabIndex = 11;
+            m_lbxBuchungen.TabIndex = 12;
+            m_cldKalender.TabIndex = 13;
+            m_btnSchule.TabIndex = 14;
+            m_btnKrank.TabIndex = 15;
+            m_btnUnentschuldigt.TabIndex = 16;
+            m_btnUrlaub.TabIndex = 17;
         }
 
         static void ExceptionHandler(object sender, UnhandledExceptionEventArgs e)
@@ -61,7 +80,22 @@ namespace TimeChip_App
             neu.Neu();
             if (neu.ShowDialog() == DialogResult.OK)
             {
-                DataProvider.InsertMitarbeiter(neu.Mitarbeiternummer,neu.Vorname, neu.Nachname, neu.Arbeitsbeginn, neu.Überstunden, neu.Arbeitzeitprofil, neu.Urlaub);
+                ClsMitarbeiter mtbtr = DataProvider.InsertMitarbeiter(neu.Mitarbeiternummer,neu.Vorname, neu.Nachname, neu.Arbeitsbeginn, neu.Überstunden, neu.Arbeitzeitprofil, neu.Urlaub);
+
+                DateTime compare = neu.Arbeitsbeginn;
+                List<DateTime> Tage = new List<DateTime>();
+                //Es werden alle Tage gesucht, die berechnet werden müssen
+                while (compare.CompareTo(DateTime.Now.Date) < 0)
+                {
+                    Tage.Add(compare);
+                    compare = compare.AddDays(1);
+                }
+
+                foreach(DateTime tag in Tage)
+                {
+                    ClsBerechnung.Berechnen(tag, ref mtbtr, true);
+                }
+
                 UpdateMtbtrList();
                 UpdateLbxBuchungen();
             }
@@ -592,7 +626,7 @@ namespace TimeChip_App
             return date.Day.ToString();
         }
 
-        private void Settings_Click(object sender, EventArgs e)
+        private void BtnSettings_Click(object sender, EventArgs e)
         {
             DlgSettings settings = new DlgSettings();
 

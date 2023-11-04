@@ -39,6 +39,15 @@ namespace TimeChip_App
             m_tbxPass.Text = m_connectionString[7];
 
             m_dtpBerechnungsdate.Value = DataProvider.ReadBerechnungsdate().Date;
+
+
+            m_tbxIP.TabIndex = 1;
+            m_tbxDatabase.TabIndex = 2;
+            m_tbxUID.TabIndex = 3;
+            m_tbxPass.TabIndex = 4;
+            m_dtpBerechnungsdate.TabIndex = 5;
+            m_btnOK.TabIndex = 6;
+            m_btnCancel.TabIndex = 7;
         }
 
         public string IP { get { return m_tbxIP.Text; } }
