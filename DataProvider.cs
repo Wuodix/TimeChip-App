@@ -1210,7 +1210,7 @@ namespace TimeChip_App
         /// Führt einen MySqlCommand in der Datenbank aus
         /// </summary>
         /// <param name="cmd"></param>
-        /// <returns>Die anzahl der veränderten Datensätze in der Datenbank</returns>
+        /// <returns>Die Anzahl der veränderten Datensätze in der Datenbank</returns>
         public static int ExecuteNonQuery(MySqlCommand cmd)
         {
             int result = 0;

@@ -58,7 +58,7 @@ namespace TimeChip_App
             this.label1 = new System.Windows.Forms.Label();
             this.m_lblTagesstatus = new System.Windows.Forms.Label();
             this.m_btnPrint = new System.Windows.Forms.Button();
-            this.m_Settings = new System.Windows.Forms.Button();
+            this.m_btnSettings = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.SuspendLayout();
@@ -415,24 +415,24 @@ namespace TimeChip_App
             this.m_btnPrint.UseVisualStyleBackColor = true;
             this.m_btnPrint.Click += new System.EventHandler(this.BtnPrint_Click);
             // 
-            // m_Settings
-            //
-            this.m_Settings.BackgroundImage = global::TimeChip_App.Properties.Resources.Zahnrad;
-            this.m_Settings.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.m_Settings.Location = new System.Drawing.Point(6, 2);
-            this.m_Settings.Name = "m_Settings";
-            this.m_Settings.Size = new System.Drawing.Size(30, 30);
-            this.m_Settings.TabIndex = 19;
-            this.m_Settings.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-            this.m_Settings.UseVisualStyleBackColor = false;
-            this.m_Settings.Click += new System.EventHandler(this.Settings_Click);
+            // m_btnSettings
+            // 
+            this.m_btnSettings.BackgroundImage = global::TimeChip_App.Properties.Resources.Zahnrad;
+            this.m_btnSettings.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.m_btnSettings.Location = new System.Drawing.Point(6, 2);
+            this.m_btnSettings.Name = "m_btnSettings";
+            this.m_btnSettings.Size = new System.Drawing.Size(30, 30);
+            this.m_btnSettings.TabIndex = 19;
+            this.m_btnSettings.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.m_btnSettings.UseVisualStyleBackColor = false;
+            this.m_btnSettings.Click += new System.EventHandler(this.BtnSettings_Click);
             // 
             // FrmHaupt
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(891, 464);
-            this.Controls.Add(this.m_Settings);
+            this.Controls.Add(this.m_btnSettings);
             this.Controls.Add(this.m_btnPrint);
             this.Controls.Add(this.tableLayoutPanel2);
             this.Controls.Add(this.m_btnKrank);
@@ -495,7 +495,7 @@ namespace TimeChip_App
         private System.Windows.Forms.Label m_lblÜberstunden;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Button m_btnPrint;
-        private System.Windows.Forms.Button m_Settings;
+        private System.Windows.Forms.Button m_btnSettings;
     }
 }
 

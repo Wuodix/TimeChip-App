@@ -21,6 +21,24 @@ namespace TimeChip_App
             {
                 m_lbxArbeitszeitprofile.SelectedIndex = 0;
             }
+
+            m_lbxArbeitszeitprofile.TabIndex = 1;
+            m_tbxName.TabIndex = 2;
+            m_cmbxMontag.TabIndex = 3;
+            m_cmbxDienstag.TabIndex = 4;
+            m_cmbxMittwoch.TabIndex = 5;
+            m_cmbxDonnerstag.TabIndex = 6;
+            m_cmbxFreitag.TabIndex = 7;
+            m_cmbxSamstag.TabIndex = 8;
+            m_cmbxSonntag.TabIndex = 9;
+            m_cbGleitzeit.TabIndex = 10;
+            m_btnAktualisieren.TabIndex = 11;
+            m_btnNeu.TabIndex = 12;
+            m_btnErstellen.TabIndex = 13;
+            m_btnLöschen.TabIndex = 14;
+            m_btnTage.TabIndex = 15;
+            m_btnOK.TabIndex = 16;
+            m_btnAbbrechen.TabIndex = 17;
         }
 
         public static BindingList<ClsArbeitsprofil> ArbeitsprofilListe { get { return m_arbeitsprofilliste; } set { m_arbeitsprofilliste = value; } }

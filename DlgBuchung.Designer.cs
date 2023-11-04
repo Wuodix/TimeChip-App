@@ -74,7 +74,7 @@ namespace TimeChip_App
             this.m_cmbxMitarbeiter.Margin = new System.Windows.Forms.Padding(2);
             this.m_cmbxMitarbeiter.Name = "m_cmbxMitarbeiter";
             this.m_cmbxMitarbeiter.Size = new System.Drawing.Size(194, 21);
-            this.m_cmbxMitarbeiter.TabIndex = 5;
+            this.m_cmbxMitarbeiter.TabIndex = 4;
             // 
             // m_dtpTime
             // 
@@ -85,7 +85,7 @@ namespace TimeChip_App
             this.m_dtpTime.Name = "m_dtpTime";
             this.m_dtpTime.ShowUpDown = true;
             this.m_dtpTime.Size = new System.Drawing.Size(69, 20);
-            this.m_dtpTime.TabIndex = 7;
+            this.m_dtpTime.TabIndex = 1;
             // 
             // label5
             // 
@@ -107,7 +107,7 @@ namespace TimeChip_App
             this.m_btnOK.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnOK.Name = "m_btnOK";
             this.m_btnOK.Size = new System.Drawing.Size(126, 38);
-            this.m_btnOK.TabIndex = 9;
+            this.m_btnOK.TabIndex = 5;
             this.m_btnOK.Text = "Erstellen";
             this.m_btnOK.UseVisualStyleBackColor = true;
             // 
@@ -119,7 +119,7 @@ namespace TimeChip_App
             this.m_btnCancel.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnCancel.Name = "m_btnCancel";
             this.m_btnCancel.Size = new System.Drawing.Size(128, 38);
-            this.m_btnCancel.TabIndex = 10;
+            this.m_btnCancel.TabIndex = 6;
             this.m_btnCancel.Text = "Abbrechen";
             this.m_btnCancel.UseVisualStyleBackColor = true;
             // 
@@ -129,7 +129,7 @@ namespace TimeChip_App
             this.m_dtpDate.Margin = new System.Windows.Forms.Padding(2);
             this.m_dtpDate.Name = "m_dtpDate";
             this.m_dtpDate.Size = new System.Drawing.Size(192, 20);
-            this.m_dtpDate.TabIndex = 13;
+            this.m_dtpDate.TabIndex = 2;
             // 
             // label1
             // 
@@ -150,7 +150,7 @@ namespace TimeChip_App
             this.m_cmbxBTyp.Margin = new System.Windows.Forms.Padding(2);
             this.m_cmbxBTyp.Name = "m_cmbxBTyp";
             this.m_cmbxBTyp.Size = new System.Drawing.Size(194, 21);
-            this.m_cmbxBTyp.TabIndex = 14;
+            this.m_cmbxBTyp.TabIndex = 3;
             // 
             // clsArbeitsprofilBindingSource
             // 
@@ -174,7 +174,7 @@ namespace TimeChip_App
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "DlgBuchung";
-            this.Text = "s";
+            this.Text = "Neue Buchung";
             ((System.ComponentModel.ISupportInitialize)(this.clsArbeitsprofilBindingSource)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

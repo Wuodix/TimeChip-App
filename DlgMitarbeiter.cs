@@ -19,6 +19,17 @@ namespace TimeChip_App
 
             m_cmbxAProfil.Items.Clear();
             m_cmbxAProfil.Items.AddRange(DlgArbeitszeitprofile.ArbeitsprofilListe.ToArray());
+
+            m_tbxVorname.TabIndex = 1;
+            m_tbxNachname.TabIndex = 2;
+            m_tbxÜberstunden.TabIndex = 3;
+            m_tbxUrlaub.TabIndex = 4;
+            m_cmbxAProfil.TabIndex = 5;
+            m_dtpArbeitsb.TabIndex = 6;
+            m_btnAddFinger.TabIndex = 7;
+            m_btnAddCard.TabIndex = 8;
+            m_btnOK.TabIndex = 9;
+            m_btnCancel.TabIndex = 10;
         }
 
         public string Vorname { get { return m_tbxVorname.Text; } set { m_tbxVorname.Text = value; } }

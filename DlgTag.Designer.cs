@@ -339,7 +339,7 @@ namespace TimeChip_App
             this.m_lbxTage.Margin = new System.Windows.Forms.Padding(2);
             this.m_lbxTage.Name = "m_lbxTage";
             this.m_lbxTage.Size = new System.Drawing.Size(134, 368);
-            this.m_lbxTage.TabIndex = 24;
+            this.m_lbxTage.TabIndex = 1;
             this.m_lbxTage.SelectedIndexChanged += new System.EventHandler(this.LbxTage_SelectedIndexChanged);
             // 
             // m_btnAktualisieren

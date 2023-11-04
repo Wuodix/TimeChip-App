@@ -17,6 +17,13 @@ namespace TimeChip_App
             m_cmbxBTyp.Items.Clear();
             m_cmbxBTyp.Items.Add(Buchungstyp.Kommen);
             m_cmbxBTyp.Items.Add(Buchungstyp.Gehen);
+
+            m_dtpTime.TabIndex = 1;
+            m_dtpDate.TabIndex = 2;
+            m_cmbxBTyp.TabIndex = 3;
+            m_cmbxMitarbeiter.TabIndex = 4;
+            m_btnOK.TabIndex = 5;
+            m_btnCancel.TabIndex = 6;
         }
 
         public Buchungstyp Buchungstyp { get { return IndexToBuchungstyp(m_cmbxBTyp.SelectedIndex); } set { m_cmbxBTyp.SelectedItem = value; } }
