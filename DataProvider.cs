@@ -575,7 +575,7 @@ namespace TimeChip_App
         }
 
         /// <summary>
-        /// Ruft alle ausgewerteten Tage vom Mitarbeiter mit Mitarbeiternr zwischen startdate und enddate ab
+        /// Ruft alle ausgewerteten Tage vom Mitarbeiter mit Mitarbeiternr zwischen startdate und enddate ab einschließlich dem startdate und dem enddate
         /// </summary>
         /// <param name="startdate"></param>
         /// <param name="enddate"></param>

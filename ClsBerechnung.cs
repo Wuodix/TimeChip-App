@@ -67,6 +67,25 @@ namespace TimeChip_App
         }
 
         /// <summary>
+        /// Berechnet die Tage von einem Mitarbeiter, die sich in einer festgelegten Zeitspanne befinden
+        /// *TODO*
+        /// Funktion effizienter schreiben, dass (so wie beim normalen bearbeiten) die ausgewerteten Tage nachher in einem geupdatet werden und nicht alle extra
+        /// *TODO*
+        /// </summary>
+        /// <param name="startdate">Der erste zu berechnende Tag</param>
+        /// <param name="enddate">Der letzte zu berechnende Tag</param>
+        /// <param name="mtbtr">Der Mitarbeiter, dessen Tage berechnet werden müssen</param>
+        public static void Berechnen(DateTime startdate, DateTime enddate, ClsMitarbeiter mtbtr)
+        {
+            List<ClsAusgewerteter_Tag> tage = DataProvider.SelectAusgewerteteTage(startdate, enddate, mtbtr.Mitarbeiternummer);
+
+            for(DateTime date = startdate; date <= enddate;date = date.Add(new TimeSpan(1, 0, 0, 0)))
+            {
+                Berechnen(date, ref mtbtr, false);
+            }
+        }
+
+        /// <summary>
         /// Berechnet die Arbeitszeit und die Überstunden eines Mitarbeiters an einem bestimmten Tag und aktualisiert diese Daten gegebenenfalls in der Datenbank
         /// </summary>
         /// <param name="day">Der zu berechnende Tag</param>
