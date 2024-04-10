@@ -7,7 +7,7 @@ namespace TimeChip_App
         string m_printTemplate;
         public ClsPrintTemplate(string Mitarbeiter, string Monat)
         {
-            m_printTemplate = "<html><style>table, th, td {  border:1px solid black;border-collapse: collapse;}td{  text-align:center;}table{width:100%; margin:0;}</style>  <body><h1>" + Mitarbeiter + "</h1><h2>" + Monat + "</h2><table><tr><th>Tag</th><th>Buchungen</th><th>Soll</th><th>Ist</th><th>Status</th><th>Ueberstunden</th><th>Monat</th></tr>";
+            m_printTemplate = "<html><style>table, th, td {  border:1px solid black;border-collapse: collapse;}td{  text-align: center; font-size: 11px; height:25px }table{table-layout:fixed; width: 100%; margin:0;}</style>  <body><h1>" + Mitarbeiter + "</h1><h2>" + Monat + "</h2><table><tr><th style='width: 10%'>Tag</th><th>Buchungen</th><th style='width: 10%'>Soll</th><th style='width: 10%'>Ist</th><th style='width: 10%'>Status</th><th style='width: 15%'>Ueberstunden</th><th style='width: 10%'>Monat</th></tr>";
         }
 
         /// <summary>

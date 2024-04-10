@@ -7,6 +7,7 @@ using System.Linq;
 using System.Windows.Forms;
 using TimeChip_App.Properties;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Tab;
 
 namespace TimeChip_App
 {
@@ -91,10 +92,14 @@ namespace TimeChip_App
                     compare = compare.AddDays(1);
                 }
 
+                List<ClsAusgewerteter_Tag> ausgewerteteTage = new List<ClsAusgewerteter_Tag>();
                 foreach(DateTime tag in Tage)
                 {
-                    ClsBerechnung.Berechnen(tag, ref mtbtr, true);
+                    ausgewerteteTage.Add(ClsBerechnung.Berechnen(tag, ref mtbtr, true));
                 }
+                DataProvider.UpdateMitarbeiter(mtbtr);
+                DataProvider.InsertMultipleAusgewerteterTag(ausgewerteteTage);
+
 
                 UpdateMtbtrList();
                 UpdateLbxBuchungen();
@@ -116,6 +121,17 @@ namespace TimeChip_App
 
             if (Bearbeiten.ShowDialog() == DialogResult.OK)
             {
+                DateTime Einspieldatum = DateTime.Now;
+                if(zubearbeitender.Arbeitszeitprofil.ID != Bearbeiten.Arbeitzeitprofil.ID ||
+                    zubearbeitender.Überstunden != Bearbeiten.Überstunden)
+                {
+                    DlgEinspieldatum dlgEinspieldatum = new DlgEinspieldatum();
+                    if(dlgEinspieldatum.ShowDialog() == DialogResult.OK)
+                    {
+                        Einspieldatum = dlgEinspieldatum.Einspieldatum;
+                    }
+                }
+                
                 zubearbeitender.Vorname = Bearbeiten.Vorname;
                 zubearbeitender.Nachname = Bearbeiten.Nachname;
                 zubearbeitender.Arbeitsbeginn = Bearbeiten.Arbeitsbeginn;
@@ -124,9 +140,11 @@ namespace TimeChip_App
                 zubearbeitender.Urlaub = Bearbeiten.Urlaub;
                 zubearbeitender.Überstunden = Bearbeiten.Überstunden;
 
-                Debug.WriteLine("FrmHaupt Urlaub: " + zubearbeitender.Urlaub);
-
                 DataProvider.UpdateMitarbeiter(zubearbeitender);
+                if(Einspieldatum.CompareTo(DateTime.Now.Date) != 0)
+                {
+                    ClsBerechnung.Berechnen(Einspieldatum, DateTime.Now.Date.Subtract(new TimeSpan(1,0,0,0)), zubearbeitender);
+                }
                 UpdateMtbtrList();
                 UpdateDataView();
             }
@@ -498,10 +516,11 @@ namespace TimeChip_App
         {
             TimeSpan aktuelleÜberstunden = mtbtr.Überstunden;
             DateTime lastDayofMonth = new DateTime(date.Year, date.Month, DateTime.DaysInMonth(date.Year, date.Month));
-            for (DateTime today = DateTime.Today.Subtract(new TimeSpan(1,0,0,0)); today.CompareTo(lastDayofMonth) > 0; today = today.Subtract(new TimeSpan(1, 0, 0, 0)))
+            List<ClsAusgewerteter_Tag> days = DataProvider.SelectAusgewerteteTage(lastDayofMonth, DateTime.Today.Date, mtbtr.Mitarbeiternummer);
+
+            foreach(ClsAusgewerteter_Tag tag in days)
             {
-                ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(today, mtbtr.Mitarbeiternummer);
-                TimeSpan Üst = tag.Arbeitszeit - ClsBerechnung.GetSollArbeitszeit(today, mtbtr);
+                TimeSpan Üst = tag.Arbeitszeit - ClsBerechnung.GetSollArbeitszeit(tag.Date, mtbtr);
                 aktuelleÜberstunden = aktuelleÜberstunden.Subtract(Üst);
             }
 
