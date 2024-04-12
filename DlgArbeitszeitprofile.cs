@@ -1,127 +1,219 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Linq;
+using System.Web;
 using System.Windows.Forms;
 
 namespace TimeChip_App
 {
     public partial class DlgArbeitszeitprofile : Form
     {
-        static BindingList<ClsArbeitsprofil> m_arbeitsprofilliste = new BindingList<ClsArbeitsprofil>();
+        static List<ClsArbeitsprofil> m_arbeitsprofilliste = new List<ClsArbeitsprofil>();
+        private ClsTag m_kopierterTag = null;
         public DlgArbeitszeitprofile()
         {
             InitializeComponent();
 
-            m_lbxArbeitszeitprofile.DataSource = m_arbeitsprofilliste;
-
-            UpdateCMBX();
             UpdateAbzpList();
 
-            if(m_arbeitsprofilliste.Count > 0)
-            {
-                m_lbxArbeitszeitprofile.SelectedIndex = 0;
-            }
+            m_cmbxAbzp.SelectedItem = null;
 
-            m_lbxArbeitszeitprofile.TabIndex = 1;
-            m_tbxName.TabIndex = 2;
-            m_cmbxMontag.TabIndex = 3;
-            m_cmbxDienstag.TabIndex = 4;
-            m_cmbxMittwoch.TabIndex = 5;
-            m_cmbxDonnerstag.TabIndex = 6;
-            m_cmbxFreitag.TabIndex = 7;
-            m_cmbxSamstag.TabIndex = 8;
-            m_cmbxSonntag.TabIndex = 9;
-            m_cbGleitzeit.TabIndex = 10;
-            m_btnAktualisieren.TabIndex = 11;
-            m_btnNeu.TabIndex = 12;
-            m_btnErstellen.TabIndex = 13;
-            m_btnLöschen.TabIndex = 14;
-            m_btnTage.TabIndex = 15;
-            m_btnOK.TabIndex = 16;
-            m_btnAbbrechen.TabIndex = 17;
+
+            //*TODO*
+            //Tab Indexe für Controls in Tabelle festlegen
+            //*TODO*
         }
 
-        public static BindingList<ClsArbeitsprofil> ArbeitsprofilListe { get { return m_arbeitsprofilliste; } set { m_arbeitsprofilliste = value; } }
-
-        private void BtnTage_Click(object sender, EventArgs e)
-        {
-            DlgTag Tag = new DlgTag();
-            Tag.ShowDialog();
-            UpdateCMBX();
-        }
-
-        private void BtnAktualisieren_Click(object sender, EventArgs e)
-        {
-            ClsArbeitsprofil Aktualisieren = m_lbxArbeitszeitprofile.SelectedItem as ClsArbeitsprofil;
-
-            Aktualisieren.Name = m_tbxName.Text;
-            Aktualisieren.Montag = m_cmbxMontag.SelectedItem as ClsTag;
-            Aktualisieren.Dienstag = m_cmbxDienstag.SelectedItem as ClsTag;
-            Aktualisieren.Mittwoch = m_cmbxMittwoch.SelectedItem as ClsTag;
-            Aktualisieren.Donnerstag = m_cmbxDonnerstag.SelectedItem as ClsTag;
-            Aktualisieren.Freitag = m_cmbxFreitag.SelectedItem as ClsTag;
-            Aktualisieren.Samstag = m_cmbxSamstag.SelectedItem as ClsTag;
-            Aktualisieren.Sonntag = m_cmbxSonntag.SelectedItem as ClsTag;
-            Aktualisieren.Gleitzeit = m_cbGleitzeit.Checked;
-
-            DataProvider.UpdateArbeitszeitprofil(Aktualisieren);
-
-            UpdateAbzpList();
-        }
-
-        /// <summary>
-        /// Findet das Tag-Objekt aus der Tagesliste mit der gleichen ID wie tag
-        /// </summary>
-        /// <param name="tag"></param>
-        /// <returns>Falls gefunden das Tag-Objekt andernfalls null</returns>
-        private ClsTag FindTag(ClsTag tag)
-        {
-            foreach(ClsTag tag1 in DlgTag.Tagesliste)
-            {
-                if(tag.ID == tag1.ID)
-                {
-                    return tag1;
-                }
-            }
-
-            return null;
-        }
+        public static List<ClsArbeitsprofil> ArbeitsprofilListe { get { return m_arbeitsprofilliste; } set { m_arbeitsprofilliste = value; } }
 
         private void BtnNeu_Click(object sender, EventArgs e)
         {
-            m_tbxName.Text = "";
-            m_cmbxMontag.Text = "";
-            m_cmbxDienstag.Text = "";
-            m_cmbxMittwoch.Text = "";
-            m_cmbxDonnerstag.Text = "";
-            m_cmbxFreitag.Text = "";
-            m_cmbxSamstag.Text = "";
-            m_cmbxSonntag.Text = "";
-            m_cbGleitzeit.Checked = false;
+            ClearTable();
         }
 
-        private void BtnErstellen_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Aktualisiert das ausgewähle Abzp mit den neu eingegebenen Daten
+        /// </summary>
+        private void AbzpAktualisieren()
         {
-            DataProvider.InsertArbeitszeitprofil(m_tbxName.Text, m_cmbxMontag.SelectedItem as ClsTag,
-                m_cmbxDienstag.SelectedItem as ClsTag, m_cmbxMittwoch.SelectedItem as ClsTag,
-                m_cmbxDonnerstag.SelectedItem as ClsTag, m_cmbxFreitag.SelectedItem as ClsTag,
-                m_cmbxSamstag.SelectedItem as ClsTag, m_cmbxSonntag.SelectedItem as ClsTag, m_cbGleitzeit.Checked);
-            UpdateAbzpList();
+            ClsArbeitsprofil Aktualisieren = m_cmbxAbzp.SelectedItem as ClsArbeitsprofil;
 
-            m_tbxName.Text = "";
-            m_cmbxMontag.Text = "";
-            m_cmbxDienstag.Text = "";
-            m_cmbxMittwoch.Text = "";
-            m_cmbxDonnerstag.Text = "";
-            m_cmbxFreitag.Text = "";
-            m_cmbxSamstag.Text = "";
-            m_cmbxSonntag.Text = "";
+            Aktualisieren.Name = m_tbxName.Text;
+            Aktualisieren.Gleitzeit = m_cbGleitzeit.Checked;
+
+            List<ClsTag> Tagetemp = ReadalleTagevonTabelle();
+            List<ClsTag> abzpTage = new List<ClsTag>
+            {
+                Aktualisieren.Montag,
+                Aktualisieren.Dienstag,
+                Aktualisieren.Mittwoch,
+                Aktualisieren.Donnerstag,
+                Aktualisieren.Freitag,
+                Aktualisieren.Samstag,
+                Aktualisieren.Sonntag
+            };
+
+            List<ClsTag[]> GleicheTage = new List<ClsTag[]>();
+            List<ClsTag> ZulöschendeTage= new List<ClsTag>();
+
+            for(int i = 0; i < Tagetemp.Count; i++)
+            {
+                if (CompareDays(Tagetemp[i], abzpTage[i]))
+                {
+                    GleicheTage.Add(new ClsTag[] { Tagetemp[i], abzpTage[i] });
+                }
+                else
+                {
+                    ZulöschendeTage.Add(abzpTage[i]);
+                    GleicheTage.Add(new ClsTag[] { null, null });
+                }
+            }
+
+            for(int i = 0 ; i < 7 ; i++)
+            {
+                ClsTag tag;
+                if (GleicheTage[i][0] == null)
+                {
+                    tag = DataProvider.InsertTag(Tagetemp[i]);
+                }
+                else
+                {
+                    tag = abzpTage[i];
+                }
+
+                switch (i)
+                {
+                    case 0 :
+                        Aktualisieren.Montag = tag; break;
+                    case 1 :
+                        Aktualisieren.Dienstag = tag; break;
+                    case 2 :
+                        Aktualisieren.Mittwoch = tag; break;
+                    case 3:
+                        Aktualisieren.Donnerstag = tag; break;
+                    case 4 :
+                        Aktualisieren.Freitag = tag; break;
+                    case 5 :
+                        Aktualisieren.Samstag = tag; break;
+                    case 6:
+                        Aktualisieren.Sonntag = tag; break;
+                }
+            }
+
+            DataProvider.UpdateArbeitszeitprofil(Aktualisieren);
+
+            foreach (ClsTag tag in ZulöschendeTage)
+            {
+                DataProvider.DeleteTag(tag);
+            }
+
+            UpdateAbzpList();
+            ClearTable();
+        }
+
+        private bool CompareDays(ClsTag x, ClsTag y)
+        {
+            bool gleich = false;
+
+            if(x.Arbeitsbeginn == y.Arbeitsbeginn && x.Arbeitsende == y.Arbeitsende && x.Arbeitszeit == y.Arbeitszeit && x.Pause == y.Pause &&
+                x.Pausenbeginn == y.Pausenbeginn && x.Pausenende == y.Pausenende && x.Pausendauer == y.Pausendauer)
+            {
+                gleich = true;
+            }
+            return gleich;
+        }
+
+        private void BtnSpeichern_Click(object sender, EventArgs e)
+        {
+            if(m_cmbxAbzp.Text != string.Empty)
+            {
+                AbzpAktualisieren();
+                return;
+            }
+
+            List<ClsTag> Tagetemp = ReadalleTagevonTabelle();
+
+            List<ClsTag> Tage = new List<ClsTag>();
+            foreach(ClsTag t in Tagetemp)
+            {
+                Tage.Add(DataProvider.InsertTag(t.Arbeitsbeginn, t.Arbeitsende, t.Arbeitszeit, t.Pause, t.Pausenbeginn, t.Pausenende, t.Pausendauer));
+            }
+
+            DataProvider.InsertArbeitszeitprofil(m_tbxName.Text, Tage[0], Tage[1], Tage[2], Tage[3], Tage[4], Tage[5], Tage[6], m_cbGleitzeit.Checked);
+            UpdateAbzpList();
+            ClearTable();
+        }
+
+        /// <summary>
+        /// Liest alle eingegebenen Daten aus der Tabelle aus gibt sie als Liste aus Tagen zurück
+        /// </summary>
+        /// <returns>Die eingegebenen Daten als Liste aus Tagen</returns>
+        private List<ClsTag> ReadalleTagevonTabelle()
+        {
+            List<ClsTag> Tage = new List<ClsTag>();
+            for (int i = 1; i <= 7; i++)
+            {
+                Tage.Add(ReadTagvonTabelle(i));
+            }
+            return Tage;
+        }
+
+        /// <summary>
+        /// Liest einen einzelnen Tag aus der Tabelle aus
+        /// </summary>
+        /// <param name="Row">Die Zeile aus der der Tag ausgelesen werden soll (1-7)</param>
+        /// <returns>Der ausgelesene Tag</returns>
+        private ClsTag ReadTagvonTabelle(int Row)
+        {
+            List<TimeSpan> Werte = new List<TimeSpan>();
+
+            for(int i = 1; i<=7; i++)
+            {
+                if (i != 4)
+                {
+                    Werte.Add((m_tlpTabelle.GetControlFromPosition(i,Row) as DateTimePicker).Value.TimeOfDay);
+                }
+                else
+                {
+                    Werte.Add(new TimeSpan(0));
+                }
+            }
+
+            bool Pause = (m_tlpTabelle.GetControlFromPosition(4, Row) as CheckBox).Checked;
+
+            return new ClsTag(1, Werte[0], Werte[1], Werte[2], Pause, Werte[4], Werte[5], Werte[6]);
+        }
+
+        /// <summary>
+        /// Löscht alle eingegebenen Daten aus der Tabelle
+        /// </summary>
+        private void ClearTable()
+        {
+            for(int i = 1; i<=7; i++)
+            {
+                for(int j = 1;j<=7; j++)
+                {
+                    if(j != 4)
+                    {
+                        (m_tlpTabelle.GetControlFromPosition(j, i) as DateTimePicker).Value = DateTime.Today;
+                    }
+                    else
+                    {
+                        (m_tlpTabelle.GetControlFromPosition(j, i) as CheckBox).Checked = false;
+                    }
+                }
+            }
+
+            m_cmbxAbzp.Text = string.Empty;
             m_cbGleitzeit.Checked = false;
+            m_tbxName.Text = string.Empty;
         }
 
         private void BtnLöschen_Click(object sender, EventArgs e)
         {
-            ClsArbeitsprofil abzp = m_lbxArbeitszeitprofile.SelectedItem as ClsArbeitsprofil;
+            ClsArbeitsprofil abzp = m_cmbxAbzp.SelectedItem as ClsArbeitsprofil;
             List<ClsMitarbeiter> mtbtrs = DataProvider.SelectAllMitarbeiter();
 
             bool fehler = false;
@@ -155,57 +247,98 @@ namespace TimeChip_App
             {
                 m_arbeitsprofilliste.Add(abzp);
             }
-
-            m_arbeitsprofilliste.ResetBindings();
+            UpdateAbzpCmbx();
         }
 
         /// <summary>
-        /// Aktualisiert die ComboBoxen aus denen man die einzelnen Tage für die Wochentage auswählen kann.
+        /// Aktualisiert die Objekte in der Combobox, mit der man die erstellten Arbeitszeitprofile zur Bearbeitung auswählen kann
         /// </summary>
-        private void UpdateCMBX()
+        private void UpdateAbzpCmbx()
         {
-            m_cmbxMontag.Items.Clear();
-            m_cmbxDienstag.Items.Clear();
-            m_cmbxMittwoch.Items.Clear();
-            m_cmbxDonnerstag.Items.Clear();
-            m_cmbxFreitag.Items.Clear();
-            m_cmbxSamstag.Items.Clear();
-            m_cmbxSonntag.Items.Clear();
-
-            for (int i = 0; i < DlgTag.Tagesliste.Count; i++)
+            m_cmbxAbzp.Items.Clear();
+            foreach(ClsArbeitsprofil abzp in m_arbeitsprofilliste)
             {
-                m_cmbxMontag.Items.Add(DlgTag.Tagesliste[i]);
-                m_cmbxDienstag.Items.Add(DlgTag.Tagesliste[i]);
-                m_cmbxMittwoch.Items.Add(DlgTag.Tagesliste[i]);
-                m_cmbxDonnerstag.Items.Add(DlgTag.Tagesliste[i]);
-                m_cmbxFreitag.Items.Add(DlgTag.Tagesliste[i]);
-                m_cmbxSamstag.Items.Add(DlgTag.Tagesliste[i]);
-                m_cmbxSonntag.Items.Add(DlgTag.Tagesliste[i]);
+                m_cmbxAbzp.Items.Add(abzp);
             }
         }
 
         /// <summary>
-        /// Aktualisiert die Daten in den Feldern für die Anzeige des ausgewählten Arbeitszeitprofils, sollte ein neues ausgewählt werden
+        /// Aktualisiert die Daten in den Feldern der Tabelle um das ausgewählte Abzp anzeigen zu können, sollte ein neues ausgewählt werden
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void LbxArbeitszeitprofile_SelectedIndexChanged(object sender, EventArgs e)
+        private void CmbxAbzp_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if(m_arbeitsprofilliste.Count >0)
+            if(m_arbeitsprofilliste.Count > 0 && m_cmbxAbzp.SelectedItem != null)
             {
-                ClsArbeitsprofil Auswählen = m_lbxArbeitszeitprofile.SelectedItem as ClsArbeitsprofil;
+                ClsArbeitsprofil auswählen = m_cmbxAbzp.SelectedItem as ClsArbeitsprofil;
 
-                m_tbxName.Text = Auswählen.Name;
-
-                m_cmbxMontag.SelectedItem = FindTag(Auswählen.Montag);
-                m_cmbxDienstag.SelectedItem = FindTag(Auswählen.Dienstag);
-                m_cmbxMittwoch.SelectedItem = FindTag(Auswählen.Mittwoch);
-                m_cmbxDonnerstag.SelectedItem = FindTag(Auswählen.Donnerstag);
-                m_cmbxFreitag.SelectedItem = FindTag(Auswählen.Freitag);
-                m_cmbxSamstag.SelectedItem = FindTag(Auswählen.Samstag);
-                m_cmbxSonntag.SelectedItem = FindTag(Auswählen.Sonntag);
-                m_cbGleitzeit.Checked = Auswählen.Gleitzeit;
+                FillTable(auswählen);
             }
+        }
+
+        /// <summary>
+        /// Füllt die ganze Tabelle mit den Daten eines Arbeitszeitprofils
+        /// </summary>
+        /// <param name="abzp">Das Arbeitszeitprofil, das in die Tabelle geladen werden soll</param>
+        private void FillTable(ClsArbeitsprofil abzp)
+        {
+            m_tbxName.Text = abzp.Name;
+            m_cbGleitzeit.Checked = abzp.Gleitzeit;
+
+            FillLineinTable(abzp.Montag, 1);
+            FillLineinTable(abzp.Dienstag, 2);
+            FillLineinTable(abzp.Mittwoch, 3);
+            FillLineinTable(abzp.Donnerstag, 4);
+            FillLineinTable(abzp.Freitag, 5);
+            FillLineinTable(abzp.Samstag, 6);
+            FillLineinTable(abzp.Sonntag, 7);
+        }
+
+        /// <summary>
+        /// Füllt eine Zeile in der darstellenden Tabelle mit den Daten eines Tages
+        /// </summary>
+        /// <param name="tag">Der Tag dessen Daten eingetragen werden sollen</param>
+        /// <param name="Zeile">Der Wochentag in den die Daten eingetragen werden sollen. 1 = Montag, 2 = Dienstag...</param>
+        private void FillLineinTable(ClsTag tag, int Zeile)
+        {
+            for(int i = 1; i <= 7; i++)
+            {
+
+                Control control = m_tlpTabelle.GetControlFromPosition(i, Zeile);
+                switch (i)
+                {
+                    case 1:
+                        (control as DateTimePicker).Value = DateTime.Today.Add(tag.Arbeitsbeginn); break;
+                    case 2:
+                        (control as DateTimePicker).Value = DateTime.Today.Add(tag.Arbeitsende); break;
+                    case 3:
+                        (control as DateTimePicker).Value = DateTime.Today.Add(tag.Arbeitszeit); break;
+                    case 4:
+                        (control as CheckBox).Checked = tag.Pause; break;
+                    case 5:
+                        (control as DateTimePicker).Value = DateTime.Today.Add(tag.Pausenbeginn); break;
+                    case 6:
+                        (control as DateTimePicker).Value = DateTime.Today.Add(tag.Pausenende); break;
+                    case 7:
+                        (control as DateTimePicker).Value = DateTime.Today.Add(tag.Pausendauer); break;
+                }
+            }
+        }
+
+        private void BtnCopy_Click(object sender, EventArgs e)
+        {
+            int Reihe = m_tlpTabelle.GetPositionFromControl((sender as Button).Parent as Control).Row;
+
+            m_kopierterTag = ReadTagvonTabelle(Reihe);
+        }
+
+        private void BtnPaste_Click(object sender, EventArgs e)
+        {
+            if(m_kopierterTag == null) return;
+            int Reihe = m_tlpTabelle.GetPositionFromControl((sender as Button).Parent as Control).Row;
+
+            FillLineinTable(m_kopierterTag, Reihe);
         }
     }
 }

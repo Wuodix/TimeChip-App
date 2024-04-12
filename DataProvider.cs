@@ -83,6 +83,16 @@ namespace TimeChip_App
             ExecuteNonQuery(cmd);
             ExecuteNonQuery(query1);
         }
+
+        /// <summary>
+        /// Hilfe um bereits erstellten Tag mit zufälliger ID in die Datenbank einfach einfügen zu können
+        /// </summary>
+        /// <param name="tag">Der einzufügende Tag</param>
+        /// <returns>Der eingefügte Tag mit der richtigen von der Datenbank zugewiesenen ID</returns>
+        public static ClsTag InsertTag(ClsTag tag)
+        {
+            return InsertTag(tag.Arbeitsbeginn, tag.Arbeitsende, tag.Arbeitszeit, tag.Pause, tag.Pausenbeginn, tag.Pausenende, tag.Pausendauer);
+        }
         /// <summary>
         /// Fügt einen Tag in die Datenbank ein
         /// </summary>
@@ -95,14 +105,13 @@ namespace TimeChip_App
         /// <param name="pausendauer"></param>
         /// <param name="pause"></param>
         /// <returns>Der eingefügte Tag als ClsTag-Objekt</returns>
-        public static ClsTag InsertTag(string name, TimeSpan arbeitsbeginn, TimeSpan arbeitsende, TimeSpan arbeitszeit, TimeSpan pausenbeginn, TimeSpan pausenende, TimeSpan pausendauer, bool pause)
+        public static ClsTag InsertTag(TimeSpan arbeitsbeginn, TimeSpan arbeitsende, TimeSpan arbeitszeit, bool pause, TimeSpan pausenbeginn, TimeSpan pausenende, TimeSpan pausendauer)
         {
-            string query = "INSERT INTO tage (Name, Arbeitsbeginn, Arbeitsende, Arbeitszeit, Pausenbeginn, Pausenende, Pausendauer, Pause) VALUES (@name,  @abbeginn, " +
+            string query = "INSERT INTO tage (Arbeitsbeginn, Arbeitsende, Arbeitszeit, Pausenbeginn, Pausenende, Pausendauer, Pause) VALUES (@abbeginn, " +
                 "@abende, @abzeit, @pbeginn, @pende, @pdauer, @pause)";
 
-            
+
             MySqlCommand cmd = new MySqlCommand(query);
-            cmd.Parameters.AddWithValue("name", name);
             cmd.Parameters.AddWithValue("abbeginn", arbeitsbeginn);
             cmd.Parameters.AddWithValue("abende", arbeitsende);
             cmd.Parameters.AddWithValue("abzeit", arbeitszeit);
@@ -113,7 +122,7 @@ namespace TimeChip_App
             
             ExecuteNonQuery(cmd);
 
-            return new ClsTag(SelectAllTage().Last().ID, name, pause, arbeitsbeginn, arbeitsende, pausenbeginn, pausenende, arbeitszeit, pausendauer);
+            return new ClsTag(SelectAllTage().Last().ID, arbeitsbeginn, arbeitsende, arbeitszeit, pause, pausenbeginn, pausenende, pausendauer);
         }
 
         /// <summary>
@@ -130,7 +139,7 @@ namespace TimeChip_App
         /// <param name="gleitzeit"></param>
         /// <returns>Das eingefügte Arbeitszeitprofil als ClsArbeitszeitprofil-Objekt</returns>
         public static ClsArbeitsprofil InsertArbeitszeitprofil(string name, ClsTag montag, ClsTag dienstag, ClsTag mittwoch, ClsTag donnerstag, ClsTag freitag, ClsTag samstag, ClsTag sonntag, bool gleitzeit)
-        {
+        {   
             string query = "INSERT INTO arbeitszeitprofile (Name, Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag, Sonntag, Gleitzeit)" +
                 "VALUES(@name, @montag, @dienstag, @mittwoch, @donnerstag, @freitag, @samstag, @sonntag, @gleitzeit)";
 
@@ -372,10 +381,10 @@ namespace TimeChip_App
 
                 while (reader.Read())
                 {
-                    ClsTag Tag = new ClsTag(reader.GetInt16("ID"), reader.GetString("Name"), reader.GetBoolean("Pause"), 
-                        reader.GetTimeSpan("Arbeitsbeginn"),
-                        reader.GetTimeSpan("Arbeitsende"), reader.GetTimeSpan("Pausenbeginn"),
-                        reader.GetTimeSpan("Pausenende"), reader.GetTimeSpan("Arbeitszeit"),
+                    ClsTag Tag = new ClsTag(reader.GetInt16("ID"), reader.GetTimeSpan("Arbeitsbeginn"),
+                        reader.GetTimeSpan("Arbeitsende"), reader.GetTimeSpan("Arbeitszeit"),
+                        reader.GetBoolean("Pause"),
+                        reader.GetTimeSpan("Pausenbeginn"), reader.GetTimeSpan("Pausenende"),
                         reader.GetTimeSpan("Pausendauer"));
                     list.Add(Tag);
                 }
@@ -649,7 +658,7 @@ namespace TimeChip_App
         {
             List<ClsBuchung> list = new List<ClsBuchung>();
 
-            string query = "SELECT * FROM buchungen WHERE ID=(SELECT max(ID) FROM buchungen)";
+            string query = "SELECT * FROM buchungen WHERE ID=(SELECT max(Buchungsnummer) FROM buchungen)";
 
             using (MySqlConnection conn = new MySqlConnection(m_connectionString))
             {
@@ -728,11 +737,10 @@ namespace TimeChip_App
         /// <returns>Die Anzahl veränderter Datensätze in der Datenbank</returns>
         public static int UpdateTag(ClsTag Tag)
         {
-            string query = "UPDATE tage SET Name=@name, Arbeitsbeginn=@abbeginn, Arbeitsende=@abende, Arbeitszeit=@abzeit, Pausenbeginn=@pbeginn, Pausenende=" +
+            string query = "UPDATE tage SET Arbeitsbeginn=@abbeginn, Arbeitsende=@abende, Arbeitszeit=@abzeit, Pausenbeginn=@pbeginn, Pausenende=" +
                 "@pende, Pausendauer=@pdauer, Pause=@pause WHERE ID=@id";
 
             MySqlCommand cmd = new MySqlCommand(query);
-            cmd.Parameters.AddWithValue("name", Tag.Name);
             cmd.Parameters.AddWithValue("abbeginn", Tag.Arbeitsbeginn);
             cmd.Parameters.AddWithValue("abende", Tag.Arbeitsende);
             cmd.Parameters.AddWithValue("abzeit", Tag.Arbeitszeit);

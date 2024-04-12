@@ -98,8 +98,11 @@ namespace TimeChip_App
                     ausgewerteteTage.Add(ClsBerechnung.Berechnen(tag, ref mtbtr, true));
                 }
                 DataProvider.UpdateMitarbeiter(mtbtr);
-                DataProvider.InsertMultipleAusgewerteterTag(ausgewerteteTage);
+                if(ausgewerteteTage.Count > 0)
+                {
+                    DataProvider.InsertMultipleAusgewerteterTag(ausgewerteteTage);
 
+                }
 
                 UpdateMtbtrList();
                 UpdateLbxBuchungen();
@@ -113,8 +116,6 @@ namespace TimeChip_App
             ClsMitarbeiter zubearbeitender = m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter;
             Bearbeiten.Bearbeiten(zubearbeitender);
 
-            Debug.WriteLine(zubearbeitender.Überstunden);
-
             List<ClsArbeitsprofil> clsArbeitsprofils = DlgArbeitszeitprofile.ArbeitsprofilListe.ToList();
             ClsArbeitsprofil arbeitsprofil = clsArbeitsprofils.FindLast(x => x.ID.Equals(zubearbeitender.Arbeitszeitprofil.ID));
             Bearbeiten.Arbeitzeitprofil = arbeitsprofil;
@@ -123,7 +124,8 @@ namespace TimeChip_App
             {
                 DateTime Einspieldatum = DateTime.Now;
                 if(zubearbeitender.Arbeitszeitprofil.ID != Bearbeiten.Arbeitzeitprofil.ID ||
-                    zubearbeitender.Überstunden != Bearbeiten.Überstunden)
+                    zubearbeitender.Überstunden != Bearbeiten.Überstunden || 
+                    zubearbeitender.Arbeitsbeginn != Bearbeiten.Arbeitsbeginn)
                 {
                     DlgEinspieldatum dlgEinspieldatum = new DlgEinspieldatum();
                     if(dlgEinspieldatum.ShowDialog() == DialogResult.OK)
@@ -201,6 +203,11 @@ namespace TimeChip_App
                 List<ClsBuchung> Buchungen = DataProvider.SelectAllBuchungenFromDay(m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter, m_cldKalender.SelectionStart, "buchungen");
 
                 //List<ClsBuchung> Buchungen2 = Buchungen.FindAll(x => x.Zeit.Date.Equals(m_cldKalender.SelectionStart));
+
+                Buchungen.Sort(delegate (ClsBuchung x, ClsBuchung y)
+                {
+                    return x.Zeit.CompareTo(y.Zeit);
+                });
 
                 m_buchungsliste.Clear();
                 foreach(ClsBuchung buchung in Buchungen)
@@ -551,7 +558,6 @@ namespace TimeChip_App
         private void PrintBrower_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
             m_druckzähler++;
-            Debug.WriteLine(m_druckzähler);
             if (m_druckzähler == 1)
             {
                 ((WebBrowser)sender).ShowPrintDialog();

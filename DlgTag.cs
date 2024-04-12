@@ -7,7 +7,7 @@ namespace TimeChip_App
 {
     public partial class DlgTag : Form
     {
-        static BindingList<ClsTag> m_tagesliste = new BindingList<ClsTag>();
+        static readonly BindingList<ClsTag> m_tagesliste = new BindingList<ClsTag>();
         public DlgTag()
         {
             InitializeComponent();
@@ -32,9 +32,6 @@ namespace TimeChip_App
             m_btnOK.TabIndex = 14;
             m_btnAbbrechen.TabIndex = 15;
         }
-
-        public static BindingList<ClsTag> Tagesliste { get { return m_tagesliste; } set { m_tagesliste = value; } }
-
         private void BtnNeu_Click(object sender, EventArgs e)
         {
             m_tbxName.Text = "";
@@ -87,7 +84,7 @@ namespace TimeChip_App
             TimeSpan arbeitszeit = m_dtpArbeitszeit.Value.TimeOfDay;
             TimeSpan pausendauer = m_dtpPausendauer.Value.TimeOfDay;
 
-            DataProvider.InsertTag(m_tbxName.Text, arbeitsbeginn, arbeitsende, arbeitszeit, pausenbeginn, pausenende, pausendauer, m_cbPause.Checked);
+            DataProvider.InsertTag(arbeitsbeginn, arbeitsende, arbeitszeit,m_cbPause.Checked, pausenbeginn, pausenende, pausendauer);
             UpdateTagesListe();
 
             m_tbxName.Text = "";
@@ -104,7 +101,6 @@ namespace TimeChip_App
         {
             ClsTag Aktualisieren = m_lbxTage.SelectedItem as ClsTag;
 
-            Aktualisieren.Name = m_tbxName.Text;
             Aktualisieren.Arbeitsbeginn = m_dtpArbeitsbeginn.Value.TimeOfDay;
             Aktualisieren.Arbeitsende = m_dtpArbeitsende.Value.TimeOfDay;
             Aktualisieren.Pausenbeginn = m_dtpPausenbeginn.Value.TimeOfDay;
@@ -141,7 +137,6 @@ namespace TimeChip_App
             {
                 ClsTag Auswählen = m_lbxTage.SelectedItem as ClsTag;
 
-                m_tbxName.Text = Auswählen.Name;
                 m_dtpArbeitsbeginn.Value = DateTime.Today.Add(Auswählen.Arbeitsbeginn);
                 m_dtpArbeitsende.Value = DateTime.Today.Add(Auswählen.Arbeitsende);
                 m_dtpPausenbeginn.Value = DateTime.Today.Add(Auswählen.Pausenbeginn);
