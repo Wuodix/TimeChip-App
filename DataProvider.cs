@@ -25,23 +25,20 @@ namespace TimeChip_App
         /// </summary>
         /// <param name="buchungstyp"></param>
         /// <param name="zeit"></param>
-        /// <param name="mitarbeiternr"></param>
+        /// <param name="MtbtrID"></param>
         /// <returns>Die eingefügte Buchung als ClsBuchungs-Objekt</returns>
-        public static ClsBuchung InsertBuchung(Buchungstyp buchungstyp, DateTime zeit, int mitarbeiternr)
+        public static ClsBuchung InsertBuchung(Buchungstyp buchungstyp, DateTime zeit, int MtbtrID)
         {
-            string query = "INSERT INTO `buchungen` (`Buchungstyp`, `Zeit`, `Mitarbeiternummer`) VALUES(@buchungst, @zeit, @mitarbeiternr)";
+            string query = "INSERT INTO `buchungen` (`Buchungstyp`, `Zeit`, `MtbtrID`) VALUES(@buchungst, @zeit, @mtbtrid)";
 
             MySqlCommand cmd = new MySqlCommand(query);
             cmd.Parameters.AddWithValue("buchungst", buchungstyp.ToString());
             cmd.Parameters.AddWithValue("zeit", zeit);
-            cmd.Parameters.AddWithValue("mitarbeiternr", mitarbeiternr);
+            cmd.Parameters.AddWithValue("mtbtrid", MtbtrID);
 
             ExecuteNonQuery(cmd);
 
-            List<ClsMitarbeiter> mtbtrs = SelectAllMitarbeiter();
-            ClsMitarbeiter mtbtr = mtbtrs.Find(x => x.Mitarbeiternummer.Equals(mitarbeiternr));
-
-            return new ClsBuchung(SelectLastBuchung().Buchungsnummer, mitarbeiternr, zeit, buchungstyp);
+            return new ClsBuchung(SelectLastBuchung().Buchungsnummer, MtbtrID, zeit, buchungstyp);
         }
 
         /// <summary>
@@ -50,7 +47,7 @@ namespace TimeChip_App
         /// <param name="buchungen">Die Liste der zu übertragenden Buchungen</param>
         public static void TransferBuchungs(List<ClsBuchung> buchungen)
         {
-            string query = "INSERT INTO `buchungen` (`Buchungstyp`, `Zeit`, `Mitarbeiternummer`) VALUES ";
+            string query = "INSERT INTO `buchungen` (`Buchungstyp`, `Zeit`, `MtbtrID`) VALUES ";
             string query1 = "DELETE FROM `buchungen_temp` WHERE Buchungsnummer IN (";
 
             int i = 0;
@@ -63,7 +60,7 @@ namespace TimeChip_App
                     query1 += ", ";
                 }
                 string paraname = "@zeit" + i;
-                query += "('" + buchung.Buchungstyp + "', " + paraname + ", '" + buchung.Mitarbeiternummer + "')";
+                query += "('" + buchung.Buchungstyp + "', " + paraname + ", '" + buchung.MtbtrID + "')";
                 query1 += buchung.Buchungsnummer;
 
                 i++;
@@ -165,7 +162,6 @@ namespace TimeChip_App
         /// <summary>
         /// Fügt einen Mitarbeiter in die Datenbank ein
         /// </summary>
-        /// <param name="mitarbeiternummer"></param>
         /// <param name="vorname"></param>
         /// <param name="nachname"></param>
         /// <param name="arbeitsbeginn">Der Tag an dem der Mitarbeiter zu arbeiten beginnt</param>
@@ -173,13 +169,12 @@ namespace TimeChip_App
         /// <param name="abzp"></param>
         /// <param name="urlaub">Der verfügbare Urlaub des Mitarbeiters</param>
         /// <returns>Der eingefügte Mitarbeiter als ClsMitarbeiter-Objekt</returns>
-        public static ClsMitarbeiter InsertMitarbeiter(int mitarbeiternummer, string vorname, string nachname, DateTime arbeitsbeginn, TimeSpan überstunden, ClsArbeitsprofil abzp, TimeSpan urlaub)
+        public static ClsMitarbeiter InsertMitarbeiter(string vorname, string nachname, DateTime arbeitsbeginn, TimeSpan überstunden, ClsArbeitsprofil abzp, TimeSpan urlaub)
         {
-            string query = "INSERT INTO mitarbeiter (Mitarbeiternummer, Vorname, Nachname, Arbeitsbeginn, Ueberstunden, Arbeitszeitprofil, Urlaub) VALUES(" +
-                "@mitarbeiternr, @vorname, @nachname, @arbeitsbeginn, @überstunden, @arbeitszeitp, @urlaub)";
+            string query = "INSERT INTO mitarbeiter (Vorname, Nachname, Arbeitsbeginn, Ueberstunden, Arbeitszeitprofil, Urlaub) VALUES(" +
+                "@vorname, @nachname, @arbeitsbeginn, @überstunden, @arbeitszeitp, @urlaub)";
 
             MySqlCommand cmd = new MySqlCommand(query);
-            cmd.Parameters.AddWithValue("mitarbeiternr", mitarbeiternummer);
             cmd.Parameters.AddWithValue("vorname", vorname);
             cmd.Parameters.AddWithValue("nachname", nachname);
             cmd.Parameters.AddWithValue("arbeitsbeginn", arbeitsbeginn);
@@ -189,7 +184,7 @@ namespace TimeChip_App
 
             ExecuteNonQuery(cmd);
 
-            return new ClsMitarbeiter(SelectAllMitarbeiter().Last().ID, mitarbeiternummer, vorname, nachname, abzp, arbeitsbeginn, urlaub, überstunden);
+            return new ClsMitarbeiter(SelectAllMitarbeiter().Last().ID, vorname, nachname, abzp, arbeitsbeginn, urlaub, überstunden);
         }
 
         /// <summary>
@@ -198,37 +193,39 @@ namespace TimeChip_App
         /// <param name="FingerprintID"></param>
         /// <param name="RFIDUID"></param>
         /// <returns>Die eingefügten Daten in einem ClsFingerprintRFID-Objekt</returns>
-        public static ClsFingerprintRFID InsertFingerRFIDUID(int FingerprintID, string RFIDUID)
+        public static ClsFingerprintRFID InsertFingerRFIDUID(int FingerprintID, string RFIDUID, string Fingername, int MtbtrID)
         {
-            string query = "INSERT INTO fingerprintrfid (Fingerprint, RFIDUID) VALUES (@fingerprint, @uid)";
+            string query = "INSERT INTO fingerprintrfid (MtbtrID, Fingerprint, FingerName, RFIDUID,) VALUES (@mtbtrid, @fingerprint, @fingername, @uid)";
             
             MySqlCommand cmd = new MySqlCommand(query);
+            cmd.Parameters.AddWithValue("mtbtrid", MtbtrID);
             cmd.Parameters.AddWithValue("fingerprint", FingerprintID);
+            cmd.Parameters.AddWithValue("fingername", Fingername);
             cmd.Parameters.AddWithValue("uid", RFIDUID);
 
             ExecuteNonQuery(cmd);
 
-            return new ClsFingerprintRFID(SelectAllFingerprintRFID().Last().ID, RFIDUID, FingerprintID);
+            return new ClsFingerprintRFID(SelectAllFingerprintRFID().Last().ID, RFIDUID, FingerprintID, Fingername, MtbtrID);
         }
 
         /// <summary>
         /// Fügt die Daten eines ausgewerteten Tages in die Datenbank ein beziehungsweise aktualisiert das Objekt, sollte es bereits einen ausgewerteten Tag für das betroffene Datum geben
         /// </summary>
         /// <param name="date"></param>
-        /// <param name="Mitarbeiternummer"></param>
+        /// <param name="MtbtrID"></param>
         /// <param name="Arbeitszeit"></param>
         /// <param name="Status">0 = Zeitausgleich, 1 = Krank, 2 = Schule, 3 = Urlaub</param>
         /// <returns>Die eingefügten Daten als ClsAusgewerteter_Tag-Objekt</returns>
-        public static ClsAusgewerteter_Tag InsertAusgewerteterTag(DateTime date, int Mitarbeiternummer, TimeSpan Arbeitszeit, int Status)
+        public static ClsAusgewerteter_Tag InsertAusgewerteterTag(DateTime date, int MtbtrID, TimeSpan Arbeitszeit, int Status)
         {
-            ClsAusgewerteter_Tag ausgTag = SelectAusgewerteterTag(date, Mitarbeiternummer);
+            ClsAusgewerteter_Tag ausgTag = SelectAusgewerteterTag(date, MtbtrID);
             if (ausgTag == null)
             {
-                string query = "INSERT INTO ausgewertete_tage (Datum, Mitarbeiternummer, Arbeitszeit, Status) VALUES (@date, @mtbtrnr, @abzeit, @status)";
+                string query = "INSERT INTO ausgewertete_tage (Datum, MtbtrID, Arbeitszeit, Status) VALUES (@date, @mtbtrid, @abzeit, @status)";
 
                 MySqlCommand cmd = new MySqlCommand(query);
                 cmd.Parameters.AddWithValue("date", date);
-                cmd.Parameters.AddWithValue("mtbtrnr", Mitarbeiternummer);
+                cmd.Parameters.AddWithValue("mtbtrid", MtbtrID);
                 cmd.Parameters.AddWithValue("abzeit", Arbeitszeit);
                 cmd.Parameters.AddWithValue("status", Status);
 
@@ -236,10 +233,10 @@ namespace TimeChip_App
             }
             else
             {
-                UpdateAusgewerteterTag(date, Mitarbeiternummer, Arbeitszeit, ausgTag.Status);
+                UpdateAusgewerteterTag(date, MtbtrID, Arbeitszeit, ausgTag.Status);
             }
 
-            return new ClsAusgewerteter_Tag(SelectAusgewerteterTag(date, Mitarbeiternummer).ID, Mitarbeiternummer, Arbeitszeit, date, Status);
+            return new ClsAusgewerteter_Tag(SelectAusgewerteterTag(date, MtbtrID).ID, MtbtrID, Arbeitszeit, date, Status);
         }
 
         /// <summary>
@@ -248,7 +245,7 @@ namespace TimeChip_App
         /// <param name="Tage"></param>
         public static void InsertMultipleAusgewerteterTag(List<ClsAusgewerteter_Tag> Tage)
         {
-            string query = "INSERT INTO ausgewertete_tage (Datum, Mitarbeiternummer, Arbeitszeit, Status) VALUES ";
+            string query = "INSERT INTO ausgewertete_tage (Datum, MtbtrID, Arbeitszeit, Status) VALUES ";
 
             int i = 0;
             foreach(ClsAusgewerteter_Tag tag in Tage)
@@ -259,7 +256,7 @@ namespace TimeChip_App
                 }
                 string paraname = "@zeit" + i;
                 string paraname1 = "@arbeitszeit" + i;
-                query += "(" + paraname + ", " + tag.MitarbeiterNummer + ", " + paraname1 + ", " + tag.Status + ")";
+                query += "(" + paraname + ", " + tag.MtbtrID + ", " + paraname1 + ", " + tag.Status + ")";
 
                 i++;
             }
@@ -309,38 +306,11 @@ namespace TimeChip_App
         /// <returns></returns>
         public static List<ClsBuchung> SelectAllBuchungen(string Table)
         {
-            List<ClsBuchung> list = new List<ClsBuchung>();
-            using (MySqlConnection conn = new MySqlConnection(m_connectionString))
-            {
-                conn.Open();
-                
-                string query = "SELECT * FROM " + Table;
+            string query = "SELECT * FROM " + Table;
 
-                MySqlCommand cmd = new MySqlCommand(query, conn);
-                MySqlDataReader reader = cmd.ExecuteReader();
+            MySqlCommand cmd = new MySqlCommand(query);
 
-                while (reader.Read())
-                {
-                    DateTime datetime;
-                    if(Table == "buchungen")
-                    {
-                        datetime = reader.GetDateTime("Zeit");
-                    }
-                    else
-                    {
-                        datetime = StringToDateTime(reader.GetString("Zeit"));
-                    }
-                    
-                    ClsBuchung buchung = new ClsBuchung(reader.GetInt16("Buchungsnummer"),
-                        reader.GetInt16("Mitarbeiternummer"), datetime,
-                        StringToBuchungstyp(reader.GetString("Buchungstyp")));
-                    list.Add(buchung);
-                }
-
-                cmd.Dispose();
-                reader.Close();
-            }
-            return list;
+            return SelectBuchung(cmd, Table);
         }
 
         /// <summary>
@@ -351,14 +321,74 @@ namespace TimeChip_App
         /// <returns></returns>
         public static List<ClsBuchung> SelectAllBuchungenFromMtbtr(ClsMitarbeiter mtbtr, string Table)
         {
+            string query = "SELECT * FROM " + Table + " WHERE MtbtrID=" + mtbtr.ID;
+
+            MySqlCommand cmd = new MySqlCommand(query);
+
+            return SelectBuchung(cmd, Table);
+        }
+
+        /// <summary>
+        /// Ruft alle Buchungen aus Table ab, die mitbtr an date getätigt hat
+        /// </summary>
+        /// <param name="mtbtr"></param>
+        /// <param name="date"></param>
+        /// <param name="Table">Tabelle mit Buchungen des Arduinos: buchungen_temp; Tabelle mit den Buchungen bereits berechneter Tage: buchungen</param>
+        /// <returns></returns>
+        public static List<ClsBuchung> SelectAllBuchungenFromDay(ClsMitarbeiter mtbtr, DateTime date, string Table)
+        {
+            if(Table == "buchungen")
+            {
+                string query = "SELECT * FROM @table WHERE MtbtrID=@mtbtrid AND (Zeit BETWEEN @zeit1 AND @zeit2)";
+
+                MySqlCommand cmd = new MySqlCommand(query);
+
+                DateTime dt1 = new DateTime(date.Year, date.Month, date.Day, 0, 0, 0);
+                DateTime dt2 = new DateTime(date.Year, date.Month, date.Day, 23, 59, 59);
+
+                cmd.Parameters.AddWithValue("mtbtrid", mtbtr.ID);
+                cmd.Parameters.AddWithValue("zeit1", dt1);
+                cmd.Parameters.AddWithValue("zeit2", dt2);
+                cmd.Parameters.AddWithValue("table", Table);
+
+                return SelectBuchung(cmd, Table);
+            }
+            else if (Table == "buchungen_temp")
+            {
+                List<ClsBuchung> buchungen = SelectAllBuchungenFromMtbtr(mtbtr, "buchungen_temp");
+
+                return buchungen.FindAll(x => x.Zeit.ToShortDateString().Equals(date.ToShortDateString()));
+            }
+            return new List<ClsBuchung>();
+        }
+
+        /// <summary>
+        /// Ruft die zuletzt hinzugefügte Buchung ab
+        /// </summary>
+        /// <returns></returns>
+        public static ClsBuchung SelectLastBuchung()
+        {
+            string query = "SELECT * FROM buchungen WHERE Buchungsnummer=(SELECT max(Buchungsnummer) FROM buchungen)";
+
+            MySqlCommand cmd = new MySqlCommand(query);
+
+            return SelectBuchung(cmd, "buchungen").FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Führt den angegebenen Command in der Datenbank aus
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="Table">Die Tabelle in der der Command ausgeführt werden soll (buchungen/buchungen_temp)</param>
+        /// <returns>Die angefragten Buchungen in einer Liste</returns>
+        public static List<ClsBuchung> SelectBuchung(MySqlCommand cmd, string Table)
+        {
             List<ClsBuchung> list = new List<ClsBuchung>();
             using (MySqlConnection conn = new MySqlConnection(m_connectionString))
             {
                 conn.Open();
 
-                string query = "SELECT * FROM " + Table + " WHERE Mitarbeiternummer=" + mtbtr.Mitarbeiternummer;
-
-                MySqlCommand cmd = new MySqlCommand(query, conn);
+                cmd.Connection = conn;
                 MySqlDataReader reader = cmd.ExecuteReader();
 
                 while (reader.Read())
@@ -374,7 +404,7 @@ namespace TimeChip_App
                     }
 
                     ClsBuchung buchung = new ClsBuchung(reader.GetInt16("Buchungsnummer"),
-                        reader.GetInt16("Mitarbeiternummer"), datetime,
+                        reader.GetInt16("MtbtrID"), datetime,
                         StringToBuchungstyp(reader.GetString("Buchungstyp")));
                     list.Add(buchung);
                 }
@@ -487,7 +517,7 @@ namespace TimeChip_App
                 List<ClsArbeitsprofil> abzt = SelectAllArbeitszeitprofil();
                 while (reader.Read())
                 {
-                    ClsMitarbeiter mitarbeiter = new ClsMitarbeiter(reader.GetInt16("ID"), reader.GetInt16("Mitarbeiternummer"),
+                    ClsMitarbeiter mitarbeiter = new ClsMitarbeiter(reader.GetInt16("ID"),
                         reader.GetString("Vorname"), reader.GetString("Nachname"),
                         abzt.Find(x => x.ID == reader.GetInt16("Arbeitszeitprofil")), reader.GetDateTime("Arbeitsbeginn"),
                         reader.GetTimeSpan("Urlaub"), reader.GetTimeSpan("Ueberstunden"));
@@ -507,20 +537,35 @@ namespace TimeChip_App
         /// <returns></returns>
         public static List<ClsFingerprintRFID> SelectAllFingerprintRFID()
         {
+            string query = "SELECT * FROM fingerprintrfid";
+
+            return SelectFingerprintRFID(new MySqlCommand(query));
+        }
+
+
+        public static List<ClsFingerprintRFID> SelectFingerprintRFIDofMtbtr(int MtbtrID)
+        {
+            string query = "SELECT * FROM fingerprintrfid WHERE MtbtrID=" + MtbtrID;
+
+            return SelectFingerprintRFID(new MySqlCommand(query));
+        }
+
+        public static List<ClsFingerprintRFID> SelectFingerprintRFID(MySqlCommand cmd)
+        {
             List<ClsFingerprintRFID> list = new List<ClsFingerprintRFID>();
 
             using (MySqlConnection conn = new MySqlConnection(m_connectionString))
             {
                 conn.Open();
 
-                string query = "SELECT * FROM fingerprintrfid";
+                cmd.Connection = conn;
 
-                MySqlCommand cmd = new MySqlCommand(query, conn);
                 MySqlDataReader reader = cmd.ExecuteReader();
 
                 while (reader.Read())
                 {
-                    ClsFingerprintRFID fingerprintRFID = new ClsFingerprintRFID(reader.GetInt32("ID"), reader.GetString("RFIDUID"), reader.GetInt32("Fingerprint"));
+                    ClsFingerprintRFID fingerprintRFID = new ClsFingerprintRFID(reader.GetInt32("ID"), reader.GetString("RFIDUID"), reader.GetInt32("Fingerprint"),
+                        reader.GetString("Fingername"), reader.GetInt32("MtbtrID"));
 
                     list.Add(fingerprintRFID);
                 }
@@ -533,91 +578,39 @@ namespace TimeChip_App
         }
 
         /// <summary>
-        /// Ruft alle Buchungen aus Table ab, die mitbtr an date getätigt hat
-        /// </summary>
-        /// <param name="mtbtr"></param>
-        /// <param name="date"></param>
-        /// <param name="Table">Tabelle mit Buchungen des Arduinos: buchungen_temp; Tabelle mit den Buchungen bereits berechneter Tage: buchungen</param>
-        /// <returns></returns>
-        public static List<ClsBuchung> SelectAllBuchungenFromDay(ClsMitarbeiter mtbtr, DateTime date, string Table)
-        {
-            List<ClsBuchung> list = new List<ClsBuchung>();
-            if (Table == "buchungen")
-            {
-                string query = "SELECT * FROM buchungen WHERE Mitarbeiternummer=@mtbtrnr AND (Zeit BETWEEN @zeit1 AND @zeit2)";
-
-                using (MySqlConnection conn = new MySqlConnection(m_connectionString))
-                {
-                    conn.Open();
-
-                    MySqlCommand cmd = new MySqlCommand(query, conn);
-
-                    DateTime dt1 = new DateTime(date.Year, date.Month, date.Day, 0, 0, 0);
-                    DateTime dt2 = new DateTime(date.Year, date.Month, date.Day, 23, 59, 59);
-
-                    cmd.Parameters.AddWithValue("mtbtrnr", mtbtr.Mitarbeiternummer);
-                    cmd.Parameters.AddWithValue("zeit1", dt1);
-                    cmd.Parameters.AddWithValue("zeit2", dt2);
-
-                    MySqlDataReader reader = cmd.ExecuteReader();
-
-                    while (reader.Read())
-                    {
-                        ClsBuchung buchung = new ClsBuchung(reader.GetInt16("Buchungsnummer"),
-                            reader.GetInt16("Mitarbeiternummer"), reader.GetDateTime("Zeit"),
-                            StringToBuchungstyp(reader.GetString("Buchungstyp")));
-
-                        list.Add(buchung);
-                    }
-
-                    cmd.Dispose();
-                    reader.Dispose();
-                }
-            }
-            else if(Table == "buchungen_temp")
-            {
-                List<ClsBuchung> buchungen = SelectAllBuchungenFromMtbtr(mtbtr, "buchungen_temp");
-
-                list = buchungen.FindAll(x => x.Zeit.ToShortDateString().Equals(date.ToShortDateString()));
-            }
-
-            return list;
-        }
-
-        /// <summary>
         /// Ruft den ausgewerteten Tag von Mtbtr an date ab
         /// </summary>
         /// <param name="date"></param>
-        /// <param name="Mitarbeiternr"></param>
+        /// <param name="MtbtrID"></param>
         /// <returns>Die abgefragten Daten als ClsAusgewerteter_Tag-Objekt</returns>
-        public static ClsAusgewerteter_Tag SelectAusgewerteterTag(DateTime date, int Mitarbeiternr)
+        public static ClsAusgewerteter_Tag SelectAusgewerteterTag(DateTime date, int MtbtrID)
         {
-            string query = "SELECT * FROM ausgewertete_tage WHERE Datum=@date AND Mitarbeiternummer=@mtbtrnr";
+            string query = "SELECT * FROM ausgewertete_tage WHERE Datum=@date AND MtbtrID=@mtbtrid";
 
             MySqlCommand cmd = new MySqlCommand(query);
 
             cmd.Parameters.AddWithValue("date", date);
-            cmd.Parameters.AddWithValue("mtbtrnr", Mitarbeiternr);
+            cmd.Parameters.AddWithValue("mtbtrid", MtbtrID);
 
             return SelectAusgewerteterTag(cmd).FirstOrDefault();
         }
 
         /// <summary>
-        /// Ruft alle ausgewerteten Tage vom Mitarbeiter mit Mitarbeiternr zwischen startdate und enddate ab einschließlich dem startdate und dem enddate
+        /// Ruft alle ausgewerteten Tage vom Mitarbeiter mit MtbtrID zwischen startdate und enddate ab einschließlich dem startdate und dem enddate
         /// </summary>
         /// <param name="startdate"></param>
         /// <param name="enddate"></param>
-        /// <param name="Mitarbeiternr"></param>
+        /// <param name="MtbtrID"></param>
         /// <returns></returns>
-        public static List<ClsAusgewerteter_Tag> SelectAusgewerteterTag(DateTime startdate, DateTime enddate, int Mitarbeiternr)
+        public static List<ClsAusgewerteter_Tag> SelectAusgewerteterTag(DateTime startdate, DateTime enddate, int MtbtrID)
         {
-            string query = "SELECT * FROM ausgewertete_tage WHERE (Datum BETWEEN @date1 AND @date2) AND Mitarbeiternummer=@mtbtrnr";
+            string query = "SELECT * FROM ausgewertete_tage WHERE (Datum BETWEEN @date1 AND @date2) AND MtbtrID=@mtbtrid";
 
             MySqlCommand cmd = new MySqlCommand(query);
 
             cmd.Parameters.AddWithValue("date1", startdate);
             cmd.Parameters.AddWithValue("date2", enddate);
-            cmd.Parameters.AddWithValue("mtbtrnr", Mitarbeiternr);
+            cmd.Parameters.AddWithValue("mtbtrid", MtbtrID);
 
             return SelectAusgewerteterTag(cmd);
         }
@@ -633,6 +626,20 @@ namespace TimeChip_App
             MySqlCommand cmd = new MySqlCommand(query);
 
             return SelectAusgewerteterTag(cmd).FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Ruft alle ausgewerteten Tage von mtbtr ab
+        /// </summary>
+        /// <param name="mtbtr"></param>
+        /// <returns></returns>
+        public static List<ClsAusgewerteter_Tag> SelectAusgewerteterTag(ClsMitarbeiter mtbtr)
+        {
+            string query = "SELECT * FROM ausgewertete_tage WHERE MtbtrID=" + mtbtr.ID;
+
+            MySqlCommand cmd = new MySqlCommand(query);
+
+            return SelectAusgewerteterTag(cmd);
         }
 
         /// <summary>
@@ -653,69 +660,7 @@ namespace TimeChip_App
 
                 while (reader.Read())
                 {
-                    ClsAusgewerteter_Tag ausgewerteterTag = new ClsAusgewerteter_Tag(reader.GetInt32("ID"), reader.GetInt32("Mitarbeiternummer"),
-                        reader.GetTimeSpan("Arbeitszeit"), reader.GetDateTime("Datum"), reader.GetInt32("Status"));
-
-                    list.Add(ausgewerteterTag);
-                }
-            }
-
-            return list;
-        }
-
-        /// <summary>
-        /// Ruft die zuletzt hinzugefügte Buchung ab
-        /// </summary>
-        /// <returns></returns>
-        public static ClsBuchung SelectLastBuchung()
-        {
-            List<ClsBuchung> list = new List<ClsBuchung>();
-
-            string query = "SELECT * FROM buchungen WHERE Buchungsnummer=(SELECT max(Buchungsnummer) FROM buchungen)";
-
-            using (MySqlConnection conn = new MySqlConnection(m_connectionString))
-            {
-                conn.Open();
-
-                MySqlCommand cmd = new MySqlCommand(query, conn);
-
-                MySqlDataReader reader = cmd.ExecuteReader();
-
-                while (reader.Read())
-                {
-
-                    ClsBuchung buchung = new ClsBuchung(reader.GetInt32("Buchungsnummer"), reader.GetInt32("Mitarbeiternummer"), reader.GetDateTime("Zeit"), 
-                        StringToBuchungstyp(reader.GetString("Buchungstyp")));
-
-                    list.Add(buchung);
-                }
-            }
-
-            return list.FirstOrDefault();
-        }
-
-        /// <summary>
-        /// Ruft alle ausgewerteten Tage von mtbtr ab
-        /// </summary>
-        /// <param name="mtbtr"></param>
-        /// <returns></returns>
-        public static List<ClsAusgewerteter_Tag> SelectAusgewerteteTage(ClsMitarbeiter mtbtr)
-        {
-            List<ClsAusgewerteter_Tag> list = new List<ClsAusgewerteter_Tag>();
-
-            string query = "SELECT * FROM ausgewertete_tage WHERE Mitarbeiternummer=" + mtbtr.Mitarbeiternummer;
-
-            using (MySqlConnection conn = new MySqlConnection(m_connectionString))
-            {
-                conn.Open();
-
-                MySqlCommand cmd = new MySqlCommand(query, conn);
-
-                MySqlDataReader reader = cmd.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    ClsAusgewerteter_Tag ausgewerteterTag = new ClsAusgewerteter_Tag(reader.GetInt32("ID"), reader.GetInt32("Mitarbeiternummer"),
+                    ClsAusgewerteter_Tag ausgewerteterTag = new ClsAusgewerteter_Tag(reader.GetInt32("ID"), reader.GetInt32("MtbtrID"),
                         reader.GetTimeSpan("Arbeitszeit"), reader.GetDateTime("Datum"), reader.GetInt32("Status"));
 
                     list.Add(ausgewerteterTag);
@@ -815,10 +760,10 @@ namespace TimeChip_App
         /// <returns>Die Anzahl veränderter Datensätze in der Datenbank</returns>
         public static int UpdateBuchung(ClsBuchung Buchung)
         {
-            string query = "UPDATE buchungen SET Mitarbeiternummer=@mtbtrnr, Buchungstyp=@btyp, Zeit=@zeit WHERE Buchungsnummer=@bnr";
+            string query = "UPDATE buchungen SET MtbtrID=@mtbtrid, Buchungstyp=@btyp, Zeit=@zeit WHERE Buchungsnummer=@bnr";
 
             MySqlCommand cmd = new MySqlCommand(query);
-            cmd.Parameters.AddWithValue("mtbtrnr", Buchung.Mitarbeiternummer);
+            cmd.Parameters.AddWithValue("mtbtrid", Buchung.MtbtrID);
             cmd.Parameters.AddWithValue("btyp", Buchung.Buchungstyp.ToString());;
             cmd.Parameters.AddWithValue("zeit", Buchung.Zeit);
             cmd.Parameters.AddWithValue("bnr", Buchung.Buchungsnummer);
@@ -904,31 +849,51 @@ namespace TimeChip_App
         /// <returns>Die Anzahl veränderter Datensätze in der Datenbank</returns>
         public static int UpdateFingerprintRFID(ClsFingerprintRFID fingerprintRFID)
         {
-            string query = "UPDATE fingerprintrfid SET Fingerprint=@finger, RFIDUID=@uid WHERE ID=@id";
+            string query = "UPDATE fingerprintrfid SET Fingerprint=@finger, RFIDUID=@uid, MtbtrID=@mtbtrid, FingerName=@fingername WHERE ID=@id";
 
             MySqlCommand cmd = new MySqlCommand(query);
             cmd.Parameters.AddWithValue("finger", fingerprintRFID.Fingerprint);
             cmd.Parameters.AddWithValue("uid", fingerprintRFID.RFIDUID);
+            cmd.Parameters.AddWithValue("mtbtrid", fingerprintRFID.MtbtrID);
+            cmd.Parameters.AddWithValue("fingername", fingerprintRFID.FingerName);
             cmd.Parameters.AddWithValue("id", fingerprintRFID.ID);
 
             return ExecuteNonQuery(cmd);
         }
 
+        public static int UpdateMultipleFingerprintRFID(List<ClsFingerprintRFID> fingerprintRFIDs, string RFIDUID)
+        {
+            string query = "UPDATE fingerprintrfid SET RFIDUID=@uid WHERE ID IN ( ";
+
+            foreach(ClsFingerprintRFID f in fingerprintRFIDs)
+            {
+                query += f.ID;
+                query += ", ";
+            }
+
+            query += ")";
+
+            MySqlCommand cmd = new MySqlCommand(query);
+            cmd.Parameters.AddWithValue("uid", RFIDUID);
+
+            return ExecuteNonQuery(cmd);
+        }
+
         /// <summary>
-        /// Aktualisiert alle Daten des ausgewerteten Tages an date vom Mitarbeiter mit Mitarbeiternummer auf die eingegebenen Daten
+        /// Aktualisiert alle Daten des ausgewerteten Tages an date vom Mitarbeiter mit MtbtrID auf die eingegebenen Daten
         /// </summary>
         /// <param name="date"></param>
-        /// <param name="Mitarbeiternummer"></param>
+        /// <param name="MtbtrID"></param>
         /// <param name="Arbeitszeit"></param>
         /// <param name="Status"></param>
         /// <returns>Die Anzahl veränderter Datensätze in der Datenbank</returns>
-        public static int UpdateAusgewerteterTag(DateTime date, int Mitarbeiternummer, TimeSpan Arbeitszeit, int Status)
+        public static int UpdateAusgewerteterTag(DateTime date, int MtbtrID, TimeSpan Arbeitszeit, int Status)
         {
-            string query = "UPDATE ausgewertete_tage SET Datum=@date, Mitarbeiternummer=@mbtrnr, Arbeitszeit=@abzeit, Status=@status WHERE Datum=@date AND Mitarbeiternummer=@mbtrnr";
+            string query = "UPDATE ausgewertete_tage SET Datum=@date, MtbtrID=@mbtrid, Arbeitszeit=@abzeit, Status=@status WHERE Datum=@date AND MtbtrID=@mbtrid";
 
             MySqlCommand cmd = new MySqlCommand(query);
             cmd.Parameters.AddWithValue("date", date);
-            cmd.Parameters.AddWithValue("mbtrnr", Mitarbeiternummer);
+            cmd.Parameters.AddWithValue("mbtrid", MtbtrID);
             cmd.Parameters.AddWithValue("abzeit", Arbeitszeit);
             cmd.Parameters.AddWithValue("status", Status);
 
@@ -942,11 +907,11 @@ namespace TimeChip_App
         /// <returns>Die Anzahl veränderter Datensätze in der Datenbank</returns>
         public static int UpdateAusgewerteterTag(ClsAusgewerteter_Tag tag)
         {
-            string query = "UPDATE ausgewertete_tage SET Datum=@date, Mitarbeiternummer=@mbtrnr, Arbeitszeit=@abzeit, Status=@status WHERE ID=@id";
+            string query = "UPDATE ausgewertete_tage SET Datum=@date, MtbtrID=@mbtrid, Arbeitszeit=@abzeit, Status=@status WHERE ID=@id";
 
             MySqlCommand cmd = new MySqlCommand(query);
             cmd.Parameters.AddWithValue("date", tag.Date);
-            cmd.Parameters.AddWithValue("mbtrnr", tag.MitarbeiterNummer);
+            cmd.Parameters.AddWithValue("mbtrid", tag.MtbtrID);
             cmd.Parameters.AddWithValue("abzeit", tag.Arbeitszeit);
             cmd.Parameters.AddWithValue("status", tag.Status);
             cmd.Parameters.AddWithValue("id", tag.ID);
@@ -1021,7 +986,7 @@ namespace TimeChip_App
         /// <returns>Die Anzahl veränderter Datensätze in der Datenbank</returns>
         public static int DeleteMultipleBuchungen(ClsMitarbeiter mtbtr, string Table)
         {
-            string query = "DELETE FROM " + Table + " WHERE Mitarbeiternummer = " + mtbtr.Mitarbeiternummer;
+            string query = "DELETE FROM " + Table + " WHERE MtbtrID = " + mtbtr.ID;
 
             return ExecuteNonQuery(query);
         }
@@ -1170,7 +1135,7 @@ namespace TimeChip_App
         /// <returns>Die Anzahl veränderter Datensätze in der Datenbank</returns>
         public static int DeleteMultipleAusgewerteterTag(ClsMitarbeiter mtbtr)
         {
-            string query = "DELETE FROM 'ausgewertete_tage' WHERE Mitarbeiternummer=" + mtbtr.Mitarbeiternummer;
+            string query = "DELETE FROM 'ausgewertete_tage' WHERE MtbtrID=" + mtbtr.ID;
 
             return ExecuteNonQuery(query);
         }

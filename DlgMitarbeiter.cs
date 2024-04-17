@@ -1,18 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using System.Threading;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace TimeChip_App
 {
     public partial class DlgMitarbeiter : Form
     {
-        int m_mitarbeiternummer;
         //m_finger gibt an ob schon ein Finger hinzugefügt wurde; m_bearbeiten gibt an ob das Fenster gerade zum bearbeiten oder erstellen genutzt wird
         bool m_finger = false, m_bearbeiten = false, m_card = false;
-        ClsFingerprintRFID m_fingerprintRFID;
+        //Beinhaltet (wenn vorhanden) ein FingerprintRFID Objekt, von dem man wichtige Infos ablesen kann
         ClsArbeitsprofil m_arbeitsprofil;
+        int m_fingernumber, m_mtbtrID;
+
+        //Wird für den Tooltip auf den deaktivierten Knöpfen gebraucht
+        private readonly System.Windows.Forms.ToolTip m_toolTip = new System.Windows.Forms.ToolTip
+        {
+            InitialDelay = 0,
+            AutomaticDelay = 0,
+            ToolTipIcon = ToolTipIcon.Warning,
+            ToolTipTitle = "Achtung",
+            IsBalloon = false,
+            ShowAlways = false,
+            UseFading = true,
+        };
+        private Control m_currentToolTipControl = null;
+
+#pragma warning disable IDE0044 // Modifizierer "readonly" hinzufügen
+        BindingList<ClsFingerprintRFID> m_fingers = new BindingList<ClsFingerprintRFID>();
+#pragma warning restore IDE0044 // Modifizierer "readonly" hinzufügen
 
         public DlgMitarbeiter()
         {
@@ -20,6 +42,8 @@ namespace TimeChip_App
 
             m_cmbxAProfil.Items.Clear();
             m_cmbxAProfil.Items.AddRange(DlgArbeitszeitprofile.ArbeitsprofilListe.ToArray());
+            m_lbxFinger.DataSource = m_fingers;
+            m_lbxFinger.DisplayMember = "FingerName";
 
             m_tbxVorname.TabIndex = 1;
             m_tbxNachname.TabIndex = 2;
@@ -37,7 +61,6 @@ namespace TimeChip_App
         public string Nachname { get { return m_tbxNachname.Text; } set { m_tbxNachname.Text = value; } }
         public ClsArbeitsprofil Arbeitzeitprofil { get { return m_cmbxAProfil.SelectedItem as ClsArbeitsprofil; } set { m_cmbxAProfil.SelectedItem = value; } }
         public DateTime Arbeitsbeginn { get { return m_dtpArbeitsb.Value; } set { m_dtpArbeitsb.Value = value; } }
-        public int Mitarbeiternummer { get { return m_mitarbeiternummer; } set { m_mitarbeiternummer = value; } }
         public TimeSpan Überstunden { get { return GetTimeSpans(false); }set { m_tbxÜberstunden.Text = Stundenrunder(value); } }
         public TimeSpan Urlaub { get { return GetTimeSpans(true); } set { m_tbxUrlaub.Text = Stundenrunder(value); } }
 
@@ -52,13 +75,11 @@ namespace TimeChip_App
             m_lblTitel.Text = "Mitarbeiter:in bearbeiten";
             m_btnOK.Text = "Bearbeiten";
             Name = "Bearbeiten";
-            m_btnAddFinger.Text = "Finger ändern";
-            m_btnAddCard.Text = "Karte ändern";
 
             m_tbxVorname.Text = Bearbeitender.Vorname;
             m_tbxNachname.Text = Bearbeitender.Nachname;
             m_dtpArbeitsb.Value = Bearbeitender.Arbeitsbeginn;
-            m_mitarbeiternummer = Bearbeitender.Mitarbeiternummer;
+            m_mtbtrID = Bearbeitender.ID;
             m_tbxÜberstunden.Text = Stundenrunder(Bearbeitender.Überstunden);
             m_tbxUrlaub.Text = Stundenrunder(Bearbeitender.Urlaub);
 
@@ -67,9 +88,34 @@ namespace TimeChip_App
             m_cmbxAProfil.SelectedItem = arbeitsprofil;
             m_arbeitsprofil = arbeitsprofil;
 
-            m_fingerprintRFID = DataProvider.SelectAllFingerprintRFID().Find(x => x.Fingerprint.Equals(Bearbeitender.Mitarbeiternummer));
+            //m_fingerprintRFID = DataProvider.SelectAllFingerprintRFID().Find(x => x.MtbtrID.Equals(Bearbeitender.ID));
 
-            if(m_fingerprintRFID.RFIDUID != "NaN") { m_card = true; }
+            //if(m_fingerprintRFID.RFIDUID != "NaN") { m_card = true; }
+
+            List<ClsFingerprintRFID> fingerprintRFIDs = DataProvider.SelectFingerprintRFIDofMtbtr(Bearbeitender.ID);
+
+            //Fügt alle FingerprintRFID Objekte des Mtbtrs, die einen Finger beinhalten zu m_fingers hinzu
+            foreach (ClsFingerprintRFID f in fingerprintRFIDs)
+            {
+                if(f.FingerName != "NaN")
+                {
+                    m_fingers.Add(f);
+                }
+            }
+            m_fingers.ResetBindings();
+
+            //Wenn m_fingers nicht leer ist muss es bereits einen eingespeicherten Finger geben
+            if (m_fingers.Count > 0)
+            {
+                m_finger = true;
+            }
+
+            //Wenn in irgendeinem Objekt die RFIDUID nicht NaN ist heißt das, dass bereits eine Karte eingespeichert wurde
+            if (fingerprintRFIDs.Count > 0 && fingerprintRFIDs[0].RFIDUID != "NaN")
+            {
+                m_card = true;
+                m_btnAddCard.Text = "Karte ändern";
+            }
         }
 
         /// <summary>
@@ -97,9 +143,42 @@ namespace TimeChip_App
             m_lblTitel.Text = "Neuer:e Mitarbeiter:in";
             m_btnOK.Text = "Erstellen";
             Name = "Neu";
-            m_btnAddFinger.Text = "Finger hinzufügen";
             m_btnAddCard.Text = "Karte hinzufügen";
             m_bearbeiten = false;
+            m_finger = false; 
+            m_card = false;
+
+            m_btnAddCard.Enabled = false;
+            m_btnAddFinger.Enabled = false;
+            m_btnDeleteFinger.Enabled = false;
+            m_lbxFinger.Enabled = false;
+
+            m_toolTip.SetToolTip(m_btnAddCard, "Es kann erst eine Karte hinzugefügt werden, wenn der Mitarbeiter erstellt wurde!");
+            m_toolTip.SetToolTip(m_btnAddFinger, "Es kann erst ein Finger hinzugefügt werden, wenn der Mitarbeiter erstellt wurde!");
+            m_toolTip.SetToolTip(m_btnDeleteFinger, "Es kann erst mit den Fingern gearbeitet werden, wenn der Mitarbeiter erstellt wurde!");
+            m_toolTip.SetToolTip(m_lbxFinger, "Es kann erst mit den Fingern gearbeitet werden, wenn der Mitarbeiter erstellt wurde!");
+        }
+
+        private void DlgMitarbeiter_MouseMove(object sender,  MouseEventArgs e)
+        {
+            Control control = GetChildAtPoint(e.Location);
+            if (control != null)
+            {
+                if (!control.Enabled && m_currentToolTipControl == null)
+                {
+                    string toolTipString = m_toolTip.GetToolTip(control);
+                    Thread.Sleep(250);
+                    if (GetChildAtPoint(PointToClient(MousePosition)) != control) { return; }
+                    Point coordinates = control.PointToClient(MousePosition);
+                    m_toolTip.Show(toolTipString, control, coordinates.X, coordinates.Y);
+                    m_currentToolTipControl = control;
+                }
+            }
+            else
+            {
+                if (m_currentToolTipControl != null) m_toolTip.Hide(m_currentToolTipControl);
+                m_currentToolTipControl = null;
+            }
         }
 
         /// <summary>
@@ -144,12 +223,12 @@ namespace TimeChip_App
             List<ClsFingerprintRFID> list = DataProvider.SelectAllFingerprintRFID();
             List<ClsFingerprintRFID> list1 = list.OrderBy(f => f.Fingerprint).ToList();
 
-            m_mitarbeiternummer = list1.Count + 1;
+            m_fingernumber = list1.Count + 1;
             for (int i = 0; i < list1.Count; i++)
             {
                 if (list1[i].Fingerprint != i + 1)
                 {
-                    m_mitarbeiternummer = i + 1;
+                    m_fingernumber = i + 1;
                     break;
                 }
             }
@@ -157,64 +236,109 @@ namespace TimeChip_App
 
         private void BtnAddFinger_Click(object sender, EventArgs e)
         {
-            if(m_bearbeiten || m_finger)
+            DlgFingerName fingerName = new DlgFingerName();
+            if(fingerName.ShowDialog() != DialogResult.OK)
             {
-                if(MessageBox.Show("Wollen Sie den Finger wirklich ändern?","Achtung",MessageBoxButtons.YesNo,MessageBoxIcon.Question) == DialogResult.No)
-                {
-                    return;
-                }
+                return;
             }
 
-            if (!m_bearbeiten && !m_finger && !m_card)
+            //Immer bei einem neuen Finger brauchen wir eine Mitarbeiternummer für den Finger, weil beim erstellen einer Karte keine Mtbtrnr gebraucht
+            //Und daher auch keine erstellt wird
+            SetMitarbeiternummer();
+
+            bool newfingerpRFIDObj = false;
+            if(m_finger)
             {
-                SetMitarbeiternummer();
+                //Wenn es schon Finger gibt brauchen wir ein neues Objekt für den neuen Finger
+                newfingerpRFIDObj = true;
+            }
+            else if (!m_card)
+            {
+                //Wenn es noch keine Finger und noch keine Karten gibt brauchen wir auch ein neues Objekt
+                newfingerpRFIDObj = true;
             }
 
-            string responseContent = DataProvider.SendRecieveHTTP("Finger" + m_mitarbeiternummer);
+            string responseContent = DataProvider.SendRecieveHTTP("Finger" + m_fingernumber);
 
             if (responseContent.Contains("Finger-hinzugefuegt"))
             {
-                if (!m_bearbeiten)
+                if (newfingerpRFIDObj)
                 {
-                    MessageBox.Show("Der Finger wurde erfolgreich hinzugefügt!", "Erfolg", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    m_finger = true;
+                    if (m_card)
+                    {
+                        string RFIDUID = DataProvider.SelectFingerprintRFIDofMtbtr(m_mtbtrID)[0].RFIDUID;
+
+                        DataProvider.InsertFingerRFIDUID(m_fingernumber, RFIDUID, fingerName.FingerName, m_mtbtrID);
+                    }
+                    else
+                    {
+                        DataProvider.InsertFingerRFIDUID(m_fingernumber, "NaN", fingerName.FingerName, m_mtbtrID);
+
+                    }
                 }
                 else
                 {
-                    MessageBox.Show("Der Finger wurde erfolgreich geändert!", "Erfolg", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    //Wenn es schon eine Karte aber noch keinen Finger gibt wird der Finger einfach dem Kartenobjekt zugewiesen
+                    ClsFingerprintRFID fingerprintRFID = DataProvider.SelectFingerprintRFIDofMtbtr(m_mtbtrID)[0];
+
+                    fingerprintRFID.Fingerprint = m_fingernumber;
+                    fingerprintRFID.FingerName = fingerName.FingerName;
+
+                    DataProvider.UpdateFingerprintRFID(fingerprintRFID);
                 }
 
-                if (!m_card && !m_bearbeiten)
-                {
-                    m_fingerprintRFID = DataProvider.InsertFingerRFIDUID(Mitarbeiternummer, "NaN");
-                }
+                MessageBox.Show("Der Finger wurde erfolgreich hinzugefügt!", "Erfolg", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                m_finger = true;
             }
             else
             {
-                if (!m_bearbeiten)
+                MessageBox.Show("Der Finger konnte nicht hinzugefügt werden!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void BtnDeleteFinger_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Wollen Sie den ausgewählten Finger wirklich löschen?", "Achtung", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+            {
+                return;
+            }
+
+            if(m_fingers.Count > 1)
+            {
+                //Wenn es mehr als 1 Finger gibt kann man das aktuelle Fingerobjekt löschen, weil sollte es eine Karte geben, die auch in den anderen Objekten gespeichert ist
+                DataProvider.DeleteFingerprintRFID(m_lbxFinger.SelectedItem as ClsFingerprintRFID);
+            }
+            else if(m_fingers.Count == 1)
+            {
+                m_finger = false;
+                if (m_card)
                 {
-                    MessageBox.Show("Der Finger konnte nicht hinzugefügt werden!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    //Wenn es nur einen Finger gibt aber auch eine Karte wird nur der Finger aus dem FingerKartenobjekt entfernt damit die Karte nicht verloren geht
+                    ClsFingerprintRFID fingerprintRFID = m_lbxFinger.SelectedItem as ClsFingerprintRFID;
+                    fingerprintRFID.FingerName = "Nan";
+                    fingerprintRFID.Fingerprint = 0;
+
+                    DataProvider.UpdateFingerprintRFID(fingerprintRFID);
                 }
-                else
+                else if((m_lbxFinger.SelectedItem as ClsFingerprintRFID).RFIDUID == "NaN")
                 {
-                    MessageBox.Show("Der Finger konnte nicht geändert werden!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    //Wenn es keine Karte gibt kann man das Objekt einfach löschen, da dadurch keine Kartendaten verloren gehen können
+                    DataProvider.DeleteFingerprintRFID(m_lbxFinger.SelectedItem as ClsFingerprintRFID);
                 }
             }
+
+            m_fingers.Remove(m_lbxFinger.SelectedItem as ClsFingerprintRFID);
+            m_fingers.ResetBindings();
         }
 
         private void BtnAddCard_Click(object sender, EventArgs e)
         {
-            if(m_bearbeiten || m_card)
+            if(m_card)
             {
                 if (MessageBox.Show("Wollen Sie die Karte wirklich ändern?", "Achtung", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                 {
                     return;
                 }
-            }
-
-            if (!m_bearbeiten && !m_finger && !m_card)
-            {
-                SetMitarbeiternummer();
             }
 
             string responseContent = DataProvider.SendRecieveHTTP("Card");
@@ -223,18 +347,20 @@ namespace TimeChip_App
             {
                 string[] parts = responseContent.Split('$');
 
-                if (!m_bearbeiten && !m_finger)
+                if (m_card || m_finger)
                 {
-                    m_fingerprintRFID = DataProvider.InsertFingerRFIDUID(m_mitarbeiternummer, parts[1]);
+                    //Wenn es entweder schon eine Karte oder einen Finger gibt, gibt es bereits FingRFID Objekte, die mit der neuen Karte geupdatet werden können
+                    List<ClsFingerprintRFID> fingerprintRFIDs = DataProvider.SelectFingerprintRFIDofMtbtr(m_mtbtrID);
+
+                    DataProvider.UpdateMultipleFingerprintRFID(fingerprintRFIDs, parts[1]);
                 }
                 else
                 {
-                    m_fingerprintRFID.RFIDUID = parts[1];
-                    DataProvider.UpdateFingerprintRFID(m_fingerprintRFID);
+                    //Wenn es noch keinen Finger und keine Karte gibt muss ein neues FingRFID Objekt erstellt werden
+                    DataProvider.InsertFingerRFIDUID(0, parts[1], "NaN", m_mtbtrID);
                 }
-                m_card = true;
-
-                if (!m_bearbeiten)
+                
+                if (!m_card)
                 {
                     MessageBox.Show("Karte wurde erfolgreich hinzugefügt.", "Erfolg", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
@@ -242,10 +368,11 @@ namespace TimeChip_App
                 {
                     MessageBox.Show("Karte wurde erfolgreich geändert.", "Erfolg", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
+                m_card = true;
             }
             else
             {
-                if (!m_bearbeiten)
+                if (!m_card)
                 {
                     MessageBox.Show("Die Karte konnte nicht hinzugefügt werden!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
@@ -297,13 +424,6 @@ namespace TimeChip_App
             {
                 MessageBox.Show("Bitte Urlaub und Überstunden im Format Stunden:Minuten eingeben!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
-            }
-
-            if (!m_card && !m_finger && !m_bearbeiten)
-            {
-                SetMitarbeiternummer();
-
-                DataProvider.InsertFingerRFIDUID(m_mitarbeiternummer, "NaN");
             }
         }
     }

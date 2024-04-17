@@ -46,7 +46,7 @@ namespace TimeChip_App
                     foreach(DateTime tag in Tage)
                     {
                         GetAbzpofDate(ref mtbtr, tag, abzpmtbtrs);
-                        List<ClsBuchung> TagBuchungen = buchungen.FindAll(x => x.Zeit.ToShortDateString().Equals(tag.ToShortDateString()) && x.Mitarbeiternummer.Equals(mitarbeiter.Mitarbeiternummer));
+                        List<ClsBuchung> TagBuchungen = buchungen.FindAll(x => x.Zeit.ToShortDateString().Equals(tag.ToShortDateString()) && x.MtbtrID.Equals(mitarbeiter.ID));
                         ausgewerteteTage.Add(Berechnen(tag, ref mtbtr, true, TagBuchungen));
                     }
 
@@ -105,7 +105,7 @@ namespace TimeChip_App
                 if (!ersteBerechnung)
                 {
                     buchungen = DataProvider.SelectAllBuchungenFromDay(mtbtr, day, "buchungen");
-                    tag = DataProvider.SelectAusgewerteterTag(day, mtbtr.Mitarbeiternummer);
+                    tag = DataProvider.SelectAusgewerteterTag(day, mtbtr.ID);
                 }
                 else
                 {
@@ -216,11 +216,11 @@ namespace TimeChip_App
 
                 DataProvider.UpdateMitarbeiter(mtbtr);
 
-                return DataProvider.InsertAusgewerteterTag(day, mtbtr.Mitarbeiternummer, Arbeitszeit, tag.Status);
+                return DataProvider.InsertAusgewerteterTag(day, mtbtr.ID, Arbeitszeit, tag.Status);
             }
             mtbtr.Überstunden += Überstunden;
 
-            return new ClsAusgewerteter_Tag(1, mtbtr.Mitarbeiternummer, Arbeitszeit, day, tag.Status);
+            return new ClsAusgewerteter_Tag(1, mtbtr.ID, Arbeitszeit, day, tag.Status);
         }
 
         /// <summary>
@@ -230,7 +230,7 @@ namespace TimeChip_App
         /// <param name="alterStatus">Der Wert des Status vor der Änderung; 0 = Zeitausgleich, 1 = Krank, 2 = Schule, 3 = Urlaub</param>
         public static void TagesStatusÄnderung(ClsAusgewerteter_Tag tag, int alterStatus)
         {
-            ClsMitarbeiter mitarbeiter = FrmHaupt.Mitarbeiterliste.ToList().Find(x => x.Mitarbeiternummer.Equals(tag.MitarbeiterNummer));
+            ClsMitarbeiter mitarbeiter = FrmHaupt.Mitarbeiterliste.ToList().Find(x => x.ID.Equals(tag.MtbtrID));
             List<ClsAbzpMtbtr> abzpMtbtrs = DataProvider.SelectAbzpMtbtr(mitarbeiter);
             GetAbzpofDate(ref mitarbeiter, tag.Date, abzpMtbtrs);
             TimeSpan Überstunden = tag.Arbeitszeit - GetSollArbeitszeit(tag.Date, mitarbeiter);
