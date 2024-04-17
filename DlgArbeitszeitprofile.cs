@@ -141,7 +141,7 @@ namespace TimeChip_App
                 Tage.Add(DataProvider.InsertTag(t.Arbeitsbeginn, t.Arbeitsende, t.Arbeitszeit, t.Pause, t.Pausenbeginn, t.Pausenende, t.Pausendauer));
             }
 
-            DataProvider.InsertArbeitszeitprofil(m_tbxName.Text, Tage[0], Tage[1], Tage[2], Tage[3], Tage[4], Tage[5], Tage[6], m_cbGleitzeit.Checked);
+            DataProvider.InsertArbeitszeitprofil(m_tbxName.Text, Tage[0], Tage[1], Tage[2], Tage[3], Tage[4], Tage[5], Tage[6], m_cbGleitzeit.Checked, false);
             UpdateAbzpList();
             ClearTable();
         }
@@ -237,13 +237,13 @@ namespace TimeChip_App
         }
 
         /// <summary>
-        /// Aktualisiert die Objekte, die in der Listbox, die sämtliche Arbeitszeitprofile anzeigt, angezeigt werden
+        /// Aktualisiert die Arbeitszeitprofilliste mit den Daten aus der Datenbank
         /// </summary>
         private void UpdateAbzpList()
         {
             m_arbeitsprofilliste.Clear();
 
-            foreach (ClsArbeitsprofil abzp in DataProvider.SelectAllArbeitszeitprofil())
+            foreach (ClsArbeitsprofil abzp in DataProvider.SelectAllArbeitszeitprofil().FindAll(x=>x.Ruhestand == false))
             {
                 m_arbeitsprofilliste.Add(abzp);
             }

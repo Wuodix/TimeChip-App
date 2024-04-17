@@ -12,6 +12,7 @@ namespace TimeChip_App
         //m_finger gibt an ob schon ein Finger hinzugefügt wurde; m_bearbeiten gibt an ob das Fenster gerade zum bearbeiten oder erstellen genutzt wird
         bool m_finger = false, m_bearbeiten = false, m_card = false;
         ClsFingerprintRFID m_fingerprintRFID;
+        ClsArbeitsprofil m_arbeitsprofil;
 
         public DlgMitarbeiter()
         {
@@ -64,6 +65,7 @@ namespace TimeChip_App
             List<ClsArbeitsprofil> clsArbeitsprofils = DlgArbeitszeitprofile.ArbeitsprofilListe.ToList();
             ClsArbeitsprofil arbeitsprofil = clsArbeitsprofils.FindLast(x => x.ID.Equals(Bearbeitender.Arbeitszeitprofil.ID));
             m_cmbxAProfil.SelectedItem = arbeitsprofil;
+            m_arbeitsprofil = arbeitsprofil;
 
             m_fingerprintRFID = DataProvider.SelectAllFingerprintRFID().Find(x => x.Fingerprint.Equals(Bearbeitender.Mitarbeiternummer));
 
@@ -271,6 +273,15 @@ namespace TimeChip_App
                     {
                         return;
                     }
+                }
+            }
+
+            if (m_bearbeiten && m_arbeitsprofil.ID != (m_cmbxAProfil.SelectedItem as ClsArbeitsprofil).ID)
+            {
+                if (MessageBox.Show("Wollen Sie wirklich das Arbeitszeitprofil des Mitarbeiters wechseln?", "Achtung", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                {
+                    m_cmbxAProfil.SelectedItem = m_arbeitsprofil;
+                    return;
                 }
             }
 

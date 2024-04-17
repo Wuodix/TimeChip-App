@@ -30,9 +30,6 @@ namespace TimeChip_App
                 DlgArbeitszeitprofile load = new DlgArbeitszeitprofile();
                 load.Show();
                 load.Close();
-                DlgTag load2 = new DlgTag();
-                load2.Show();
-                load2.Close();
             }
             catch (MySql.Data.MySqlClient.MySqlException)
             {

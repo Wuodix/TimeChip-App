@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using ZstdSharp.Unsafe;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace TimeChip_App
@@ -41,8 +42,10 @@ namespace TimeChip_App
                 foreach (ClsMitarbeiter mitarbeiter in FrmHaupt.Mitarbeiterliste)
                 {
                     mtbtr = mitarbeiter;
+                    List<ClsAbzpMtbtr> abzpmtbtrs = DataProvider.SelectAbzpMtbtr(mtbtr);
                     foreach(DateTime tag in Tage)
                     {
+                        GetAbzpofDate(ref mtbtr, tag, abzpmtbtrs);
                         List<ClsBuchung> TagBuchungen = buchungen.FindAll(x => x.Zeit.ToShortDateString().Equals(tag.ToShortDateString()) && x.Mitarbeiternummer.Equals(mitarbeiter.Mitarbeiternummer));
                         ausgewerteteTage.Add(Berechnen(tag, ref mtbtr, true, TagBuchungen));
                     }
@@ -77,10 +80,10 @@ namespace TimeChip_App
         /// <param name="mtbtr">Der Mitarbeiter, dessen Tage berechnet werden müssen</param>
         public static void Berechnen(DateTime startdate, DateTime enddate, ClsMitarbeiter mtbtr)
         {
-            List<ClsAusgewerteter_Tag> tage = DataProvider.SelectAusgewerteteTage(startdate, enddate, mtbtr.Mitarbeiternummer);
-
+            List<ClsAbzpMtbtr> abzpMtbtrs = DataProvider.SelectAbzpMtbtr(mtbtr);
             for(DateTime date = startdate; date <= enddate;date = date.Add(new TimeSpan(1, 0, 0, 0)))
             {
+                GetAbzpofDate(ref mtbtr, date, abzpMtbtrs);
                 Berechnen(date, ref mtbtr, false);
             }
         }
@@ -223,11 +226,13 @@ namespace TimeChip_App
         /// <summary>
         /// Berechnet bei etwaiger Statusänderung eines Tages die Änderung in den Überstunden bzw. beim verbleibenden Urlaub eines Mitarbeiters
         /// </summary>
-        /// <param name="tag">Der Tag, dessen Status geändert wird</param>
+        /// <param name="tag">Der Tag, dessen Status geändert wurde</param>
         /// <param name="alterStatus">Der Wert des Status vor der Änderung; 0 = Zeitausgleich, 1 = Krank, 2 = Schule, 3 = Urlaub</param>
         public static void TagesStatusÄnderung(ClsAusgewerteter_Tag tag, int alterStatus)
         {
             ClsMitarbeiter mitarbeiter = FrmHaupt.Mitarbeiterliste.ToList().Find(x => x.Mitarbeiternummer.Equals(tag.MitarbeiterNummer));
+            List<ClsAbzpMtbtr> abzpMtbtrs = DataProvider.SelectAbzpMtbtr(mitarbeiter);
+            GetAbzpofDate(ref mitarbeiter, tag.Date, abzpMtbtrs);
             TimeSpan Überstunden = tag.Arbeitszeit - GetSollArbeitszeit(tag.Date, mitarbeiter);
             //Status Codes:
             //0 = Zeitausgleich
@@ -356,6 +361,19 @@ namespace TimeChip_App
             }
 
             DataProvider.WriteDateToCSV(strings);
+        }
+
+        public static void GetAbzpofDate(ref ClsMitarbeiter mtbtr, DateTime date, List<ClsAbzpMtbtr> abzpMtbtrs)
+        {
+            List<ClsAbzpMtbtr> startvor = abzpMtbtrs.FindAll(x=>x.Startdate.CompareTo(date)<0);
+            List<ClsAbzpMtbtr> endnach = startvor.FindAll(x=>x.Enddate.CompareTo(date)>0);
+
+            Debug.WriteLine(endnach.Count);
+
+            if(endnach.Count != 0)
+            {
+                mtbtr.Arbeitszeitprofil = DlgArbeitszeitprofile.ArbeitsprofilListe.Find(x => x.ID.Equals(endnach[0].ID));
+            }
         }
 
         /// <summary>
