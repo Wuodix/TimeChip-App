@@ -133,6 +133,12 @@ namespace TimeChip_App
                 return;
             }
 
+            if(m_tbxName.Text == string.Empty)
+            {
+                MessageBox.Show("Es wurde noch kein Name für das Arbeitszeitprofil eingegeben!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             List<ClsTag> Tagetemp = ReadalleTagevonTabelle();
 
             List<ClsTag> Tage = new List<ClsTag>();
@@ -206,7 +212,7 @@ namespace TimeChip_App
                 }
             }
 
-            m_cmbxAbzp.Text = string.Empty;
+            m_cmbxAbzp.SelectedItem = null;
             m_cbGleitzeit.Checked = false;
             m_tbxName.Text = string.Empty;
         }

@@ -1143,7 +1143,7 @@ namespace TimeChip_App
         /// <returns>Die Anzahl veränderter Datensätze in der Datenbank</returns>
         public static int DeleteMultipleAusgewerteterTag(ClsMitarbeiter mtbtr)
         {
-            string query = "DELETE FROM 'ausgewertete_tage' WHERE MtbtrID=" + mtbtr.ID;
+            string query = "DELETE FROM ausgewertete_tage WHERE MtbtrID=" + mtbtr.ID;
 
             return ExecuteNonQuery(query);
         }

@@ -233,6 +233,8 @@ namespace TimeChip_App
         {
             SetMitarbeiternummer();
 
+            MessageBox.Show("Sobald Sie auf OK drücken haben Sie 30 Sekunden Zeit den Finger am Terminal einzuspeichern. Wenn in 30 Sekunden kein Finger erkannt wird, wird der Vorgang abgebrochen!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
             string responseContent = DataProvider.SendRecieveHTTP("Finger" + m_fingernumber);
 
             if (responseContent.Contains("Finger-hinzugefuegt"))
@@ -243,7 +245,7 @@ namespace TimeChip_App
                     return;
                 }
 
-                DataProvider.InsertFingerRFIDUID(m_fingernumber, fingerName.FingerName, m_mtbtrID);
+                m_fingers.Add(DataProvider.InsertFingerRFIDUID(m_fingernumber, fingerName.FingerName, m_mtbtrID));
 
                 MessageBox.Show("Der Finger wurde erfolgreich hinzugefügt!", "Erfolg", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 m_finger = true;
@@ -292,6 +294,8 @@ namespace TimeChip_App
                 }
             }
 
+            MessageBox.Show("Sobald Sie auf OK drücken haben Sie 30 Sekunden Zeit die Karte am Terminal einzuspeichern. Wenn in 30 Sekunden keine Karte erkannt wird, wird der Vorgang abgebrochen!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
             string responseContent = DataProvider.SendRecieveHTTP("Card");
 
             if (responseContent.Contains("CardUID:"))
@@ -309,9 +313,14 @@ namespace TimeChip_App
                     MessageBox.Show("Karte wurde erfolgreich geändert.", "Erfolg", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 m_card = true;
+                m_btnAddCard.Text = "Karte ändern";
             }
             else
             {
+                if(responseContent.Contains("ZU LANGSAM"))
+                {
+                    MessageBox.Show("Sie waren beim Scannen der Karte zu langsam und der Vorgang wurde nach 30 Sekunden abgebrochen!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
                 if (!m_card)
                 {
                     MessageBox.Show("Die Karte konnte nicht hinzugefügt werden!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -324,25 +333,7 @@ namespace TimeChip_App
         }
 
         private void BtnOK_Click(object sender, EventArgs e)
-        {            
-            if (!m_bearbeiten)
-            {
-                if (!m_card)
-                {
-                    if(MessageBox.Show("Wollen Sie wirklich einen Mitarbeiter ohne zugewiesene Karte erstellen?", "Achtung",MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
-                    {
-                        return;
-                    }
-                }
-                if (!m_finger)
-                {
-                    if (MessageBox.Show("Wollen Sie wirklich einen Mitarbeiter ohne eingespeicherten Finger erstellen?", "Achtung", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
-                    {
-                        return;
-                    }
-                }
-            }
-
+        {
             if (m_bearbeiten && m_arbeitsprofil.ID != (m_cmbxAProfil.SelectedItem as ClsArbeitsprofil).ID)
             {
                 if (MessageBox.Show("Wollen Sie wirklich das Arbeitszeitprofil des Mitarbeiters wechseln?", "Achtung", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)

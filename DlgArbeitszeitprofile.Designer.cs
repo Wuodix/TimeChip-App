@@ -30,7 +30,6 @@ namespace TimeChip_App
         private void InitializeComponent()
         {
             this.m_btnOK = new System.Windows.Forms.Button();
-            this.m_btnAbbrechen = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -140,25 +139,13 @@ namespace TimeChip_App
             // 
             this.m_btnOK.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.m_btnOK.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.m_btnOK.Location = new System.Drawing.Point(823, 581);
+            this.m_btnOK.Location = new System.Drawing.Point(1035, 579);
             this.m_btnOK.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnOK.Name = "m_btnOK";
             this.m_btnOK.Size = new System.Drawing.Size(134, 38);
             this.m_btnOK.TabIndex = 16;
             this.m_btnOK.Text = "OK";
             this.m_btnOK.UseVisualStyleBackColor = true;
-            // 
-            // m_btnAbbrechen
-            // 
-            this.m_btnAbbrechen.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.m_btnAbbrechen.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.m_btnAbbrechen.Location = new System.Drawing.Point(957, 579);
-            this.m_btnAbbrechen.Margin = new System.Windows.Forms.Padding(2);
-            this.m_btnAbbrechen.Name = "m_btnAbbrechen";
-            this.m_btnAbbrechen.Size = new System.Drawing.Size(134, 38);
-            this.m_btnAbbrechen.TabIndex = 17;
-            this.m_btnAbbrechen.Text = "Abbrechen";
-            this.m_btnAbbrechen.UseVisualStyleBackColor = true;
             // 
             // label1
             // 
@@ -1388,7 +1375,7 @@ namespace TimeChip_App
             // m_btnSpeichern
             // 
             this.m_btnSpeichern.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.m_btnSpeichern.Location = new System.Drawing.Point(823, 537);
+            this.m_btnSpeichern.Location = new System.Drawing.Point(1035, 538);
             this.m_btnSpeichern.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnSpeichern.Name = "m_btnSpeichern";
             this.m_btnSpeichern.Size = new System.Drawing.Size(134, 38);
@@ -1400,7 +1387,7 @@ namespace TimeChip_App
             // m_btnNeu
             // 
             this.m_btnNeu.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.m_btnNeu.Location = new System.Drawing.Point(685, 538);
+            this.m_btnNeu.Location = new System.Drawing.Point(897, 538);
             this.m_btnNeu.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnNeu.Name = "m_btnNeu";
             this.m_btnNeu.Size = new System.Drawing.Size(134, 38);
@@ -1412,7 +1399,7 @@ namespace TimeChip_App
             // m_btnLöschen
             // 
             this.m_btnLöschen.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.m_btnLöschen.Location = new System.Drawing.Point(685, 580);
+            this.m_btnLöschen.Location = new System.Drawing.Point(897, 579);
             this.m_btnLöschen.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnLöschen.Name = "m_btnLöschen";
             this.m_btnLöschen.Size = new System.Drawing.Size(134, 38);
@@ -1440,7 +1427,6 @@ namespace TimeChip_App
             this.Controls.Add(this.m_btnNeu);
             this.Controls.Add(this.m_btnSpeichern);
             this.Controls.Add(this.m_tlpTabelle);
-            this.Controls.Add(this.m_btnAbbrechen);
             this.Controls.Add(this.m_btnOK);
             this.Controls.Add(this.label10);
             this.Controls.Add(this.m_tbxName);
@@ -1466,7 +1452,6 @@ namespace TimeChip_App
 
         #endregion
         private System.Windows.Forms.Button m_btnOK;
-        private System.Windows.Forms.Button m_btnAbbrechen;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
