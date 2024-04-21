@@ -1061,6 +1061,7 @@ namespace TimeChip_App
             DeleteMultipleBuchungen(mtbtr, "buchungen_temp");
             DeleteMultipleBuchungen(mtbtr, "buchungen");
             DeleteMultipleAbzpMtbtr(mtbtr);
+            DeleteFingerprintRFID(mtbtr);
 
             DeleteArbeitszeitprofil(mtbtr.Arbeitszeitprofil);
 
@@ -1075,6 +1076,13 @@ namespace TimeChip_App
         public static int DeleteFingerprintRFID(ClsFingerprintRFID fingerprintRFID)
         {
             string query = "DELETE FROM fingerprintrfid WHERE ID=" + fingerprintRFID.ID;
+
+            return ExecuteNonQuery(query);
+        }
+
+        public static int DeleteFingerprintRFID(ClsMitarbeiter mtbtr)
+        {
+            string query = "DELETE FROM fingerprintrfid WHERE MtbtrID=" + mtbtr.ID;
 
             return ExecuteNonQuery(query);
         }
