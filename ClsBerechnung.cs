@@ -368,8 +368,6 @@ namespace TimeChip_App
             List<ClsAbzpMtbtr> startvor = abzpMtbtrs.FindAll(x=>x.Startdate.CompareTo(date)<0);
             List<ClsAbzpMtbtr> endnach = startvor.FindAll(x=>x.Enddate.CompareTo(date)>0);
 
-            Debug.WriteLine(endnach.Count);
-
             if(endnach.Count != 0)
             {
                 mtbtr.Arbeitszeitprofil = DlgArbeitszeitprofile.ArbeitsprofilListe.Find(x => x.ID.Equals(endnach[0].ID));

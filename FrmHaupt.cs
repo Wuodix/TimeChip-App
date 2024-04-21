@@ -81,7 +81,7 @@ namespace TimeChip_App
             neu.Neu();
             if (neu.ShowDialog() == DialogResult.OK)
             {
-                ClsMitarbeiter mtbtr = DataProvider.InsertMitarbeiter(neu.Vorname, neu.Nachname, neu.Arbeitsbeginn, neu.Überstunden, neu.Arbeitzeitprofil, neu.Urlaub);
+                ClsMitarbeiter mtbtr = DataProvider.InsertMitarbeiter(neu.Vorname, neu.Nachname, neu.CardUID, neu.Arbeitsbeginn, neu.Überstunden, neu.Arbeitzeitprofil, neu.Urlaub);
 
                 DateTime compare = neu.Arbeitsbeginn;
                 List<DateTime> Tage = new List<DateTime>();
@@ -138,7 +138,6 @@ namespace TimeChip_App
                 {
                     DataProvider.InsertAbzpMtbtr(Bearbeiten.Arbeitzeitprofil.ID, zubearbeitender.ID);
                     ClsAbzpMtbtr abzpMtbtr = DataProvider.SelectAbzpMtbtr(zubearbeitender.Arbeitszeitprofil.ID, zubearbeitender.ID).Find(x => x.Enddate == new DateTime(2001,1,1));
-                    Debug.WriteLine(abzpMtbtr.ToString());
                     DataProvider.EndAbzpMtbtr(abzpMtbtr);
                 }
                 
@@ -148,6 +147,7 @@ namespace TimeChip_App
                 zubearbeitender.Arbeitszeitprofil = Bearbeiten.Arbeitzeitprofil;
                 zubearbeitender.Urlaub = Bearbeiten.Urlaub;
                 zubearbeitender.Überstunden = Bearbeiten.Überstunden;
+                zubearbeitender.RFIDUID = Bearbeiten.CardUID;
 
                 DataProvider.UpdateMitarbeiter(zubearbeitender);
                 if(Einspieldatum.CompareTo(DateTime.Now.Date) != 0)
@@ -677,6 +677,8 @@ namespace TimeChip_App
                 DataProvider.SaveConnectionString();
 
                 DataProvider.SaveBerechnungsdate(settings.Berechnungsdate);
+
+                DataProvider.SaveArduinoIP(settings.ArduinoIP);
 
                 if (MessageBox.Show("Die App wird neu gestartet um die Änderungen verarbeiten zu können!", "Achtung!", MessageBoxButtons.OK, MessageBoxIcon.Warning) == DialogResult.OK)
                 {

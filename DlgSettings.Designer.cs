@@ -40,6 +40,8 @@
             this.m_btnCancel = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
             this.m_dtpBerechnungsdate = new System.Windows.Forms.DateTimePicker();
+            this.label6 = new System.Windows.Forms.Label();
+            this.m_tbxArduinoIP = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // m_tbxIP
@@ -143,7 +145,7 @@
             // 
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(12, 169);
+            this.label5.Location = new System.Drawing.Point(12, 196);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(149, 20);
             this.label5.TabIndex = 29;
@@ -151,16 +153,36 @@
             // 
             // m_dtpBerechnungsdate
             // 
-            this.m_dtpBerechnungsdate.Location = new System.Drawing.Point(174, 168);
+            this.m_dtpBerechnungsdate.Location = new System.Drawing.Point(174, 195);
             this.m_dtpBerechnungsdate.Name = "m_dtpBerechnungsdate";
             this.m_dtpBerechnungsdate.Size = new System.Drawing.Size(217, 20);
             this.m_dtpBerechnungsdate.TabIndex = 4;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label6.Location = new System.Drawing.Point(12, 146);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(83, 20);
+            this.label6.TabIndex = 31;
+            this.label6.Text = "Arduino IP";
+            // 
+            // m_tbxArduinoIP
+            // 
+            this.m_tbxArduinoIP.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.m_tbxArduinoIP.Location = new System.Drawing.Point(174, 140);
+            this.m_tbxArduinoIP.Name = "m_tbxArduinoIP";
+            this.m_tbxArduinoIP.Size = new System.Drawing.Size(217, 26);
+            this.m_tbxArduinoIP.TabIndex = 30;
             // 
             // DlgSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(435, 267);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.m_tbxArduinoIP);
             this.Controls.Add(this.m_dtpBerechnungsdate);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.m_btnCancel);
@@ -195,5 +217,7 @@
         private System.Windows.Forms.Button m_btnCancel;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.DateTimePicker m_dtpBerechnungsdate;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TextBox m_tbxArduinoIP;
     }
 }

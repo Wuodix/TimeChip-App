@@ -169,10 +169,10 @@ namespace TimeChip_App
         /// <param name="abzp"></param>
         /// <param name="urlaub">Der verfügbare Urlaub des Mitarbeiters</param>
         /// <returns>Der eingefügte Mitarbeiter als ClsMitarbeiter-Objekt</returns>
-        public static ClsMitarbeiter InsertMitarbeiter(string vorname, string nachname, DateTime arbeitsbeginn, TimeSpan überstunden, ClsArbeitsprofil abzp, TimeSpan urlaub)
+        public static ClsMitarbeiter InsertMitarbeiter(string vorname, string nachname, string rfiduid, DateTime arbeitsbeginn, TimeSpan überstunden, ClsArbeitsprofil abzp, TimeSpan urlaub)
         {
-            string query = "INSERT INTO mitarbeiter (Vorname, Nachname, Arbeitsbeginn, Ueberstunden, Arbeitszeitprofil, Urlaub) VALUES(" +
-                "@vorname, @nachname, @arbeitsbeginn, @überstunden, @arbeitszeitp, @urlaub)";
+            string query = "INSERT INTO mitarbeiter (Vorname, Nachname, Arbeitsbeginn, Ueberstunden, Arbeitszeitprofil, Urlaub, RFIDUID) VALUES(" +
+                "@vorname, @nachname, @arbeitsbeginn, @überstunden, @arbeitszeitp, @urlaub, @rfiduid)";
 
             MySqlCommand cmd = new MySqlCommand(query);
             cmd.Parameters.AddWithValue("vorname", vorname);
@@ -181,10 +181,11 @@ namespace TimeChip_App
             cmd.Parameters.AddWithValue("überstunden", überstunden);
             cmd.Parameters.AddWithValue("arbeitszeitp", abzp.ID);
             cmd.Parameters.AddWithValue("urlaub", urlaub);
+            cmd.Parameters.AddWithValue("rfiduid", rfiduid);
 
             ExecuteNonQuery(cmd);
 
-            return new ClsMitarbeiter(SelectAllMitarbeiter().Last().ID, vorname, nachname, abzp, arbeitsbeginn, urlaub, überstunden);
+            return new ClsMitarbeiter(SelectAllMitarbeiter().Last().ID, vorname, nachname, rfiduid, abzp, arbeitsbeginn, urlaub, überstunden);
         }
 
         /// <summary>
@@ -193,19 +194,18 @@ namespace TimeChip_App
         /// <param name="FingerprintID"></param>
         /// <param name="RFIDUID"></param>
         /// <returns>Die eingefügten Daten in einem ClsFingerprintRFID-Objekt</returns>
-        public static ClsFingerprintRFID InsertFingerRFIDUID(int FingerprintID, string RFIDUID, string Fingername, int MtbtrID)
+        public static ClsFingerprintRFID InsertFingerRFIDUID(int FingerprintID, string Fingername, int MtbtrID)
         {
-            string query = "INSERT INTO fingerprintrfid (MtbtrID, Fingerprint, FingerName, RFIDUID,) VALUES (@mtbtrid, @fingerprint, @fingername, @uid)";
+            string query = "INSERT INTO fingerprintrfid (MtbtrID, Fingerprint, FingerName) VALUES (@mtbtrid, @fingerprint, @fingername)";
             
             MySqlCommand cmd = new MySqlCommand(query);
             cmd.Parameters.AddWithValue("mtbtrid", MtbtrID);
             cmd.Parameters.AddWithValue("fingerprint", FingerprintID);
             cmd.Parameters.AddWithValue("fingername", Fingername);
-            cmd.Parameters.AddWithValue("uid", RFIDUID);
 
             ExecuteNonQuery(cmd);
 
-            return new ClsFingerprintRFID(SelectAllFingerprintRFID().Last().ID, RFIDUID, FingerprintID, Fingername, MtbtrID);
+            return new ClsFingerprintRFID(SelectAllFingerprintRFID().Last().ID, FingerprintID, Fingername, MtbtrID);
         }
 
         /// <summary>
@@ -339,7 +339,7 @@ namespace TimeChip_App
         {
             if(Table == "buchungen")
             {
-                string query = "SELECT * FROM @table WHERE MtbtrID=@mtbtrid AND (Zeit BETWEEN @zeit1 AND @zeit2)";
+                string query = "SELECT * FROM " + Table + " WHERE MtbtrID=@mtbtrid AND (Zeit BETWEEN @zeit1 AND @zeit2)";
 
                 MySqlCommand cmd = new MySqlCommand(query);
 
@@ -518,7 +518,7 @@ namespace TimeChip_App
                 while (reader.Read())
                 {
                     ClsMitarbeiter mitarbeiter = new ClsMitarbeiter(reader.GetInt16("ID"),
-                        reader.GetString("Vorname"), reader.GetString("Nachname"),
+                        reader.GetString("Vorname"), reader.GetString("Nachname"), reader.GetString("RFIDUID"),
                         abzt.Find(x => x.ID == reader.GetInt16("Arbeitszeitprofil")), reader.GetDateTime("Arbeitsbeginn"),
                         reader.GetTimeSpan("Urlaub"), reader.GetTimeSpan("Ueberstunden"));
                     list.Add(mitarbeiter);
@@ -564,7 +564,7 @@ namespace TimeChip_App
 
                 while (reader.Read())
                 {
-                    ClsFingerprintRFID fingerprintRFID = new ClsFingerprintRFID(reader.GetInt32("ID"), reader.GetString("RFIDUID"), reader.GetInt32("Fingerprint"),
+                    ClsFingerprintRFID fingerprintRFID = new ClsFingerprintRFID(reader.GetInt32("ID"), reader.GetInt32("Fingerprint"),
                         reader.GetString("Fingername"), reader.GetInt32("MtbtrID"));
 
                     list.Add(fingerprintRFID);
@@ -828,7 +828,7 @@ namespace TimeChip_App
         public static int UpdateMitarbeiter(ClsMitarbeiter Mtbtr)
         {
             string query = "UPDATE mitarbeiter SET Vorname=@vorname, Nachname=@nachname, Arbeitszeitprofil=@abzp, Arbeitsbeginn=@abbeginn, Urlaub=@urlaub, " +
-                "Ueberstunden=@überstunden WHERE ID=@id";
+                "Ueberstunden=@überstunden, RFIDUID=@rfiduid WHERE ID=@id";
 
             MySqlCommand cmd = new MySqlCommand(query);
             cmd.Parameters.AddWithValue("vorname", Mtbtr.Vorname);
@@ -837,6 +837,7 @@ namespace TimeChip_App
             cmd.Parameters.AddWithValue("abbeginn", Mtbtr.Arbeitsbeginn);
             cmd.Parameters.AddWithValue("urlaub", Mtbtr.Urlaub);
             cmd.Parameters.AddWithValue("überstunden", Mtbtr.Überstunden);
+            cmd.Parameters.AddWithValue("rfiduid", Mtbtr.RFIDUID);
             cmd.Parameters.AddWithValue("id", Mtbtr.ID);
 
             return ExecuteNonQuery(cmd);
@@ -849,11 +850,10 @@ namespace TimeChip_App
         /// <returns>Die Anzahl veränderter Datensätze in der Datenbank</returns>
         public static int UpdateFingerprintRFID(ClsFingerprintRFID fingerprintRFID)
         {
-            string query = "UPDATE fingerprintrfid SET Fingerprint=@finger, RFIDUID=@uid, MtbtrID=@mtbtrid, FingerName=@fingername WHERE ID=@id";
+            string query = "UPDATE fingerprintrfid SET Fingerprint=@finger, MtbtrID=@mtbtrid, FingerName=@fingername WHERE ID=@id";
 
             MySqlCommand cmd = new MySqlCommand(query);
             cmd.Parameters.AddWithValue("finger", fingerprintRFID.Fingerprint);
-            cmd.Parameters.AddWithValue("uid", fingerprintRFID.RFIDUID);
             cmd.Parameters.AddWithValue("mtbtrid", fingerprintRFID.MtbtrID);
             cmd.Parameters.AddWithValue("fingername", fingerprintRFID.FingerName);
             cmd.Parameters.AddWithValue("id", fingerprintRFID.ID);
@@ -1337,6 +1337,25 @@ namespace TimeChip_App
         }
 
         /// <summary>
+        /// Speichert die IP des Arduinos in den Settings
+        /// </summary>
+        /// <param name="IP">Die IP auf die zugegriffen wird. Format: '10.100.128.10'</param>
+        public static void SaveArduinoIP(string IP)
+        {
+            Settings.Default.ArduinoIP = IP;
+            Settings.Default.Save();
+        }
+
+        /// <summary>
+        /// Liest die eingespeicherte IP des Arduinos aus den Settings aus
+        /// </summary>
+        /// <returns>Die IP im Format: '10.100.128.10'</returns>
+        public static string ReadArduinoIP()
+        {
+            return Settings.Default.ArduinoIP;
+        }
+
+        /// <summary>
         /// Führt eine SQL-Anweisung in der Datenbank aus
         /// </summary>
         /// <param name="query"></param>
@@ -1398,7 +1417,7 @@ namespace TimeChip_App
         public static string SendRecieveHTTP(string text)
         {
             byte[] data = Encoding.UTF8.GetBytes(text + "\n\r\n");
-            string URL = "http://10.100.128.21/", responseContent;
+            string URL = "http://" + ReadArduinoIP() + "/", responseContent;
 
             WebRequest webRequest = WebRequest.Create(URL);
             webRequest.Method = "POST";

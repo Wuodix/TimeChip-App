@@ -44,6 +44,7 @@ namespace TimeChip_App
             m_cmbxAProfil.Items.AddRange(DlgArbeitszeitprofile.ArbeitsprofilListe.ToArray());
             m_lbxFinger.DataSource = m_fingers;
             m_lbxFinger.DisplayMember = "FingerName";
+            CardUID = "NaN";
 
             m_tbxVorname.TabIndex = 1;
             m_tbxNachname.TabIndex = 2;
@@ -59,6 +60,7 @@ namespace TimeChip_App
 
         public string Vorname { get { return m_tbxVorname.Text; } set { m_tbxVorname.Text = value; } }
         public string Nachname { get { return m_tbxNachname.Text; } set { m_tbxNachname.Text = value; } }
+        public string CardUID { get;set; }
         public ClsArbeitsprofil Arbeitzeitprofil { get { return m_cmbxAProfil.SelectedItem as ClsArbeitsprofil; } set { m_cmbxAProfil.SelectedItem = value; } }
         public DateTime Arbeitsbeginn { get { return m_dtpArbeitsb.Value; } set { m_dtpArbeitsb.Value = value; } }
         public TimeSpan Überstunden { get { return GetTimeSpans(false); }set { m_tbxÜberstunden.Text = Stundenrunder(value); } }
@@ -88,19 +90,12 @@ namespace TimeChip_App
             m_cmbxAProfil.SelectedItem = arbeitsprofil;
             m_arbeitsprofil = arbeitsprofil;
 
-            //m_fingerprintRFID = DataProvider.SelectAllFingerprintRFID().Find(x => x.MtbtrID.Equals(Bearbeitender.ID));
-
-            //if(m_fingerprintRFID.RFIDUID != "NaN") { m_card = true; }
-
             List<ClsFingerprintRFID> fingerprintRFIDs = DataProvider.SelectFingerprintRFIDofMtbtr(Bearbeitender.ID);
-
-            //Fügt alle FingerprintRFID Objekte des Mtbtrs, die einen Finger beinhalten zu m_fingers hinzu
+            
+            //Fügt alle FingerprintRFID Objekte des Mtbtrs zu m_fingers hinzu
             foreach (ClsFingerprintRFID f in fingerprintRFIDs)
             {
-                if(f.FingerName != "NaN")
-                {
-                    m_fingers.Add(f);
-                }
+                m_fingers.Add(f);
             }
             m_fingers.ResetBindings();
 
@@ -110,12 +105,12 @@ namespace TimeChip_App
                 m_finger = true;
             }
 
-            //Wenn in irgendeinem Objekt die RFIDUID nicht NaN ist heißt das, dass bereits eine Karte eingespeichert wurde
-            if (fingerprintRFIDs.Count > 0 && fingerprintRFIDs[0].RFIDUID != "NaN")
+            if(Bearbeitender.RFIDUID != "NaN")
             {
                 m_card = true;
                 m_btnAddCard.Text = "Karte ändern";
             }
+            CardUID = Bearbeitender.RFIDUID;
         }
 
         /// <summary>
@@ -236,56 +231,19 @@ namespace TimeChip_App
 
         private void BtnAddFinger_Click(object sender, EventArgs e)
         {
-            DlgFingerName fingerName = new DlgFingerName();
-            if(fingerName.ShowDialog() != DialogResult.OK)
-            {
-                return;
-            }
-
-            //Immer bei einem neuen Finger brauchen wir eine Mitarbeiternummer für den Finger, weil beim erstellen einer Karte keine Mtbtrnr gebraucht
-            //Und daher auch keine erstellt wird
             SetMitarbeiternummer();
-
-            bool newfingerpRFIDObj = false;
-            if(m_finger)
-            {
-                //Wenn es schon Finger gibt brauchen wir ein neues Objekt für den neuen Finger
-                newfingerpRFIDObj = true;
-            }
-            else if (!m_card)
-            {
-                //Wenn es noch keine Finger und noch keine Karten gibt brauchen wir auch ein neues Objekt
-                newfingerpRFIDObj = true;
-            }
 
             string responseContent = DataProvider.SendRecieveHTTP("Finger" + m_fingernumber);
 
             if (responseContent.Contains("Finger-hinzugefuegt"))
             {
-                if (newfingerpRFIDObj)
+                DlgFingerName fingerName = new DlgFingerName();
+                if (fingerName.ShowDialog() != DialogResult.OK)
                 {
-                    if (m_card)
-                    {
-                        string RFIDUID = DataProvider.SelectFingerprintRFIDofMtbtr(m_mtbtrID)[0].RFIDUID;
-
-                        DataProvider.InsertFingerRFIDUID(m_fingernumber, RFIDUID, fingerName.FingerName, m_mtbtrID);
-                    }
-                    else
-                    {
-                        DataProvider.InsertFingerRFIDUID(m_fingernumber, "NaN", fingerName.FingerName, m_mtbtrID);
-
-                    }
+                    return;
                 }
-                else
-                {
-                    //Wenn es schon eine Karte aber noch keinen Finger gibt wird der Finger einfach dem Kartenobjekt zugewiesen
-                    ClsFingerprintRFID fingerprintRFID = DataProvider.SelectFingerprintRFIDofMtbtr(m_mtbtrID)[0];
 
-                    fingerprintRFID.Fingerprint = m_fingernumber;
-                    fingerprintRFID.FingerName = fingerName.FingerName;
-
-                    DataProvider.UpdateFingerprintRFID(fingerprintRFID);
-                }
+                DataProvider.InsertFingerRFIDUID(m_fingernumber, fingerName.FingerName, m_mtbtrID);
 
                 MessageBox.Show("Der Finger wurde erfolgreich hinzugefügt!", "Erfolg", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 m_finger = true;
@@ -298,36 +256,29 @@ namespace TimeChip_App
 
         private void BtnDeleteFinger_Click(object sender, EventArgs e)
         {
+            if((m_lbxFinger.SelectedItem as ClsFingerprintRFID) == null)
+            {
+                MessageBox.Show("Es wurde kein Finger ausgewählt!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             if (MessageBox.Show("Wollen Sie den ausgewählten Finger wirklich löschen?", "Achtung", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
             {
                 return;
             }
 
-            if(m_fingers.Count > 1)
-            {
-                //Wenn es mehr als 1 Finger gibt kann man das aktuelle Fingerobjekt löschen, weil sollte es eine Karte geben, die auch in den anderen Objekten gespeichert ist
-                DataProvider.DeleteFingerprintRFID(m_lbxFinger.SelectedItem as ClsFingerprintRFID);
-            }
-            else if(m_fingers.Count == 1)
+            DataProvider.DeleteFingerprintRFID(m_lbxFinger.SelectedItem as ClsFingerprintRFID);
+
+            if(m_fingers.Count == 1)
             {
                 m_finger = false;
-                if (m_card)
-                {
-                    //Wenn es nur einen Finger gibt aber auch eine Karte wird nur der Finger aus dem FingerKartenobjekt entfernt damit die Karte nicht verloren geht
-                    ClsFingerprintRFID fingerprintRFID = m_lbxFinger.SelectedItem as ClsFingerprintRFID;
-                    fingerprintRFID.FingerName = "Nan";
-                    fingerprintRFID.Fingerprint = 0;
-
-                    DataProvider.UpdateFingerprintRFID(fingerprintRFID);
-                }
-                else if((m_lbxFinger.SelectedItem as ClsFingerprintRFID).RFIDUID == "NaN")
-                {
-                    //Wenn es keine Karte gibt kann man das Objekt einfach löschen, da dadurch keine Kartendaten verloren gehen können
-                    DataProvider.DeleteFingerprintRFID(m_lbxFinger.SelectedItem as ClsFingerprintRFID);
-                }
+                m_fingers.Clear();
+            }
+            else
+            {
+                m_fingers.Remove(m_lbxFinger.SelectedItem as ClsFingerprintRFID);
             }
 
-            m_fingers.Remove(m_lbxFinger.SelectedItem as ClsFingerprintRFID);
             m_fingers.ResetBindings();
         }
 
@@ -347,18 +298,7 @@ namespace TimeChip_App
             {
                 string[] parts = responseContent.Split('$');
 
-                if (m_card || m_finger)
-                {
-                    //Wenn es entweder schon eine Karte oder einen Finger gibt, gibt es bereits FingRFID Objekte, die mit der neuen Karte geupdatet werden können
-                    List<ClsFingerprintRFID> fingerprintRFIDs = DataProvider.SelectFingerprintRFIDofMtbtr(m_mtbtrID);
-
-                    DataProvider.UpdateMultipleFingerprintRFID(fingerprintRFIDs, parts[1]);
-                }
-                else
-                {
-                    //Wenn es noch keinen Finger und keine Karte gibt muss ein neues FingRFID Objekt erstellt werden
-                    DataProvider.InsertFingerRFIDUID(0, parts[1], "NaN", m_mtbtrID);
-                }
+                CardUID = parts[1];
                 
                 if (!m_card)
                 {
