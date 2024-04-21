@@ -1063,8 +1063,6 @@ namespace TimeChip_App
             DeleteMultipleAbzpMtbtr(mtbtr);
             DeleteFingerprintRFID(mtbtr);
 
-            DeleteArbeitszeitprofil(mtbtr.Arbeitszeitprofil);
-
             return ExecuteNonQuery(query);
         }
 
