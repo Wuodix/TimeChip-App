@@ -127,7 +127,7 @@ namespace TimeChip_App
 
         private void BtnSpeichern_Click(object sender, EventArgs e)
         {
-            if(m_cmbxAbzp.Text != string.Empty)
+            if(m_cmbxAbzp.SelectedItem != null)
             {
                 AbzpAktualisieren();
                 return;
@@ -215,17 +215,27 @@ namespace TimeChip_App
         {
             ClsArbeitsprofil abzp = m_cmbxAbzp.SelectedItem as ClsArbeitsprofil;
             List<ClsMitarbeiter> mtbtrs = DataProvider.SelectAllMitarbeiter();
+            List<ClsMitarbeiter> mtbtrsmabzp = new List<ClsMitarbeiter>();
 
             bool fehler = false;
 
             foreach (ClsMitarbeiter mtbtr in mtbtrs)
             {
-                if (mtbtr.Arbeitszeitprofil.ID == abzp.ID) { fehler = true; break; }
+                if (mtbtr.Arbeitszeitprofil.ID == abzp.ID) { fehler = true; mtbtrsmabzp.Add(mtbtr); }
             }
 
             if (fehler)
             {
-                MessageBox.Show("Das Arbeitszeitprofil wird noch verwendet und kann deshalb nicht gelöscht werden!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                string text = "Das Arbeitszeitprofil wird noch von ";
+                int i = 0;
+                foreach (ClsMitarbeiter m in mtbtrsmabzp)
+                {
+                    if(i!=0) text += ", ";
+                    text += m.Vorname + " " + m.Nachname;
+                    i++;
+                }
+                text += " verwendet und kann deshalb nicht gelöscht werden!";
+                MessageBox.Show(text, "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 

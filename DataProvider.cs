@@ -1029,7 +1029,7 @@ namespace TimeChip_App
         /// </summary>
         /// <param name="abzp"></param>
         /// <returns>Die Anzahl veränderter Datensätze in der Datenbank</returns>
-        public static int DeleteArbeitszeitprofil(ClsArbeitsprofil abzp)
+        public static void DeleteArbeitszeitprofil(ClsArbeitsprofil abzp)
         {
             abzp.Ruhestand = true;
 
@@ -1037,14 +1037,14 @@ namespace TimeChip_App
 
             if(SelectAbzpMtbtr(abzp.ID).Count == 0)
             {
-                DeleteMultipleTag(abzp);
-                
                 string query = "DELETE FROM arbeitszeitprofile WHERE ID=" + abzp.ID;
 
-                return ExecuteNonQuery(query);
+                ExecuteNonQuery(query);
+
+                DeleteMultipleTag(abzp);
             }
 
-            return 0;
+            return;
         }
 
         /// <summary>
