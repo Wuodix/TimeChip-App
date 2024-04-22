@@ -47,7 +47,7 @@ namespace TimeChip_App
                     {
                         GetAbzpofDate(ref mtbtr, tag, abzpmtbtrs);
                         List<ClsBuchung> TagBuchungen = buchungen.FindAll(x => x.Zeit.ToShortDateString().Equals(tag.ToShortDateString()) && x.MtbtrID.Equals(mitarbeiter.ID));
-                        ausgewerteteTage.Add(Berechnen(tag, ref mtbtr, true, TagBuchungen));
+                        ausgewerteteTage.Add(Berechnen(tag, ref mtbtr, true, false,TagBuchungen));
                     }
 
                     DataProvider.UpdateMitarbeiter(mtbtr);
@@ -84,7 +84,7 @@ namespace TimeChip_App
             for(DateTime date = startdate; date <= enddate;date = date.Add(new TimeSpan(1, 0, 0, 0)))
             {
                 GetAbzpofDate(ref mtbtr, date, abzpMtbtrs);
-                Berechnen(date, ref mtbtr, false);
+                Berechnen(date, ref mtbtr, false,true);
             }
         }
 
@@ -96,7 +96,7 @@ namespace TimeChip_App
         /// <param name="ersteBerechnung">Gibt an ob der Tag bereits berechnet wurde oder ob dies die erste Berechnung ist</param>
         /// <param name="TagesBuchungen">Eine Liste mit den Buchungen von mtbtr an day</param>
         /// <returns>Die berechneten Daten als Ausgewerteter Tag</returns>
-        public static ClsAusgewerteter_Tag Berechnen(DateTime day, ref ClsMitarbeiter mtbtr, bool ersteBerechnung, List<ClsBuchung> TagesBuchungen = null)
+        public static ClsAusgewerteter_Tag Berechnen(DateTime day, ref ClsMitarbeiter mtbtr, bool ersteBerechnung, bool timespanBerechnung = false, List<ClsBuchung> TagesBuchungen = null)
         {
             List<ClsBuchung> buchungen;
             ClsAusgewerteter_Tag tag = new ClsAusgewerteter_Tag();
@@ -161,7 +161,14 @@ namespace TimeChip_App
             TimeSpan Überstunden = new TimeSpan(0);
 
             //Pausenabzug
-            bool pauseberechnet = false;
+            if(GetPauseOfDayOfWeek(day, mtbtr))
+            {
+                if(buchungen.Count > 0)
+                {
+
+                }
+            }
+
             if (GetPauseOfDayOfWeek(day, mtbtr))
             {
                 if (buchungen.Count != 0)
@@ -169,40 +176,47 @@ namespace TimeChip_App
                     if (GetPausenbeginnOfDayOfWeek(day, mtbtr).TotalSeconds == 0 || GetPausenendeOfDayOfWeek(day, mtbtr).TotalSeconds == 0)
                     {
                         Arbeitszeit -= GetSollPausendauer(day, mtbtr);
-                        pauseberechnet = true;
                     }
                     else
                     {
                         //Erste Buchung liegt vor Pausenbeginn
                         if (buchungen[0].Zeit.TimeOfDay.CompareTo(GetPausenbeginnOfDayOfWeek(day, mtbtr)) < 0)
                         {
+                            //Letzte liegt vor Pausenbeginn
+                            //Wird nichts gemacht
+
                             //Letzte Buchung liegt nach Pausenende
                             if (buchungen.LastOrDefault().Zeit.TimeOfDay.CompareTo(GetPausenendeOfDayOfWeek(day, mtbtr)) > 0)
                             {
                                 Arbeitszeit -= GetSollPausendauer(day, mtbtr);
 
-                                pauseberechnet = true;
+                            }
+                            else if(buchungen.LastOrDefault().Zeit.TimeOfDay.CompareTo(GetPausenbeginnOfDayOfWeek(day,mtbtr))>0)
+                            {     //Letzte liegt nach Pausenbeginn
+                                //Wenn nicht: Zeit, die letze Buchung nach Pausenbeginn liegt, als Pausendauer abziehen
+                                TimeSpan Pausendauer = buchungen.LastOrDefault().Zeit.TimeOfDay.Subtract(GetPausenbeginnOfDayOfWeek(day, mtbtr));
+
+                                Arbeitszeit -= Pausendauer;
+                            }
+                        }
+                        else //Erste liegt nach Pausenbeginn
+                        {
+                            //Letzte Buchung liegt nach Pausenende
+                            if (buchungen.LastOrDefault().Zeit.TimeOfDay.CompareTo(GetPausenendeOfDayOfWeek(day, mtbtr)) > 0)
+                            {
+                                //Zeit, die erste vor Pausenende liegt als Pausendauer
+                                TimeSpan Pausendauer = GetPausenendeOfDayOfWeek(day, mtbtr).Subtract(buchungen[0].Zeit.TimeOfDay);
+
+                                Arbeitszeit -= Pausendauer;
+                            }
+                            else
+                            {
+                                Arbeitszeit = new TimeSpan(0);
                             }
                         }
                     }
 
                 }
-                else
-                {
-                    pauseberechnet = true;
-                }
-            }
-            else
-            {
-                pauseberechnet = true;
-            }
-
-            if (!pauseberechnet)
-            {
-                //Wenn nicht: Zeit, die letze Buchung nach Pausenbeginn liegt, als Pausendauer abziehen
-                TimeSpan Pausendauer = buchungen.LastOrDefault().Zeit.TimeOfDay.Subtract(GetPausenbeginnOfDayOfWeek(day, mtbtr));
-
-                Arbeitszeit -= Pausendauer;
             }
 
             Überstunden = Arbeitszeit - GetSollArbeitszeit(day, mtbtr);
@@ -211,7 +225,11 @@ namespace TimeChip_App
             {
                 TimeSpan oldÜberstunden = new TimeSpan(tag.Arbeitszeit.Ticks - GetSollArbeitszeit(day, mtbtr).Ticks);
 
-                mtbtr.Überstunden -= oldÜberstunden;
+                if (!timespanBerechnung)
+                {
+                    mtbtr.Überstunden -= oldÜberstunden;
+
+                }
                 mtbtr.Überstunden += Überstunden;
 
                 DataProvider.UpdateMitarbeiter(mtbtr);

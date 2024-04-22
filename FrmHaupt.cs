@@ -150,7 +150,7 @@ namespace TimeChip_App
                 zubearbeitender.RFIDUID = Bearbeiten.CardUID;
 
                 DataProvider.UpdateMitarbeiter(zubearbeitender);
-                if(Einspieldatum.CompareTo(DateTime.Now.Date) != 0)
+                if(Einspieldatum.CompareTo(DateTime.Now.Date) < 0)
                 {
                     ClsBerechnung.Berechnen(Einspieldatum, DateTime.Now.Date.Subtract(new TimeSpan(1,0,0,0)), zubearbeitender);
                 }
