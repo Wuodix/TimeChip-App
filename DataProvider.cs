@@ -308,7 +308,7 @@ namespace TimeChip_App
         /// <returns>Die Anzahl der eingefügten Zeilen in der Datenbank</returns>
         public static int InsertMultipeMonatsübersichten(List<(TimeSpan, TimeSpan, DateTime, int)> monatsübersichten)
         {
-            string query = "INSERT INTO monatsübersichten (Monat, MtbtrID, Monatsüberstunden, Monatsurlaub) VALUES ";
+            string query = "INSERT INTO monatsuebersichten (Monat, MtbtrID, Monatsueberstunden, Monatsurlaub) VALUES ";
 
             int i = 0;
             foreach((TimeSpan, TimeSpan, DateTime, int) monat in monatsübersichten)
@@ -797,7 +797,7 @@ namespace TimeChip_App
             {
                 conn.Open();
 
-                string query = "SELECT * FROM monatsübersicht WHERE monat=@monat AND MtbtrID=@mtbtrID";
+                string query = "SELECT * FROM monatsuebersicht WHERE monat=@monat AND MtbtrID=@mtbtrID";
 
                 MySqlCommand cmd = new MySqlCommand(query, conn);
 
@@ -808,7 +808,7 @@ namespace TimeChip_App
 
                 while (reader.Read())
                 {
-                    values.Add((reader.GetTimeSpan("Monatsüberstunden"), reader.GetTimeSpan("Monatsurlaub")));
+                    values.Add((reader.GetTimeSpan("Monatsueberstunden"), reader.GetTimeSpan("Monatsurlaub")));
                 }
             }
 

@@ -505,7 +505,7 @@ namespace TimeChip_App
 
             string Monatsüberstunden = StundenRunderStr(Monat);
 
-            (TimeSpan, TimeSpan) Monatsübersicht = DataProvider.SelectMonatsübersicht(new DateTime(date.Year, date.Month, 1), mtbtr.ID);
+            (TimeSpan, TimeSpan) Monatsübersicht = DataProvider.SelectMonatsübersicht(new DateTime(date.Year, (date.Month+1)%12, 1), mtbtr.ID);
             string GesÜberstunden = StundenRunderStr(Monatsübersicht.Item1);
             string GesUrlaub = StundenRunderStr(Monatsübersicht.Item2);
 
