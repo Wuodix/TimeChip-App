@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -504,9 +505,9 @@ namespace TimeChip_App
 
             string Monatsüberstunden = StundenRunderStr(Monat);
 
-            string GesÜberstunden = StundenRunderStr(GetOldÜberstunden(date, mtbtr));
-
-            string GesUrlaub = mtbtr.Urlaub.TotalHours.ToString() + ":00";
+            (TimeSpan, TimeSpan) Monatsübersicht = DataProvider.SelectMonatsübersicht(new DateTime(date.Year, date.Month, 1), mtbtr.ID);
+            string GesÜberstunden = StundenRunderStr(Monatsübersicht.Item1);
+            string GesUrlaub = StundenRunderStr(Monatsübersicht.Item2);
 
 #pragma warning disable IDE0017 // Initialisierung von Objekten vereinfachen
             WebBrowser PrintBrowser = new WebBrowser();
@@ -525,7 +526,8 @@ namespace TimeChip_App
         {
             TimeSpan aktuelleÜberstunden = mtbtr.Überstunden;
             DateTime lastDayofMonth = new DateTime(date.Year, date.Month, DateTime.DaysInMonth(date.Year, date.Month));
-            List<ClsAusgewerteter_Tag> days = DataProvider.SelectAusgewerteterTag(lastDayofMonth, DateTime.Today.Date, mtbtr.ID);
+            DateTime Yesterday = DateTime.Today.Date.Subtract(new TimeSpan(1,0,0,0));
+            List<ClsAusgewerteter_Tag> days = DataProvider.SelectAusgewerteterTag(lastDayofMonth, Yesterday, mtbtr.ID);
             List<ClsAbzpMtbtr> abzpmtbtrs = DataProvider.SelectAbzpMtbtr(mtbtr);
 
             foreach(ClsAusgewerteter_Tag tag in days)

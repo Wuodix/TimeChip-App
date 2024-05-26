@@ -2,9 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
 using MySql.Data.MySqlClient;
@@ -297,6 +299,29 @@ namespace TimeChip_App
             ExecuteNonQuery(cmd);
 
             return new ClsAbzpMtbtr(SelectLastAbzpMtbtr().ID, AbzpID, MtbtrID, DateTime.Today, new DateTime(2001, 1, 1));
+        }
+
+        /// <summary>
+        /// Fügt mehrere Monatsübersichten gleichzeitig in die Datenbank ein
+        /// </summary>
+        /// <param name="monatsübersichten">(Überstunden, Urlaub, der 1. Tag des Monats mit Uhrzeit 00:00:00, ID des Mtbtrs</param>
+        /// <returns>Die Anzahl der eingefügten Zeilen in der Datenbank</returns>
+        public static int InsertMultipeMonatsübersichten(List<(TimeSpan, TimeSpan, DateTime, int)> monatsübersichten)
+        {
+            string query = "INSERT INTO monatsübersichten (Monat, MtbtrID, Monatsüberstunden, Monatsurlaub) VALUES ";
+
+            int i = 0;
+            foreach((TimeSpan, TimeSpan, DateTime, int) monat in monatsübersichten)
+            {
+                if(i!=0) { query += ", "; }
+
+                query += "(" + monat.Item3 + ", " + monat.Item4 + ", " + monat.Item1 + ", " + monat.Item2 + ")";
+                i++;
+            }
+            query = ";";
+
+            MySqlCommand cmd = new MySqlCommand(query);
+            return ExecuteNonQuery(cmd);
         }
 
         /// <summary>
@@ -715,6 +740,11 @@ namespace TimeChip_App
             return SelectAbzpMtbtr(cmd);
         }
 
+        /// <summary>
+        /// Ruft alle AbzpMtbtr Objekte ab, die zu einem bestimmten Mtbtr gehören
+        /// </summary>
+        /// <param name="mtbtr"></param>
+        /// <returns></returns>
         public static List<ClsAbzpMtbtr> SelectAbzpMtbtr(ClsMitarbeiter mtbtr)
         {
             string query = "SELECT * FROM abzpmtbtr WHERE MtbtrID=@mtbtrid";
@@ -751,6 +781,38 @@ namespace TimeChip_App
             }
 
             return list;
+        }
+
+        /// <summary>
+        /// Liest die Monatsüberstunden und den Urlaub am Ende eines Monats eines Mitarbeiters aus
+        /// </summary>
+        /// <param name="monat">Der 1. des Monats mit einer Zeit von 00:00:00</param>
+        /// <param name="mtbtrID"></param>
+        /// <returns>Ein Variablentupel mit: (Überstunden,Urlaub)</returns>
+        public static (TimeSpan,TimeSpan) SelectMonatsübersicht(DateTime monat, int mtbtrID)
+        {
+            List<(TimeSpan, TimeSpan)> values = new List<(TimeSpan, TimeSpan)>();
+
+            using (MySqlConnection conn = new MySqlConnection(m_connectionString))
+            {
+                conn.Open();
+
+                string query = "SELECT * FROM monatsübersicht WHERE monat=@monat AND MtbtrID=@mtbtrID";
+
+                MySqlCommand cmd = new MySqlCommand(query, conn);
+
+                cmd.Parameters.AddWithValue("@monat", monat);
+                cmd.Parameters.AddWithValue("mtbtrID", mtbtrID);
+
+                MySqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    values.Add((reader.GetTimeSpan("Monatsüberstunden"), reader.GetTimeSpan("Monatsurlaub")));
+                }
+            }
+
+            return values.FirstOrDefault();
         }
 
         /// <summary>
@@ -1250,7 +1312,7 @@ namespace TimeChip_App
             return Settings.Default.Berechnungsdate;
         }
 
-        //Helper Funktionen
+        //Helper Funktionen____________________________________________________________________________________________________________________________________
 
         /// <summary>
         /// Wandelt einen String, der vom Arduino in die buchungen_temp Tabelle gespeichert wurde in ein DateTime um

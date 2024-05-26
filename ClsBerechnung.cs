@@ -39,12 +39,18 @@ namespace TimeChip_App
 
                 ClsMitarbeiter mtbtr = new ClsMitarbeiter();
                 List<ClsAusgewerteter_Tag> ausgewerteteTage = new List<ClsAusgewerteter_Tag>();
+                List<(TimeSpan, TimeSpan, DateTime, int)> Monatsübersichten = new List<(TimeSpan, TimeSpan, DateTime, int)>();
                 foreach (ClsMitarbeiter mitarbeiter in FrmHaupt.Mitarbeiterliste)
                 {
                     mtbtr = mitarbeiter;
                     List<ClsAbzpMtbtr> abzpmtbtrs = DataProvider.SelectAbzpMtbtr(mtbtr);
                     foreach(DateTime tag in Tage)
                     {
+                        if(tag.Day == 1)
+                        {
+                            Monatsübersichten.Add((mtbtr.Überstunden, mtbtr.Urlaub, tag.Date, mtbtr.ID));
+                        }
+
                         GetAbzpofDate(ref mtbtr, tag, abzpmtbtrs);
                         List<ClsBuchung> TagBuchungen = buchungen.FindAll(x => x.Zeit.ToShortDateString().Equals(tag.ToShortDateString()) && x.MtbtrID.Equals(mitarbeiter.ID));
                         ausgewerteteTage.Add(Berechnen(tag, ref mtbtr, true, false,TagBuchungen));
@@ -65,6 +71,11 @@ namespace TimeChip_App
                 if(TransferBuchungen.Count != 0)
                 {
                     DataProvider.TransferBuchungs(TransferBuchungen);
+                }
+                
+                if(Monatsübersichten.Count != 0)
+                {
+                    DataProvider.InsertMultipeMonatsübersichten(Monatsübersichten);
                 }
             }
         }
@@ -234,7 +245,9 @@ namespace TimeChip_App
 
                 DataProvider.UpdateMitarbeiter(mtbtr);
 
-                return DataProvider.InsertAusgewerteterTag(day, mtbtr.ID, Arbeitszeit, tag.Status);
+                DataProvider.UpdateAusgewerteterTag(day, mtbtr.ID, Arbeitszeit, tag.Status);
+
+                return DataProvider.SelectAusgewerteterTag(day, mtbtr.ID);
             }
             mtbtr.Überstunden += Überstunden;
 
@@ -381,6 +394,12 @@ namespace TimeChip_App
             DataProvider.WriteDateToCSV(strings);
         }
 
+        /// <summary>
+        /// Sucht das Arbeitszeitprofil, das ein Mitarbeiter zu einem bestimmten Datum gehabt hat
+        /// </summary>
+        /// <param name="mtbtr">Der Mitarbeiter dessen Abzp gesucht und geändert wird</param>
+        /// <param name="date"></param>
+        /// <param name="abzpMtbtrs">Eine Liste aller abzpMtbtrs Objekte eines bestimmten Mitarbeiters</param>
         public static void GetAbzpofDate(ref ClsMitarbeiter mtbtr, DateTime date, List<ClsAbzpMtbtr> abzpMtbtrs)
         {
             List<ClsAbzpMtbtr> startvor = abzpMtbtrs.FindAll(x=>x.Startdate.CompareTo(date)<0);
