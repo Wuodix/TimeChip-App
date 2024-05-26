@@ -94,6 +94,7 @@ namespace TimeChip_App
         {
             return InsertTag(tag.Arbeitsbeginn, tag.Arbeitsende, tag.Arbeitszeit, tag.Pause, tag.Pausenbeginn, tag.Pausenende, tag.Pausendauer);
         }
+
         /// <summary>
         /// Fügt einen Tag in die Datenbank ein
         /// </summary>
@@ -286,14 +287,14 @@ namespace TimeChip_App
         /// <param name="AbzpID"></param>
         /// <param name="MtbtrID"></param>
         /// <returns>Die eingefügten Daten als ClsAbzpMtbtr Objekt</returns>
-        public static ClsAbzpMtbtr InsertAbzpMtbtr(int AbzpID, int MtbtrID)
+        public static ClsAbzpMtbtr InsertAbzpMtbtr(int AbzpID, int MtbtrID, DateTime startdate)
         {
             string query = "INSERT INTO abzpmtbtr (MtbtrID, AbzpID, Startdatum, Enddatum) VALUES (@mtbtrid, @abzpid, @startdatum, @enddatum)";
 
             MySqlCommand cmd = new MySqlCommand(query);
             cmd.Parameters.AddWithValue("mtbtrid", MtbtrID);
             cmd.Parameters.AddWithValue("abzpid", AbzpID);
-            cmd.Parameters.AddWithValue("startdatum", DateTime.Today);
+            cmd.Parameters.AddWithValue("startdatum", startdate);
             cmd.Parameters.AddWithValue("enddatum", new DateTime(2001,1,1));
 
             ExecuteNonQuery(cmd);
@@ -567,7 +568,11 @@ namespace TimeChip_App
             return SelectFingerprintRFID(new MySqlCommand(query));
         }
 
-
+        /// <summary>
+        /// Ruft alle FingerprintRFID Objekte eines Mitarbeiters ab
+        /// </summary>
+        /// <param name="MtbtrID"></param>
+        /// <returns></returns>
         public static List<ClsFingerprintRFID> SelectFingerprintRFIDofMtbtr(int MtbtrID)
         {
             string query = "SELECT * FROM fingerprintrfid WHERE MtbtrID=" + MtbtrID;
@@ -575,6 +580,11 @@ namespace TimeChip_App
             return SelectFingerprintRFID(new MySqlCommand(query));
         }
 
+        /// <summary>
+        /// Führt den angegebenen Command aus und gibt eine Liste an ClsFingerprintRFID zurück
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <returns></returns>
         public static List<ClsFingerprintRFID> SelectFingerprintRFID(MySqlCommand cmd)
         {
             List<ClsFingerprintRFID> list = new List<ClsFingerprintRFID>();
@@ -923,6 +933,12 @@ namespace TimeChip_App
             return ExecuteNonQuery(cmd);
         }
 
+        /// <summary>
+        /// Updated mehrere FingerprintRFID Objekte auf einmal in der Datenbank
+        /// </summary>
+        /// <param name="fingerprintRFIDs"></param>
+        /// <param name="RFIDUID"></param>
+        /// <returns>Die Anzahl der veränderten Datensätze</returns>
         public static int UpdateMultipleFingerprintRFID(List<ClsFingerprintRFID> fingerprintRFIDs, string RFIDUID)
         {
             string query = "UPDATE fingerprintrfid SET RFIDUID=@uid WHERE ID IN ( ";
@@ -986,12 +1002,12 @@ namespace TimeChip_App
         /// </summary>
         /// <param name="abzpMtbtr"></param>
         /// <returns>Das mitgegebene AbzpMtbtr Objekt mit hinzugefügtem Enddatum</returns>
-        public static ClsAbzpMtbtr EndAbzpMtbtr(ClsAbzpMtbtr abzpMtbtr)
+        public static ClsAbzpMtbtr EndAbzpMtbtr(ClsAbzpMtbtr abzpMtbtr, DateTime Enddate)
         {
             string query = "UPDATE abzpmtbtr SET Enddatum=@enddatum WHERE ID=@id";
 
             MySqlCommand cmd = new MySqlCommand(query);
-            cmd.Parameters.AddWithValue("enddatum", DateTime.Today);
+            cmd.Parameters.AddWithValue("enddatum", Enddate);
             cmd.Parameters.AddWithValue("id", abzpMtbtr.ID);
 
             abzpMtbtr.Enddate = DateTime.Today;

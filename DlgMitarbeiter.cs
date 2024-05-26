@@ -61,10 +61,15 @@ namespace TimeChip_App
         public string Vorname { get { return m_tbxVorname.Text; } set { m_tbxVorname.Text = value; } }
         public string Nachname { get { return m_tbxNachname.Text; } set { m_tbxNachname.Text = value; } }
         public string CardUID { get;set; }
-        public ClsArbeitsprofil Arbeitzeitprofil { get { return m_cmbxAProfil.SelectedItem as ClsArbeitsprofil; } set { m_cmbxAProfil.SelectedItem = value; } }
+        public ClsArbeitsprofil Arbeitzeitprofil { get { return GetAbzp(); } set { m_cmbxAProfil.SelectedItem = value; } }
         public DateTime Arbeitsbeginn { get { return m_dtpArbeitsb.Value; } set { m_dtpArbeitsb.Value = value; } }
         public TimeSpan Überstunden { get { return GetTimeSpans(false); }set { m_tbxÜberstunden.Text = Stundenrunder(value); } }
         public TimeSpan Urlaub { get { return GetTimeSpans(true); } set { m_tbxUrlaub.Text = Stundenrunder(value); } }
+
+        private ClsArbeitsprofil GetAbzp()
+        {
+            return DlgArbeitszeitprofile.ArbeitsprofilListe.FindLast(x => x.ID.Equals((m_cmbxAProfil.SelectedItem as ClsArbeitsprofil).ID));
+        }
 
         /// <summary>
         /// Verändert Werte, wie den Titel des Forms um dieses auf das Bearbeiten eines Mitarbeiters vorzubereiten

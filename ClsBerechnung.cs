@@ -89,13 +89,14 @@ namespace TimeChip_App
         /// <param name="startdate">Der erste zu berechnende Tag</param>
         /// <param name="enddate">Der letzte zu berechnende Tag</param>
         /// <param name="mtbtr">Der Mitarbeiter, dessen Tage berechnet werden müssen</param>
-        public static void Berechnen(DateTime startdate, DateTime enddate, ClsMitarbeiter mtbtr)
+        /// <param name="alteabziehen">Ob die alten Überstunden des Mtbtrs vor dem Anwenden der neuen Überstunden abgezogen werden sollen</param>
+        public static void Berechnen(DateTime startdate, DateTime enddate, ClsMitarbeiter mtbtr, bool alteabziehen)
         {
             List<ClsAbzpMtbtr> abzpMtbtrs = DataProvider.SelectAbzpMtbtr(mtbtr);
             for(DateTime date = startdate; date <= enddate;date = date.Add(new TimeSpan(1, 0, 0, 0)))
             {
                 GetAbzpofDate(ref mtbtr, date, abzpMtbtrs);
-                Berechnen(date, ref mtbtr, false,true);
+                Berechnen(date, ref mtbtr, false,alteabziehen);
             }
         }
 
@@ -107,7 +108,7 @@ namespace TimeChip_App
         /// <param name="ersteBerechnung">Gibt an ob der Tag bereits berechnet wurde oder ob dies die erste Berechnung ist</param>
         /// <param name="TagesBuchungen">Eine Liste mit den Buchungen von mtbtr an day</param>
         /// <returns>Die berechneten Daten als Ausgewerteter Tag</returns>
-        public static ClsAusgewerteter_Tag Berechnen(DateTime day, ref ClsMitarbeiter mtbtr, bool ersteBerechnung, bool timespanBerechnung = false, List<ClsBuchung> TagesBuchungen = null)
+        public static ClsAusgewerteter_Tag Berechnen(DateTime day, ref ClsMitarbeiter mtbtr, bool ersteBerechnung, bool timespanBerechnung = false, List<ClsBuchung> TagesBuchungen = null, ClsAusgewerteter_Tag Tag1 = null)
         {
             List<ClsBuchung> buchungen;
             ClsAusgewerteter_Tag tag = new ClsAusgewerteter_Tag();
@@ -116,7 +117,15 @@ namespace TimeChip_App
                 if (!ersteBerechnung)
                 {
                     buchungen = DataProvider.SelectAllBuchungenFromDay(mtbtr, day, "buchungen");
-                    tag = DataProvider.SelectAusgewerteterTag(day, mtbtr.ID);
+                    if(Tag1 != null)
+                    {
+                        tag = Tag1;
+
+                    }
+                    else
+                    {
+                        tag = DataProvider.SelectAusgewerteterTag(day, mtbtr.ID);
+                    }
                 }
                 else
                 {
@@ -129,7 +138,7 @@ namespace TimeChip_App
             }
 
 
-            buchungen.Sort(Comparer<ClsBuchung>.Create((x, y) => x.Buchungsnummer.CompareTo(y.Buchungsnummer)));
+            buchungen.Sort(Comparer<ClsBuchung>.Create((x, y) => x.Zeit.TimeOfDay.CompareTo(y.Zeit.TimeOfDay)));
             bool first = true;
             DateTime temp = new DateTime(0);
             TimeSpan Arbeitszeit = new TimeSpan(0);
@@ -241,7 +250,10 @@ namespace TimeChip_App
                     mtbtr.Überstunden -= oldÜberstunden;
 
                 }
-                mtbtr.Überstunden += Überstunden;
+                if(tag.Status == 0)
+                {
+                    mtbtr.Überstunden += Überstunden;
+                }
 
                 DataProvider.UpdateMitarbeiter(mtbtr);
 
@@ -407,7 +419,7 @@ namespace TimeChip_App
 
             if(endnach.Count != 0)
             {
-                mtbtr.Arbeitszeitprofil = DlgArbeitszeitprofile.ArbeitsprofilListe.Find(x => x.ID.Equals(endnach[0].ID));
+                mtbtr.Arbeitszeitprofil = DlgArbeitszeitprofile.ArbeitsprofilListe.Find(x => x.ID.Equals(endnach[0].AbzpID));
             }
         }
 

@@ -137,9 +137,9 @@ namespace TimeChip_App
 
                 if(zubearbeitender.Arbeitszeitprofil.ID != Bearbeiten.Arbeitzeitprofil.ID)
                 {
-                    DataProvider.InsertAbzpMtbtr(Bearbeiten.Arbeitzeitprofil.ID, zubearbeitender.ID);
+                    DataProvider.InsertAbzpMtbtr(Bearbeiten.Arbeitzeitprofil.ID, zubearbeitender.ID, Einspieldatum);
                     ClsAbzpMtbtr abzpMtbtr = DataProvider.SelectAbzpMtbtr(zubearbeitender.Arbeitszeitprofil.ID, zubearbeitender.ID).Find(x => x.Enddate == new DateTime(2001,1,1));
-                    DataProvider.EndAbzpMtbtr(abzpMtbtr);
+                    DataProvider.EndAbzpMtbtr(abzpMtbtr, Einspieldatum);
                 }
                 
                 zubearbeitender.Vorname = Bearbeiten.Vorname;
@@ -147,13 +147,14 @@ namespace TimeChip_App
                 zubearbeitender.Arbeitsbeginn = Bearbeiten.Arbeitsbeginn;
                 zubearbeitender.Arbeitszeitprofil = Bearbeiten.Arbeitzeitprofil;
                 zubearbeitender.Urlaub = Bearbeiten.Urlaub;
+                TimeSpan ÜberstundenBuffer = zubearbeitender.Überstunden;
                 zubearbeitender.Überstunden = Bearbeiten.Überstunden;
                 zubearbeitender.RFIDUID = Bearbeiten.CardUID;
 
                 DataProvider.UpdateMitarbeiter(zubearbeitender);
                 if(Einspieldatum.CompareTo(DateTime.Now.Date) < 0)
                 {
-                    ClsBerechnung.Berechnen(Einspieldatum, DateTime.Now.Date.Subtract(new TimeSpan(1,0,0,0)), zubearbeitender);
+                    ClsBerechnung.Berechnen(Einspieldatum, DateTime.Now.Date.Subtract(new TimeSpan(1,0,0,0)), zubearbeitender, ÜberstundenBuffer != Bearbeiten.Überstunden);
                 }
                 UpdateMtbtrList();
                 UpdateDataView();
@@ -583,7 +584,7 @@ namespace TimeChip_App
 
             if(tag != null)
             {
-                ClsBerechnung.Berechnen(date, ref mtbtr, false);
+                ClsBerechnung.Berechnen(date, ref mtbtr, false,false,null,tag);
                 UpdateCldKalender();
                 UpdateDataView();
             }
