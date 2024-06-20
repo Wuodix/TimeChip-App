@@ -20,10 +20,59 @@ namespace TimeChip_App
 
             m_cmbxAbzp.SelectedItem = null;
 
-
-            //*TODO*
-            //Tab Indexe für Controls in Tabelle festlegen
-            //*TODO*
+            //Tab Indexes
+            {
+                m_dtpMoAbeg.TabIndex = 0;
+                m_dtpMoAend.TabIndex = 1;
+                m_dtpMoAzeit.TabIndex = 2;
+                m_cbMoPause.TabIndex = 3;
+                m_dtpMoPbeg.TabIndex = 4;
+                m_dtpMoPend.TabIndex = 5;
+                m_dtpMoPdau.TabIndex = 6;
+                m_dtpDiAbeg.TabIndex = 7;
+                m_dtpDiAend.TabIndex = 8;
+                m_dtpDiAzeit.TabIndex = 9;
+                m_cbDiPause.TabIndex = 10;
+                m_dtpDiPbeg.TabIndex = 11;
+                m_dtpDiPend.TabIndex = 12;
+                m_dtpDiPdau.TabIndex = 13;
+                m_dtpMiAbeg.TabIndex = 14;
+                m_dtpMiAend.TabIndex = 15;
+                m_dtpMiAzeit.TabIndex = 16;
+                m_cbMiPause.TabIndex = 17;
+                m_dtpMiPbeg.TabIndex = 18;
+                m_dtpMiPend.TabIndex = 19;
+                m_dtpMiPdau.TabIndex = 20;
+                m_dtpDoAbeg.TabIndex = 21;
+                m_dtpDoAend.TabIndex = 22;
+                m_dtpDoAzeit.TabIndex = 23;
+                m_cbDoPause.TabIndex = 24;
+                m_dtpDoPbeg.TabIndex = 25;
+                m_dtpDoPend.TabIndex = 26;
+                m_dtpDoPdau.TabIndex = 27;
+                m_dtpFrAbeg.TabIndex = 28;
+                m_dtpFrAend.TabIndex = 29;
+                m_dtpFrAzeit.TabIndex = 30;
+                m_cbFrPause.TabIndex = 31;
+                m_dtpFrPbeg.TabIndex = 32;
+                m_dtpFrPend.TabIndex = 33;
+                m_dtpFrPdau.TabIndex = 34;
+                m_dtpSaAbeg.TabIndex = 35;
+                m_dtpSaAend.TabIndex = 36;
+                m_dtpSaAzeit.TabIndex = 37;
+                m_cbSaPause.TabIndex = 38;
+                m_dtpSaPbeg.TabIndex = 39;
+                m_dtpSaPend.TabIndex = 40;
+                m_dtpSaPdau.TabIndex = 41;
+                m_dtpSoAbeg.TabIndex = 42;
+                m_dtpSoAend.TabIndex = 43;
+                m_dtpSoAzeit.TabIndex = 44;
+                m_cbSoPause.TabIndex = 45;
+                m_dtpSoPbeg.TabIndex = 46;
+                m_dtpSoPend.TabIndex = 47;
+                m_dtpSoPdau.TabIndex = 48;
+            }
+            //Tab Indexes
         }
 
         public static List<ClsArbeitsprofil> ArbeitsprofilListe { get { return m_arbeitsprofilliste; } set { m_arbeitsprofilliste = value; } }
@@ -111,6 +160,8 @@ namespace TimeChip_App
 
             UpdateAbzpList();
             ClearTable();
+
+            DataProvider.Log("Das Abzp " + Aktualisieren.Log() + " wurde geupdatet", 0);
         }
 
         private bool CompareDays(ClsTag x, ClsTag y)
@@ -147,9 +198,11 @@ namespace TimeChip_App
                 Tage.Add(DataProvider.InsertTag(t.Arbeitsbeginn, t.Arbeitsende, t.Arbeitszeit, t.Pause, t.Pausenbeginn, t.Pausenende, t.Pausendauer));
             }
 
-            DataProvider.InsertArbeitszeitprofil(m_tbxName.Text, Tage[0], Tage[1], Tage[2], Tage[3], Tage[4], Tage[5], Tage[6], m_cbGleitzeit.Checked, false);
+            ClsArbeitsprofil abzp = DataProvider.InsertArbeitszeitprofil(m_tbxName.Text, Tage[0], Tage[1], Tage[2], Tage[3], Tage[4], Tage[5], Tage[6], m_cbGleitzeit.Checked, false);
             UpdateAbzpList();
             ClearTable();
+
+            DataProvider.Log("Das Abzp " + abzp.Log() + " wurde erstellt", 0);
         }
 
         /// <summary>
@@ -249,6 +302,8 @@ namespace TimeChip_App
             {
                 DataProvider.DeleteArbeitszeitprofil(abzp);
                 UpdateAbzpList();
+
+                DataProvider.Log("Das Abzp " + abzp.Log() + " wurde gelöscht", 0);
             }
         }
 
@@ -347,6 +402,7 @@ namespace TimeChip_App
             int Reihe = m_tlpTabelle.GetPositionFromControl((sender as Button).Parent as Control).Row;
 
             m_kopierterTag = ReadTagvonTabelle(Reihe);
+            DataProvider.Log("Ein Tag aus Zeile " + Reihe + " wurde kopiert", 2);
         }
 
         private void BtnPaste_Click(object sender, EventArgs e)
@@ -355,6 +411,7 @@ namespace TimeChip_App
             int Reihe = m_tlpTabelle.GetPositionFromControl((sender as Button).Parent as Control).Row;
 
             FillLineinTable(m_kopierterTag, Reihe);
+            DataProvider.Log("Ein Tag wurde ein Zeile " + Reihe + " eingefügt", 2);
         }
     }
 }

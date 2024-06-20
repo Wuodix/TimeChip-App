@@ -6,11 +6,14 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Messaging;
 using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI.Relational;
+using Org.BouncyCastle.Asn1.Esf;
 using TimeChip_App.Properties;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
@@ -40,7 +43,11 @@ namespace TimeChip_App
 
             ExecuteNonQuery(cmd);
 
-            return new ClsBuchung(SelectLastBuchung().Buchungsnummer, MtbtrID, zeit, buchungstyp);
+            int id = SelectLastBuchung().Buchungsnummer;
+
+            Log("Buchung mit ID " + id + " wurde inserted",4);
+
+            return new ClsBuchung(id, MtbtrID, zeit, buchungstyp);
         }
 
         /// <summary>
@@ -83,6 +90,8 @@ namespace TimeChip_App
 
             ExecuteNonQuery(cmd);
             ExecuteNonQuery(query1);
+
+            Log(buchungen.Count + " Buchungen wurden von temp in Buchungen übertragen",4);
         }
 
         /// <summary>
@@ -124,7 +133,11 @@ namespace TimeChip_App
             
             ExecuteNonQuery(cmd);
 
-            return new ClsTag(SelectAllTage().Last().ID, arbeitsbeginn, arbeitsende, arbeitszeit, pause, pausenbeginn, pausenende, pausendauer);
+            int id = SelectAllTage().Last().ID;
+
+            Log("Tag mit ID " + id + " wurde in die Datenbank eingefügt", 4);
+
+            return new ClsTag(id, arbeitsbeginn, arbeitsende, arbeitszeit, pause, pausenbeginn, pausenende, pausendauer);
         }
 
         /// <summary>
@@ -159,7 +172,11 @@ namespace TimeChip_App
 
             ExecuteNonQuery(cmd);
 
-            return new ClsArbeitsprofil(SelectAllArbeitszeitprofil().Last().ID, name, montag, dienstag, mittwoch, donnerstag, freitag, samstag, sonntag, gleitzeit, ruhestand);
+            int id = SelectAllArbeitszeitprofil().Last().ID;
+
+            Log("Abzp mit ID " + id + " wurde in die Datenbank eingefügt", 4);
+
+            return new ClsArbeitsprofil(id, name, montag, dienstag, mittwoch, donnerstag, freitag, samstag, sonntag, gleitzeit, ruhestand);
         }
 
         /// <summary>
@@ -188,7 +205,11 @@ namespace TimeChip_App
 
             ExecuteNonQuery(cmd);
 
-            return new ClsMitarbeiter(SelectAllMitarbeiter().Last().ID, vorname, nachname, rfiduid, abzp, arbeitsbeginn, urlaub, überstunden);
+            int id = SelectAllMitarbeiter().Last().ID;
+
+            Log("Mtbtr mit ID " + id + " wurde in die Datenbank eingefügt", 4);
+
+            return new ClsMitarbeiter(id, vorname, nachname, rfiduid, abzp, arbeitsbeginn, urlaub, überstunden);
         }
 
         /// <summary>
@@ -208,7 +229,11 @@ namespace TimeChip_App
 
             ExecuteNonQuery(cmd);
 
-            return new ClsFingerprintRFID(SelectAllFingerprintRFID().Last().ID, FingerprintID, Fingername, MtbtrID);
+            int id = SelectAllFingerprintRFID().Last().ID;
+
+            Log("FingerprintRFIDObjekt mit ID " + id + " wurde in die Datenbank eingefügt", 4);
+
+            return new ClsFingerprintRFID(id, FingerprintID, Fingername, MtbtrID);
         }
 
         /// <summary>
@@ -222,6 +247,7 @@ namespace TimeChip_App
         public static ClsAusgewerteter_Tag InsertAusgewerteterTag(DateTime date, int MtbtrID, TimeSpan Arbeitszeit, int Status)
         {
             ClsAusgewerteter_Tag ausgTag = SelectAusgewerteterTag(date, MtbtrID);
+            int id;
             if (ausgTag == null)
             {
                 string query = "INSERT INTO ausgewertete_tage (Datum, MtbtrID, Arbeitszeit, Status) VALUES (@date, @mtbtrid, @abzeit, @status)";
@@ -233,13 +259,18 @@ namespace TimeChip_App
                 cmd.Parameters.AddWithValue("status", Status);
 
                 ExecuteNonQuery(cmd);
+
+                id = SelectAusgewerteterTag(date, MtbtrID).ID;
+
+                Log("Ausgewerteter Tag mit ID " + id + " wurde in die Datenbank eingefügt", 4);
             }
             else
             {
                 UpdateAusgewerteterTag(date, MtbtrID, Arbeitszeit, ausgTag.Status);
+                id = SelectAusgewerteterTag(date, MtbtrID).ID;
             }
 
-            return new ClsAusgewerteter_Tag(SelectAusgewerteterTag(date, MtbtrID).ID, MtbtrID, Arbeitszeit, date, Status);
+            return new ClsAusgewerteter_Tag(id, MtbtrID, Arbeitszeit, date, Status);
         }
 
         /// <summary>
@@ -278,7 +309,9 @@ namespace TimeChip_App
                 i++;
             }
 
-            ExecuteNonQuery(cmd);
+            int veränderteDatensätze = ExecuteNonQuery(cmd);
+
+            Log(Tage.Count + " ausgewertete Tage wurden gemeinsam in die Datenbank eingefügt und es wurden " + veränderteDatensätze + " Datensätze verändert", 4);
         }
 
         /// <summary>
@@ -299,7 +332,11 @@ namespace TimeChip_App
 
             ExecuteNonQuery(cmd);
 
-            return new ClsAbzpMtbtr(SelectLastAbzpMtbtr().ID, AbzpID, MtbtrID, DateTime.Today, new DateTime(2001, 1, 1));
+            int id = SelectLastAbzpMtbtr().ID;
+
+            Log("AbzpMtbtr Objekt mit ID " + id + " wurde in die Datenbank eingefügt", 4);
+
+            return new ClsAbzpMtbtr(id, AbzpID, MtbtrID, DateTime.Today, new DateTime(2001, 1, 1));
         }
 
         /// <summary>
@@ -322,7 +359,11 @@ namespace TimeChip_App
             query = ";";
 
             MySqlCommand cmd = new MySqlCommand(query);
-            return ExecuteNonQuery(cmd);
+
+            int veränderteDatensätze = ExecuteNonQuery(cmd);
+
+            Log(monatsübersichten.Count + " Monatsübersichten wurden gemeinsam in die Datenbank eingefügt und dabei wurden " + veränderteDatensätze + " Datensätze verändert", 4);
+            return veränderteDatensätze;
         }
 
         /// <summary>
@@ -438,6 +479,9 @@ namespace TimeChip_App
                 cmd.Dispose();
                 reader.Close();
             }
+
+            Log("Es wurde ein Select Buchung Command in der Datenbank ausgeführt und dabei " + list.Count + " Objekte zurückgegeben",4);
+
             return list;
         }
 
@@ -471,6 +515,8 @@ namespace TimeChip_App
                 cmd.Dispose();
                 reader.Dispose();
             }
+
+            Log("Es wurden alle " + list.Count + " Tage aus der Datenbank abgerufen", 4);
 
             return list;
         }
@@ -520,6 +566,8 @@ namespace TimeChip_App
                 reader.Dispose();
             }
 
+            Log("Es wurde ein Select Abzp Command in der Datenbank ausgeführt und dabei wurden " + list.Count + " Objekte zurückgegeben", 4);
+
             return list;
         }
 
@@ -553,6 +601,8 @@ namespace TimeChip_App
                 cmd.Dispose();
                 reader.Dispose();
             }
+
+            Log("Es wurden alle " + list.Count + " Mtbtr aus der Datenbank abgerufen", 4);
 
             return list;
         }
@@ -608,6 +658,8 @@ namespace TimeChip_App
                 cmd.Dispose();
                 reader.Dispose();
             }
+
+            Log("Es wurde ein Select FingerprintRFID Command in der Datenbank ausgeführt und dabei wurden " + list.Count + " Objekte zurückgegeben", 4);
 
             return list;
         }
@@ -702,6 +754,8 @@ namespace TimeChip_App
                 }
             }
 
+            Log("Es wurde ein Select ausgewerteter Tag Command in der Datenbank ausgeführt und dabei wurden " + list.Count + " Objekte zurückgegeben", 4);
+
             return list;
         }
 
@@ -790,6 +844,8 @@ namespace TimeChip_App
                 }
             }
 
+            Log("Es wurde ein Select AbzpMtbtr Command ausgeführt und dabei wurden " + list.Count + " Objekte zurückgegeben", 4);
+
             return list;
         }
 
@@ -822,6 +878,8 @@ namespace TimeChip_App
                 }
             }
 
+            Log("Es wurde die Monatsübersicht von " + mtbtrID + " vom Monat " + monat.ToString("Y") + " abgerufen", 4);
+
             return values.FirstOrDefault();
         }
 
@@ -840,7 +898,11 @@ namespace TimeChip_App
             cmd.Parameters.AddWithValue("zeit", Buchung.Zeit);
             cmd.Parameters.AddWithValue("bnr", Buchung.Buchungsnummer);
 
-            return ExecuteNonQuery(cmd);
+            int veränderteDatensätze = ExecuteNonQuery(cmd);
+
+            Log("Es wurde eine Buchung geupdatet und dabei " + veränderteDatensätze + " Datensätze verändert", 4);
+
+            return veränderteDatensätze;
         }
 
         /// <summary>
@@ -863,7 +925,11 @@ namespace TimeChip_App
             cmd.Parameters.AddWithValue("pause", Tag.Pause);
             cmd.Parameters.AddWithValue("id", Tag.ID);
 
-            return ExecuteNonQuery(cmd);
+            int veränderteDatensätze = ExecuteNonQuery(cmd);
+
+            Log("Es wurde ein Tag geupdatet und dabei " + veränderteDatensätze + " Datensätze verändert", 4);
+
+            return veränderteDatensätze;
         }
 
         /// <summary>
@@ -889,7 +955,11 @@ namespace TimeChip_App
             cmd.Parameters.AddWithValue("id", Abzp.ID);
             cmd.Parameters.AddWithValue("ruhestand", Abzp.Ruhestand);
 
-            return ExecuteNonQuery(cmd);
+            int veränderteDatensätze = ExecuteNonQuery(cmd);
+
+            Log("Es wurde ein Abzp geupdatet und dabei " + veränderteDatensätze + " Datensätze verändert", 4);
+
+            return veränderteDatensätze;
         }
 
         /// <summary>
@@ -912,7 +982,11 @@ namespace TimeChip_App
             cmd.Parameters.AddWithValue("rfiduid", Mtbtr.RFIDUID);
             cmd.Parameters.AddWithValue("id", Mtbtr.ID);
 
-            return ExecuteNonQuery(cmd);
+            int veränderteDatensätze = ExecuteNonQuery(cmd);
+
+            Log("Es wurde ein Mtbtr geupdatet und dabei " + veränderteDatensätze + " Datensätze verändert", 4);  
+
+            return veränderteDatensätze;
         }
 
         /// <summary>
@@ -930,7 +1004,11 @@ namespace TimeChip_App
             cmd.Parameters.AddWithValue("fingername", fingerprintRFID.FingerName);
             cmd.Parameters.AddWithValue("id", fingerprintRFID.ID);
 
-            return ExecuteNonQuery(cmd);
+            int veränderteDatensätze = ExecuteNonQuery(cmd);
+
+            Log("Es wurde ein FingerprintRFID Objekt geupdatet und dabei " + veränderteDatensätze + " Datensätze verändert", 4);
+
+            return veränderteDatensätze;
         }
 
         /// <summary>
@@ -954,7 +1032,11 @@ namespace TimeChip_App
             MySqlCommand cmd = new MySqlCommand(query);
             cmd.Parameters.AddWithValue("uid", RFIDUID);
 
-            return ExecuteNonQuery(cmd);
+            int veränderteDatensätze = ExecuteNonQuery(cmd);
+
+            Log("Es wurden " + fingerprintRFIDs.Count + " FingerprintRFID Objekte geupdatet und dabei " + veränderteDatensätze + " Datensätze verändert", 4);
+
+            return veränderteDatensätze;
         }
 
         /// <summary>
@@ -975,7 +1057,11 @@ namespace TimeChip_App
             cmd.Parameters.AddWithValue("abzeit", Arbeitszeit);
             cmd.Parameters.AddWithValue("status", Status);
 
-            return ExecuteNonQuery(cmd);
+            int veränderteDatensätze = ExecuteNonQuery(cmd);
+
+            Log("Es wurde ein ausgewerteter Tag mit Hilfe von seinen Werten geupdatet und dabei " + veränderteDatensätze + " Datensätze verändert", 4);
+
+            return veränderteDatensätze;
         }
 
         /// <summary>
@@ -994,13 +1080,18 @@ namespace TimeChip_App
             cmd.Parameters.AddWithValue("status", tag.Status);
             cmd.Parameters.AddWithValue("id", tag.ID);
 
-            return ExecuteNonQuery(cmd);
+            int veränderteDatensätze = ExecuteNonQuery(cmd);
+
+            Log("Es wurde der ausgewertete Tag " + tag.ID + " geupdatet und dabei " + veränderteDatensätze + " Datensätze verändert", 4);
+
+            return veränderteDatensätze;
         }
 
         /// <summary>
-        /// Fügt das heutige Datum als Enddatum beim angefügten AbzpMtbtr Objekt hinzu
+        /// Fügt das angegebene Datum als Enddatum beim angefügten AbzpMtbtr Objekt hinzu
         /// </summary>
         /// <param name="abzpMtbtr"></param>
+        /// <param name="Enddate">Das gewünschte Enddatum des Abzps</param>
         /// <returns>Das mitgegebene AbzpMtbtr Objekt mit hinzugefügtem Enddatum</returns>
         public static ClsAbzpMtbtr EndAbzpMtbtr(ClsAbzpMtbtr abzpMtbtr, DateTime Enddate)
         {
@@ -1013,6 +1104,8 @@ namespace TimeChip_App
             abzpMtbtr.Enddate = DateTime.Today;
 
             ExecuteNonQuery(cmd);
+
+            Log("Es wurde dem AbzpMtbtrObjekt " + abzpMtbtr.ID + " das Enddatum "+ Enddate.ToString("d")  + " hinzugefügt", 4);
             return abzpMtbtr;
         }
 
@@ -1026,7 +1119,11 @@ namespace TimeChip_App
         {
             string query = "DELETE FROM " + Table + " WHERE Buchungsnummer=" + buchung.Buchungsnummer;
 
-            return ExecuteNonQuery(query);
+            int veränderteDatensätze = ExecuteNonQuery(query);
+
+            Log("Es wurde die Buchung " + buchung.Buchungsnummer + " gelöscht und dabei " + veränderteDatensätze + " Datensätze verändert", 4);
+
+            return veränderteDatensätze;
         }
 
         /// <summary>
@@ -1053,7 +1150,11 @@ namespace TimeChip_App
 
             query += ");";
 
-            return ExecuteNonQuery(query);
+            int veränderteDatensätze = ExecuteNonQuery(query);
+
+            Log("Es wurden " + buchungen.Count + " Buchungen gelöscht und dabei " + veränderteDatensätze + " Datensätze verändert", 4);
+
+            return veränderteDatensätze;
         }
 
         /// <summary>
@@ -1066,8 +1167,13 @@ namespace TimeChip_App
         {
             string query = "DELETE FROM " + Table + " WHERE MtbtrID = " + mtbtr.ID;
 
-            return ExecuteNonQuery(query);
+            int veränderteDatensätze = ExecuteNonQuery(query);
+
+            Log("Es wurden die Buchungen des Mtbtr " + mtbtr.Log() + " gelöscht und dabei " + veränderteDatensätze + " Datensätze verändert", 4);
+
+            return veränderteDatensätze;
         }
+
         /// <summary>
         /// Löscht den Tag mit der ID von tag aus der Datenbank
         /// </summary>
@@ -1077,7 +1183,11 @@ namespace TimeChip_App
         {
             string query = "DELETE FROM tage WHERE ID=" + tag.ID;
 
-            return ExecuteNonQuery(query);
+            int veränderteDatensätze = ExecuteNonQuery(query);
+
+            Log("Es wurde der Tag " + tag.ID + " gelöscht und dabei " + veränderteDatensätze + " Datensätze verändert", 4);
+
+            return veränderteDatensätze;
         }
 
         /// <summary>
@@ -1098,7 +1208,11 @@ namespace TimeChip_App
             cmd.Parameters.AddWithValue("sa", abzp.Samstag.ID);
             cmd.Parameters.AddWithValue("so", abzp.Sonntag.ID);
 
-            return ExecuteNonQuery(cmd);
+            int veränderteDatensätze = ExecuteNonQuery(cmd);
+
+            Log("Es wurden die Tage des abzp " + abzp.ID + " gelöscht und dabei " + veränderteDatensätze + " Datensätze verändert", 4);
+
+            return veränderteDatensätze;
         }
 
         /// <summary>
@@ -1106,7 +1220,6 @@ namespace TimeChip_App
         /// werden, wird es aus der Datenbank gelöscht.
         /// </summary>
         /// <param name="abzp"></param>
-        /// <returns>Die Anzahl veränderter Datensätze in der Datenbank</returns>
         public static void DeleteArbeitszeitprofil(ClsArbeitsprofil abzp)
         {
             abzp.Ruhestand = true;
@@ -1120,6 +1233,12 @@ namespace TimeChip_App
                 ExecuteNonQuery(query);
 
                 DeleteMultipleTag(abzp);
+
+                Log("Das Abzp " + abzp.ID + " und alle seine zugehörigen Tage wurden gelöscht", 4);
+            }
+            else
+            {
+                Log("Das Abzp " + abzp.ID + " wurde in den Ruhestand geschickt", 4);
             }
 
             return;
@@ -1141,6 +1260,8 @@ namespace TimeChip_App
             DeleteMultipleAbzpMtbtr(mtbtr);
             DeleteFingerprintRFID(mtbtr);
 
+            Log("Der Mtbtr " + mtbtr.ID + " wurde inkl aller seiner buchungen, ausgewerteten Tagen, AbzpMtbtr und FingerprintRFID Objekten gelöscht", 4);
+
             return ExecuteNonQuery(query);
         }
 
@@ -1153,15 +1274,29 @@ namespace TimeChip_App
         {
             string query = "DELETE FROM fingerprintrfid WHERE ID=" + fingerprintRFID.ID;
 
-            return ExecuteNonQuery(query);
+            int veränderteDatensätze = ExecuteNonQuery(query);
+
+            Log("Es wurde das FingerprintRFID Objekt " + fingerprintRFID.ID + " gelöscht und dabei " + veränderteDatensätze + " Datensätze verändert", 4);
+
+            return veränderteDatensätze;
         }
 
+        /// <summary>
+        /// Löscht alle FingerprintRFID Objekte eines Mitarbeiters mithilfe der ID des Mitarbeiters
+        /// </summary>
+        /// <param name="mtbtr"></param>
+        /// <returns>Die Anzahl der veränderten Datensätze in der Datenbank</returns>
         public static int DeleteFingerprintRFID(ClsMitarbeiter mtbtr)
         {
             string query = "DELETE FROM fingerprintrfid WHERE MtbtrID=" + mtbtr.ID;
 
-            return ExecuteNonQuery(query);
+            int veränderteDatensätze = ExecuteNonQuery(query);
+
+            Log("Es wurden alle FingerprintRFID Objekte eines Mitarbeiters gelöscht und dabei " + veränderteDatensätze + " Datensätze verändert", 4);
+
+            return veränderteDatensätze;
         }
+
         /// <summary>
         /// Löscht ein ClsFingerprintRFID-Objekt aus der Datenbank
         /// </summary>
@@ -1171,7 +1306,11 @@ namespace TimeChip_App
         {
             string query = "DELETE FROM fingerprintrfid WHERE Fingerprint=" + Fingerprint;
 
-            return ExecuteNonQuery(query);
+            int veränderteDatensätze = ExecuteNonQuery(query);
+
+            Log("Es wurde das FingerprintRFID Objekt vom Finger " + Fingerprint + " gelöscht und dabei " + veränderteDatensätze + " Datensätze verändert", 4);
+
+            return veränderteDatensätze;
         }
 
         /// <summary>
@@ -1183,7 +1322,11 @@ namespace TimeChip_App
         {
             string query = "DELETE FROM ausgewertete_tage WHERE ID=" + tag.ID;
 
-            return ExecuteNonQuery(query);
+            int veränderteDatensätze = ExecuteNonQuery(query);
+
+            Log("Es wurde der ausgewertete Tag " + tag.ID + " gelöscht und dabei " + veränderteDatensätze + " Datensätze verändert", 4);
+
+            return veränderteDatensätze;
         }
 
         /// <summary>
@@ -1209,7 +1352,11 @@ namespace TimeChip_App
 
             query += ");";
 
-            return ExecuteNonQuery(query);
+            int veränderteDatensätze = ExecuteNonQuery(query);
+
+            Log("Es wurden " + ausgewTage.Count + " ausgewertete Tage gelöscht und dabei " + veränderteDatensätze + " Datensätze verändert", 4);
+
+            return veränderteDatensätze;
         }
 
         /// <summary>
@@ -1221,7 +1368,11 @@ namespace TimeChip_App
         {
             string query = "DELETE FROM ausgewertete_tage WHERE MtbtrID=" + mtbtr.ID;
 
-            return ExecuteNonQuery(query);
+            int veränderteDatensätze = ExecuteNonQuery(query);
+
+            Log("Es wurden die ausgewerteten Tage des Mtbtrs " + mtbtr.Log() + " gelöscht und dabei " + veränderteDatensätze + " Datensätze verändert", 4);
+
+            return veränderteDatensätze;
         }
 
         /// <summary>
@@ -1233,31 +1384,73 @@ namespace TimeChip_App
         {
             string query = "DELETE FROM abzpmtbtr WHERE MtbtrID=" + mtbtr.ID;
 
-            return ExecuteNonQuery(query);
+            int veränderteDatensätze = ExecuteNonQuery(query);
+
+            Log("Es wurden die abzpMtbtrs des Mtbtrs " + mtbtr.Log() + " gelöscht und dabei " + veränderteDatensätze + " Datensätze verändert", 4);
+
+            return veränderteDatensätze;
         }
 
         /// <summary>
         /// Schreibt einen Log in eine dafür vorgesehene Datei
         /// </summary>
         /// <param name="log"></param>
-        public static void Log(string log)
+        /// <param name="LogLevel">Das Level wie wichtig der Log ist.
+        /// 0 Allgemeine Funktionsweise wird immer geloggt
+        /// 1 Erweiterte Funktionsweise
+        /// 2 Immer dann wenn ein Fenster geöffnet wird bzw eine Helper Funktion aufgerufen wird
+        /// 4 Alles in DataProvider</param>
+        public static void Log(string log, int LogLevel)
         {
-            string name = @"Logs\logs" + DateTime.Now.Date.ToString();
-            StreamWriter sw;
-            if (File.Exists(name))
+            if(LogLevel != 0)
             {
-                sw = new StreamWriter(name, true);
+                switch (Settings.Default.LogLevel)
+                {
+                    case 1:
+                        if (LogLevel != 1) return;
+                        break;
+                    case 2:
+                        if (LogLevel != 2) return;
+                        break;
+                    case 3:
+                        if (LogLevel != 1 && LogLevel != 2) return;
+                        break;
+                    case 4:
+                        if(LogLevel != 4)return;
+                        break;
+                    case 5:
+                        if(LogLevel != 1 && LogLevel != 4)return;
+                        break;
+                    default:
+                        return;
+                }
+            }
+
+            string Logs = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),"TimeChipApp_Logs");
+            string name = "logs_" + DateTime.Today.ToString("d") + ".txt";
+            string filepath = Path.Combine(Logs, name);
+
+            if (!Directory.Exists(Logs))
+            {
+                Directory.CreateDirectory(Logs);
+            }
+
+            StreamWriter sw;
+            if (File.Exists(filepath))
+            {
+                sw = new StreamWriter(filepath, true);
             }
             else
             {
-                sw = new StreamWriter(name, false);
+                sw = new StreamWriter(filepath, false);
             }
 
-            sw.WriteLine(log);
+            sw.WriteLine(DateTime.Now.ToString("HH:mm:ss.fff")+"> " + log);
 
             sw.Close();
             sw.Dispose();
         }
+
         /// <summary>
         /// Speichert die MitarbeiterID und den zugehörigen Tag, wann der Urlaub berechnet werden soll
         /// </summary>
@@ -1272,6 +1465,7 @@ namespace TimeChip_App
                 }
             }
         }
+
         /// <summary>
         /// Liest Daten von voriger Funktion wieder aus
         /// </summary>
@@ -1310,7 +1504,8 @@ namespace TimeChip_App
         {
             Settings.Default.Berechnungsdate = date;
             Settings.Default.Save();
-            
+
+            Log("Das Berechnungsdate " + date.ToString("d") + " wurde gespeichert", 4);
         }
 
         /// <summary>
@@ -1325,6 +1520,8 @@ namespace TimeChip_App
                 Settings.Default.Berechnungsdate = DateTime.Now;
                 Settings.Default.Save();
             }
+
+            Log("Das Berechnungsdate " + Settings.Default.Berechnungsdate.ToString("d") + " wurde ausgelesen", 4);
             return Settings.Default.Berechnungsdate;
         }
 
@@ -1427,6 +1624,16 @@ namespace TimeChip_App
         public static void SaveArduinoIP(string IP)
         {
             Settings.Default.ArduinoIP = IP;
+            Settings.Default.Save();
+        }
+
+        /// <summary>
+        /// Speichert das angegebene Log Level in den Settings
+        /// </summary>
+        /// <param name="LogLevel"></param>
+        public static void SaveLogLevel(int LogLevel)
+        {
+            Settings.Default.LogLevel = LogLevel;
             Settings.Default.Save();
         }
 

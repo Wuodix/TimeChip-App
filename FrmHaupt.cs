@@ -5,6 +5,7 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 using TimeChip_App.Properties;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
@@ -19,9 +20,8 @@ namespace TimeChip_App
 
         public FrmHaupt()
         {
-            AppDomain currentDomain = AppDomain.CurrentDomain;
-            currentDomain.UnhandledException += new UnhandledExceptionEventHandler(ExceptionHandler);
-            
+            DataProvider.Log("______________________________________________________________________________________________________________", 0);
+            DataProvider.Log("App wurde gestartet", 0);
             InitializeComponent();
 
             m_lbxMitarbeiter.DataSource = m_mitarbeiterliste;
@@ -50,34 +50,35 @@ namespace TimeChip_App
             
             }
 
-            m_btnSettings.TabIndex = 1;
-            m_btnPrint.TabIndex = 2;
-            m_btnarbeitszeitprofil.TabIndex = 3;
-            m_btnNeuerMitarbeiter.TabIndex = 4;
-            m_btnBearbeiten.TabIndex = 5;
-            m_btnLöschen.TabIndex = 6;
-            m_lbxMitarbeiter.TabIndex = 7;
-            m_btnRefresh.TabIndex = 8;
-            m_btnNeueBuchung.TabIndex = 9;
-            m_btnBuchungBearbeiten.TabIndex = 10;
-            m_btnBuchungLöschen.TabIndex = 11;
-            m_lbxBuchungen.TabIndex = 12;
-            m_cldKalender.TabIndex = 13;
-            m_btnSchule.TabIndex = 14;
-            m_btnKrank.TabIndex = 15;
-            m_btnUnentschuldigt.TabIndex = 16;
-            m_btnUrlaub.TabIndex = 17;
-        }
+            //Tab Indexe
+            {
+                m_btnSettings.TabIndex = 1;
+                m_btnPrint.TabIndex = 2;
+                m_btnarbeitszeitprofil.TabIndex = 3;
+                m_btnNeuerMitarbeiter.TabIndex = 4;
+                m_btnBearbeiten.TabIndex = 5;
+                m_btnLöschen.TabIndex = 6;
+                m_lbxMitarbeiter.TabIndex = 7;
+                m_btnRefresh.TabIndex = 8;
+                m_btnNeueBuchung.TabIndex = 9;
+                m_btnBuchungBearbeiten.TabIndex = 10;
+                m_btnBuchungLöschen.TabIndex = 11;
+                m_lbxBuchungen.TabIndex = 12;
+                m_cldKalender.TabIndex = 13;
+                m_btnSchule.TabIndex = 14;
+                m_btnKrank.TabIndex = 15;
+                m_btnUnentschuldigt.TabIndex = 16;
+                m_btnUrlaub.TabIndex = 17;
+            }
+            //Tab Indexe
 
-        static void ExceptionHandler(object sender, UnhandledExceptionEventArgs e)
-        {
-            MessageBox.Show("Handler caught: " + ((Exception)e.ExceptionObject).Message);
         }
 
         public static BindingList<ClsMitarbeiter> Mitarbeiterliste { get { return m_mitarbeiterliste; } set { m_mitarbeiterliste = value; } }
 
         private void BtnNeu_Click(object sender, EventArgs e)
         {
+            DataProvider.Log("BtnNeuer Mtbtr gedrückt", 2);
             DlgMitarbeiter neu = new DlgMitarbeiter();
             neu.Neu();
             if (neu.ShowDialog() == DialogResult.OK)
@@ -112,6 +113,7 @@ namespace TimeChip_App
 
         private void BtnBearbeiten_Click(object sender, EventArgs e)
         {
+            DataProvider.Log("Btn Mtbtr Bearbeiter gedrückt", 2);
             DlgMitarbeiter Bearbeiten = new DlgMitarbeiter();
 
             ClsMitarbeiter zubearbeitender = m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter;
@@ -124,22 +126,25 @@ namespace TimeChip_App
             if (Bearbeiten.ShowDialog() == DialogResult.OK)
             {
                 DateTime Einspieldatum = DateTime.Now;
-                if(zubearbeitender.Arbeitszeitprofil.ID != Bearbeiten.Arbeitzeitprofil.ID ||
-                    zubearbeitender.Überstunden != Bearbeiten.Überstunden || 
-                    zubearbeitender.Arbeitsbeginn != Bearbeiten.Arbeitsbeginn)
+                if (zubearbeitender.Arbeitsbeginn.CompareTo(DateTime.Now) < 0)
                 {
-                    DlgEinspieldatum dlgEinspieldatum = new DlgEinspieldatum();
-                    if(dlgEinspieldatum.ShowDialog() == DialogResult.OK)
+                    if (zubearbeitender.Arbeitszeitprofil.ID != Bearbeiten.Arbeitzeitprofil.ID ||
+                        zubearbeitender.Überstunden != Bearbeiten.Überstunden ||
+                        zubearbeitender.Arbeitsbeginn != Bearbeiten.Arbeitsbeginn)
                     {
-                        Einspieldatum = dlgEinspieldatum.Einspieldatum;
+                        DlgEinspieldatum dlgEinspieldatum = new DlgEinspieldatum();
+                        if (dlgEinspieldatum.ShowDialog() == DialogResult.OK)
+                        {
+                            Einspieldatum = dlgEinspieldatum.Einspieldatum;
+                        }
                     }
-                }
 
-                if(zubearbeitender.Arbeitszeitprofil.ID != Bearbeiten.Arbeitzeitprofil.ID)
-                {
-                    DataProvider.InsertAbzpMtbtr(Bearbeiten.Arbeitzeitprofil.ID, zubearbeitender.ID, Einspieldatum);
-                    ClsAbzpMtbtr abzpMtbtr = DataProvider.SelectAbzpMtbtr(zubearbeitender.Arbeitszeitprofil.ID, zubearbeitender.ID).Find(x => x.Enddate == new DateTime(2001,1,1));
-                    DataProvider.EndAbzpMtbtr(abzpMtbtr, Einspieldatum);
+                    if (zubearbeitender.Arbeitszeitprofil.ID != Bearbeiten.Arbeitzeitprofil.ID)
+                    {
+                        DataProvider.InsertAbzpMtbtr(Bearbeiten.Arbeitzeitprofil.ID, zubearbeitender.ID, Einspieldatum);
+                        ClsAbzpMtbtr abzpMtbtr = DataProvider.SelectAbzpMtbtr(zubearbeitender.Arbeitszeitprofil.ID, zubearbeitender.ID).Find(x => x.Enddate == new DateTime(2001, 1, 1));
+                        DataProvider.EndAbzpMtbtr(abzpMtbtr, Einspieldatum);
+                    }
                 }
                 
                 zubearbeitender.Vorname = Bearbeiten.Vorname;
@@ -163,8 +168,10 @@ namespace TimeChip_App
 
         private void BtnLöschen_Click(object sender, EventArgs e)
         {
-            if(MessageBox.Show("Wollen Sie wirklich den Mitarbeiter inklusive aller aufgezeichneten Daten löschen?", "Achtung", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            DataProvider.Log("Btn Mtbtr Löschen gedrückt", 2);
+            if (MessageBox.Show("Wollen Sie wirklich den Mitarbeiter inklusive aller aufgezeichneten Daten löschen?", "Achtung", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
+                DataProvider.Log("Mitarbeiter Löschen von " + (m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter).Log() + " zugestimmt", 0);
                 DataProvider.DeleteMitarbeiter(m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter);
                 UpdateMtbtrList();
                 UpdateLbxBuchungen();
@@ -173,6 +180,7 @@ namespace TimeChip_App
 
         private void Btnarbeitszeitprofil_Click(object sender, EventArgs e)
         {
+            DataProvider.Log("Abzp Fenster geöffnet", 2);
             DlgArbeitszeitprofile arbeitszeitprofile = new DlgArbeitszeitprofile();
             arbeitszeitprofile.ShowDialog();
             UpdateMtbtrList();
@@ -233,6 +241,7 @@ namespace TimeChip_App
 
         private void BtnNeueBuchung_Click(object sender, EventArgs e)
         {
+            DataProvider.Log("Btn Neue Buchung gedrückt", 2);
             DlgBuchung dlgBuchung = new DlgBuchung
             {
                 Titel = "Buchung hinzufügen",
@@ -261,6 +270,7 @@ namespace TimeChip_App
 
         private void BtnBuchungBearbeiten_Click(object sender, EventArgs e)
         {
+            DataProvider.Log("Btn Buchung bearbeiten gedrückt", 2);
             if (m_lbxBuchungen.SelectedItem != null)
             {
                 DlgBuchung dlgBuchung = new DlgBuchung();
@@ -295,7 +305,8 @@ namespace TimeChip_App
 
         private void BtnBuchungLöschen_Click(object sender, EventArgs e)
         {
-            if(MessageBox.Show("Wollen Sie wirklich diese Buchung löschen?", "Achtung", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes){
+            DataProvider.Log("Btn Buchung löschen gedrückt", 2);
+            if (MessageBox.Show("Wollen Sie wirklich diese Buchung löschen?", "Achtung", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes){
                 ClsBuchung buchung = m_lbxBuchungen.SelectedItem as ClsBuchung;
                 DataProvider.DeleteBuchung(buchung, "buchungen");
 
@@ -436,6 +447,7 @@ namespace TimeChip_App
 
         private void BtnPrint_Click(object sender, EventArgs e)
         {
+            DataProvider.Log("Druckvorgang bzw Monatsübersicht gestartet", 0);
             m_druckzähler = 0;
             DateTime date = m_cldKalender.SelectionStart;
             ClsMitarbeiter mtbtr = m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter;
@@ -464,6 +476,7 @@ namespace TimeChip_App
                 else
                 {
                     MessageBox.Show("Monat ist noch nicht beendet!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    DataProvider.Log("Monat nicht beendet", 0);
                     return;
                 }
 
@@ -578,6 +591,7 @@ namespace TimeChip_App
 
         private void BtnRefresh_Click(object sender, EventArgs e)
         {
+            DataProvider.Log("Versucht Daten mithilfe des Refresh Knopfs zu aktualisieren", 1);
             DateTime date = m_cldKalender.SelectionStart;
             ClsMitarbeiter mtbtr = m_lbxMitarbeiter.SelectedItem as ClsMitarbeiter;
             ClsAusgewerteter_Tag tag = DataProvider.SelectAusgewerteterTag(date, mtbtr.ID);
@@ -660,6 +674,7 @@ namespace TimeChip_App
 
         private void BtnSettings_Click(object sender, EventArgs e)
         {
+            DataProvider.Log("Settingsfenster wird geöffnet", 2);
             DlgSettings settings = new DlgSettings();
 
             string connectionstring;
@@ -683,8 +698,11 @@ namespace TimeChip_App
 
                 DataProvider.SaveArduinoIP(settings.ArduinoIP);
 
+                DataProvider.SaveLogLevel(settings.LogLevel);
+
                 if (MessageBox.Show("Die App wird neu gestartet um die Änderungen verarbeiten zu können!", "Achtung!", MessageBoxButtons.OK, MessageBoxIcon.Warning) == DialogResult.OK)
                 {
+                    DataProvider.Log("App wegen Settingsänderung neugestartet", 0);
                     Application.Restart();
                 }
             }

@@ -27,5 +27,10 @@ namespace TimeChip_App
         public TimeSpan Arbeitszeit { get { return m_arbeitszeit; } set { m_arbeitszeit = value; } }
         public DateTime Date { get { return m_date; } set { m_date = value; } }
         public int Status { get { return m_status; } set { m_status = value; } }
+
+        public string Log()
+        {
+            return ID + " " + Date + " "+  MtbtrID;
+        }
     }
 }

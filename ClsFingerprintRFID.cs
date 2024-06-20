@@ -19,5 +19,12 @@ namespace TimeChip_App
         public int Fingerprint { get { return m_fingerprintID; } set { m_fingerprintID = value; } }
         public int ID { get { return m_iD; } set { m_iD = value; } }
         public int MtbtrID { get { return m_mtbtrID; } set { m_mtbtrID = value; } }
+
+        public override string ToString()
+        {
+            return ID + " " + FingerName;
+        }
+
+        public string Log() { return ToString(); }
     }
 }

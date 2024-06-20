@@ -2,6 +2,8 @@
 using System.Windows.Forms;
 using System.Configuration;
 using TimeChip_App.Properties;
+using System.Reflection.Emit;
+using System.Threading;
 
 namespace TimeChip_App
 {
@@ -13,6 +15,10 @@ namespace TimeChip_App
         [STAThread]
         static void Main()
         {
+            Application.ThreadException += new ThreadExceptionEventHandler(ExceptionHandler);
+            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(ExceptionHandler);
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
@@ -21,7 +27,6 @@ namespace TimeChip_App
                 Settings.Default.Upgrade();
                 Settings.Default.UpgradeRequired = false;
                 Settings.Default.Save();
-                MessageBox.Show(Settings.Default.Server);
             }
 
             try
@@ -37,6 +42,19 @@ namespace TimeChip_App
             }
 
             Application.Run(new FrmHaupt());
+        }
+
+
+        static void ExceptionHandler(object sender, ThreadExceptionEventArgs e)
+        {
+            MessageBox.Show("Handler caught: " + e.Exception.Message);
+            DataProvider.Log("Handler caught: " + e.Exception.Message, 0);
+        }
+
+        static void ExceptionHandler(object sender, UnhandledExceptionEventArgs e)
+        {
+            MessageBox.Show("Domain Handler caught: " + (e.ExceptionObject as Exception).Message);
+            DataProvider.Log("Handler caught: " + (e.ExceptionObject as Exception).Message, 0);
         }
     }
 }

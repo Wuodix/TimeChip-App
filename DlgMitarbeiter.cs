@@ -46,16 +46,20 @@ namespace TimeChip_App
             m_lbxFinger.DisplayMember = "FingerName";
             CardUID = "NaN";
 
-            m_tbxVorname.TabIndex = 1;
-            m_tbxNachname.TabIndex = 2;
-            m_tbxÜberstunden.TabIndex = 3;
-            m_tbxUrlaub.TabIndex = 4;
-            m_cmbxAProfil.TabIndex = 5;
-            m_dtpArbeitsb.TabIndex = 6;
-            m_btnAddFinger.TabIndex = 7;
-            m_btnAddCard.TabIndex = 8;
-            m_btnOK.TabIndex = 9;
-            m_btnCancel.TabIndex = 10;
+            //Tab Indexe
+            {
+                m_tbxVorname.TabIndex = 1;
+                m_tbxNachname.TabIndex = 2;
+                m_tbxÜberstunden.TabIndex = 3;
+                m_tbxUrlaub.TabIndex = 4;
+                m_cmbxAProfil.TabIndex = 5;
+                m_dtpArbeitsb.TabIndex = 6;
+                m_btnAddFinger.TabIndex = 7;
+                m_btnAddCard.TabIndex = 8;
+                m_btnOK.TabIndex = 9;
+                m_btnCancel.TabIndex = 10;
+            }
+            //Tab Indexe
         }
 
         public string Vorname { get { return m_tbxVorname.Text; } set { m_tbxVorname.Text = value; } }
@@ -116,6 +120,8 @@ namespace TimeChip_App
                 m_btnAddCard.Text = "Karte ändern";
             }
             CardUID = Bearbeitender.RFIDUID;
+
+            DataProvider.Log("Mtbtr Fenster wurde auf das Bearbeiten vorbereitet", 1);
         }
 
         /// <summary>
@@ -157,6 +163,8 @@ namespace TimeChip_App
             m_toolTip.SetToolTip(m_btnAddFinger, "Es kann erst ein Finger hinzugefügt werden, wenn der Mitarbeiter erstellt wurde!");
             m_toolTip.SetToolTip(m_btnDeleteFinger, "Es kann erst mit den Fingern gearbeitet werden, wenn der Mitarbeiter erstellt wurde!");
             m_toolTip.SetToolTip(m_lbxFinger, "Es kann erst mit den Fingern gearbeitet werden, wenn der Mitarbeiter erstellt wurde!");
+
+            DataProvider.Log("Mtbtr Fenster wurde auf das neue Erstellen vorbereitet", 1);
         }
 
         private void DlgMitarbeiter_MouseMove(object sender,  MouseEventArgs e)
@@ -238,7 +246,9 @@ namespace TimeChip_App
         {
             SetMitarbeiternummer();
 
-            MessageBox.Show("Sobald Sie auf OK drücken haben Sie 30 Sekunden Zeit den Finger am Terminal einzuspeichern. Wenn in 30 Sekunden kein Finger erkannt wird, wird der Vorgang abgebrochen!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            DataProvider.Log("Es wird versucht ein Finger mit Nummer " + m_fingernumber + " hinzuzufügen", 0);
+
+            MessageBox.Show("Sobald Sie auf OK drücken, haben Sie 30 Sekunden Zeit den Finger am Terminal einzuspeichern. Wenn in 30 Sekunden kein Finger erkannt wird, wird der Vorgang abgebrochen!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
             string responseContent = DataProvider.SendRecieveHTTP("Finger" + m_fingernumber);
 
@@ -254,10 +264,12 @@ namespace TimeChip_App
 
                 MessageBox.Show("Der Finger wurde erfolgreich hinzugefügt!", "Erfolg", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 m_finger = true;
+                DataProvider.Log("Der Finger wurde erfolgreich hinzugefügt!", 0);
             }
             else
             {
                 MessageBox.Show("Der Finger konnte nicht hinzugefügt werden!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                DataProvider.Log("Der Finger konnte nicht hinzugefügt werden", 0);
             }
         }
 
@@ -274,9 +286,11 @@ namespace TimeChip_App
                 return;
             }
 
-            DataProvider.DeleteFingerprintRFID(m_lbxFinger.SelectedItem as ClsFingerprintRFID);
+            int veränderteDatensätze = DataProvider.DeleteFingerprintRFID(m_lbxFinger.SelectedItem as ClsFingerprintRFID);
 
-            if(m_fingers.Count == 1)
+            DataProvider.Log("Der Finger " + (m_lbxFinger.SelectedItem as ClsFingerprintRFID).Log() + " wurde gelöscht und dabei wurden " + veränderteDatensätze + " Datensätze verändert",0);
+
+            if (m_fingers.Count == 1)
             {
                 m_finger = false;
                 m_fingers.Clear();
@@ -299,7 +313,9 @@ namespace TimeChip_App
                 }
             }
 
-            MessageBox.Show("Sobald Sie auf OK drücken haben Sie 30 Sekunden Zeit die Karte am Terminal einzuspeichern. Wenn in 30 Sekunden keine Karte erkannt wird, wird der Vorgang abgebrochen!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            DataProvider.Log("Es wird versucht etwas mit einer Karte zu machen", 0);
+
+            MessageBox.Show("Sobald Sie auf OK drücken, haben Sie 30 Sekunden Zeit die Karte am Terminal einzuspeichern. Wenn in 30 Sekunden keine Karte erkannt wird, wird der Vorgang abgebrochen!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
             string responseContent = DataProvider.SendRecieveHTTP("Card");
 
@@ -312,10 +328,12 @@ namespace TimeChip_App
                 if (!m_card)
                 {
                     MessageBox.Show("Karte wurde erfolgreich hinzugefügt.", "Erfolg", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    DataProvider.Log("Karte wurde erfolgreich hinzugefügt", 0);
                 }
                 else
                 {
                     MessageBox.Show("Karte wurde erfolgreich geändert.", "Erfolg", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    DataProvider.Log("Karte wurde erfolgreich geändert", 0);
                 }
                 m_card = true;
                 m_btnAddCard.Text = "Karte ändern";
@@ -329,10 +347,12 @@ namespace TimeChip_App
                 if (!m_card)
                 {
                     MessageBox.Show("Die Karte konnte nicht hinzugefügt werden!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    DataProvider.Log("Karte konnte nicht hinzugefügt werden", 0);
                 }
                 else
                 {
                     MessageBox.Show("Die Karte konnte nicht geändert werden!", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    DataProvider.Log("Karte konnte nicht geändert werden", 0);
                 }
             }
         }

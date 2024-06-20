@@ -48,7 +48,7 @@ namespace TimeChip_App
 
         public string Log()
         {
-            return m_id + " - " + Vorname + " - " + Nachname + " - " + Überstunden + " - " + Urlaub;
+            return ToString();
         }
     }
 }

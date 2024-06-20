@@ -64,6 +64,7 @@
     <AppxBundlePlatforms>neutral</AppxBundlePlatforms>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <EntryPointProjectUniqueName>..\TimeChip_App.csproj</EntryPointProjectUniqueName>
+    <AppxPackageDir>C:\Users\Julian\Documents\Meine Dateien\Coding\TimeChipAppBundles\</AppxPackageDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <AppxBundle>Always</AppxBundle>

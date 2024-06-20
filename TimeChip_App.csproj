@@ -256,5 +256,8 @@
   <ItemGroup>
     <None Include="Resources\Zahnrad.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Logs\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

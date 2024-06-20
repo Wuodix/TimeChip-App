@@ -35,9 +35,13 @@ namespace TimeChip_App
         public ClsTag Samstag { get { return m_samstag; } set { m_samstag = value; } }
         public ClsTag Sonntag { get { return m_sonntag; } set { m_sonntag = value; } }
         public int ID { get { return m_id; } }
+
+
         public override string ToString()
         {
-            return m_name;
+            return ID + " "  + m_name;
         }
+
+        public string Log() { return ToString(); }
     }
 }
