@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using ZstdSharp.Unsafe;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace TimeChip_App
@@ -15,7 +16,9 @@ namespace TimeChip_App
         /// </summary>
         public static void Berechnen()
         {
-            List<ClsBuchung> buchungen = DataProvider.SelectAllBuchungen("buchungen_temp");
+            DataProvider.Log("Normale Berechnung gestartet", 0);
+
+            List <ClsBuchung> buchungen = DataProvider.SelectAllBuchungen("buchungen_temp");
 
             DateTime lastBerechnung = DataProvider.ReadBerechnungsdate();
 
@@ -38,16 +41,27 @@ namespace TimeChip_App
 
                 ClsMitarbeiter mtbtr = new ClsMitarbeiter();
                 List<ClsAusgewerteter_Tag> ausgewerteteTage = new List<ClsAusgewerteter_Tag>();
+                List<(TimeSpan, TimeSpan, DateTime, int)> Monatsübersichten = new List<(TimeSpan, TimeSpan, DateTime, int)>();
                 foreach (ClsMitarbeiter mitarbeiter in FrmHaupt.Mitarbeiterliste)
                 {
+                    DataProvider.Log(mitarbeiter.Log() + " wird berechnet",0);
                     mtbtr = mitarbeiter;
+                    List<ClsAbzpMtbtr> abzpmtbtrs = DataProvider.SelectAbzpMtbtr(mtbtr);
                     foreach(DateTime tag in Tage)
                     {
-                        List<ClsBuchung> TagBuchungen = buchungen.FindAll(x => x.Zeit.ToShortDateString().Equals(tag.ToShortDateString()) && x.Mitarbeiternummer.Equals(mitarbeiter.Mitarbeiternummer));
-                        ausgewerteteTage.Add(Berechnen(tag, ref mtbtr, true, TagBuchungen));
+                        if(tag.Day == 1)
+                        {
+                            Monatsübersichten.Add((mtbtr.Überstunden, mtbtr.Urlaub, tag.Date, mtbtr.ID));
+                        }
+
+                        GetAbzpofDate(ref mtbtr, tag, abzpmtbtrs);
+                        List<ClsBuchung> TagBuchungen = buchungen.FindAll(x => x.Zeit.ToShortDateString().Equals(tag.ToShortDateString()) && x.MtbtrID.Equals(mitarbeiter.ID));
+                        ausgewerteteTage.Add(Berechnen(tag, ref mtbtr, true, false,TagBuchungen));
                     }
 
                     DataProvider.UpdateMitarbeiter(mtbtr);
+
+                    DataProvider.Log("Neue Überstunden: " + mtbtr.Überstunden,0);
                 }
 
                 DataProvider.InsertMultipleAusgewerteterTag(ausgewerteteTage);
@@ -63,6 +77,11 @@ namespace TimeChip_App
                 {
                     DataProvider.TransferBuchungs(TransferBuchungen);
                 }
+                
+                if(Monatsübersichten.Count != 0)
+                {
+                    DataProvider.InsertMultipeMonatsübersichten(Monatsübersichten);
+                }
             }
         }
 
@@ -75,13 +94,15 @@ namespace TimeChip_App
         /// <param name="startdate">Der erste zu berechnende Tag</param>
         /// <param name="enddate">Der letzte zu berechnende Tag</param>
         /// <param name="mtbtr">Der Mitarbeiter, dessen Tage berechnet werden müssen</param>
-        public static void Berechnen(DateTime startdate, DateTime enddate, ClsMitarbeiter mtbtr)
+        /// <param name="alteabziehen">Ob die alten Überstunden des Mtbtrs vor dem Anwenden der neuen Überstunden abgezogen werden sollen</param>
+        public static void Berechnen(DateTime startdate, DateTime enddate, ClsMitarbeiter mtbtr, bool alteabziehen)
         {
-            List<ClsAusgewerteter_Tag> tage = DataProvider.SelectAusgewerteteTage(startdate, enddate, mtbtr.Mitarbeiternummer);
-
+            DataProvider.Log("Zeitspanne von " + startdate + " bis " + enddate + " von " + mtbtr.Log() + " berechnen", 1);
+            List<ClsAbzpMtbtr> abzpMtbtrs = DataProvider.SelectAbzpMtbtr(mtbtr);
             for(DateTime date = startdate; date <= enddate;date = date.Add(new TimeSpan(1, 0, 0, 0)))
             {
-                Berechnen(date, ref mtbtr, false);
+                GetAbzpofDate(ref mtbtr, date, abzpMtbtrs);
+                Berechnen(date, ref mtbtr, false,alteabziehen);
             }
         }
 
@@ -93,7 +114,7 @@ namespace TimeChip_App
         /// <param name="ersteBerechnung">Gibt an ob der Tag bereits berechnet wurde oder ob dies die erste Berechnung ist</param>
         /// <param name="TagesBuchungen">Eine Liste mit den Buchungen von mtbtr an day</param>
         /// <returns>Die berechneten Daten als Ausgewerteter Tag</returns>
-        public static ClsAusgewerteter_Tag Berechnen(DateTime day, ref ClsMitarbeiter mtbtr, bool ersteBerechnung, List<ClsBuchung> TagesBuchungen = null)
+        public static ClsAusgewerteter_Tag Berechnen(DateTime day, ref ClsMitarbeiter mtbtr, bool ersteBerechnung, bool timespanBerechnung = false, List<ClsBuchung> TagesBuchungen = null, ClsAusgewerteter_Tag Tag1 = null)
         {
             List<ClsBuchung> buchungen;
             ClsAusgewerteter_Tag tag = new ClsAusgewerteter_Tag();
@@ -102,7 +123,15 @@ namespace TimeChip_App
                 if (!ersteBerechnung)
                 {
                     buchungen = DataProvider.SelectAllBuchungenFromDay(mtbtr, day, "buchungen");
-                    tag = DataProvider.SelectAusgewerteterTag(day, mtbtr.Mitarbeiternummer);
+                    if(Tag1 != null)
+                    {
+                        tag = Tag1;
+
+                    }
+                    else
+                    {
+                        tag = DataProvider.SelectAusgewerteterTag(day, mtbtr.ID);
+                    }
                 }
                 else
                 {
@@ -115,7 +144,7 @@ namespace TimeChip_App
             }
 
 
-            buchungen.Sort(Comparer<ClsBuchung>.Create((x, y) => x.Buchungsnummer.CompareTo(y.Buchungsnummer)));
+            buchungen.Sort(Comparer<ClsBuchung>.Create((x, y) => x.Zeit.TimeOfDay.CompareTo(y.Zeit.TimeOfDay)));
             bool first = true;
             DateTime temp = new DateTime(0);
             TimeSpan Arbeitszeit = new TimeSpan(0);
@@ -158,7 +187,15 @@ namespace TimeChip_App
             TimeSpan Überstunden = new TimeSpan(0);
 
             //Pausenabzug
-            bool pauseberechnet = false;
+            DataProvider.Log("Pausenberechnung", 1);
+            if(GetPauseOfDayOfWeek(day, mtbtr))
+            {
+                if(buchungen.Count > 0)
+                {
+
+                }
+            }
+
             if (GetPauseOfDayOfWeek(day, mtbtr))
             {
                 if (buchungen.Count != 0)
@@ -166,40 +203,47 @@ namespace TimeChip_App
                     if (GetPausenbeginnOfDayOfWeek(day, mtbtr).TotalSeconds == 0 || GetPausenendeOfDayOfWeek(day, mtbtr).TotalSeconds == 0)
                     {
                         Arbeitszeit -= GetSollPausendauer(day, mtbtr);
-                        pauseberechnet = true;
                     }
                     else
                     {
                         //Erste Buchung liegt vor Pausenbeginn
                         if (buchungen[0].Zeit.TimeOfDay.CompareTo(GetPausenbeginnOfDayOfWeek(day, mtbtr)) < 0)
                         {
+                            //Letzte liegt vor Pausenbeginn
+                            //Wird nichts gemacht
+
                             //Letzte Buchung liegt nach Pausenende
                             if (buchungen.LastOrDefault().Zeit.TimeOfDay.CompareTo(GetPausenendeOfDayOfWeek(day, mtbtr)) > 0)
                             {
                                 Arbeitszeit -= GetSollPausendauer(day, mtbtr);
 
-                                pauseberechnet = true;
+                            }
+                            else if(buchungen.LastOrDefault().Zeit.TimeOfDay.CompareTo(GetPausenbeginnOfDayOfWeek(day,mtbtr))>0)
+                            {     //Letzte liegt nach Pausenbeginn
+                                //Wenn nicht: Zeit, die letze Buchung nach Pausenbeginn liegt, als Pausendauer abziehen
+                                TimeSpan Pausendauer = buchungen.LastOrDefault().Zeit.TimeOfDay.Subtract(GetPausenbeginnOfDayOfWeek(day, mtbtr));
+
+                                Arbeitszeit -= Pausendauer;
+                            }
+                        }
+                        else //Erste liegt nach Pausenbeginn
+                        {
+                            //Letzte Buchung liegt nach Pausenende
+                            if (buchungen.LastOrDefault().Zeit.TimeOfDay.CompareTo(GetPausenendeOfDayOfWeek(day, mtbtr)) > 0)
+                            {
+                                //Zeit, die erste vor Pausenende liegt als Pausendauer
+                                TimeSpan Pausendauer = GetPausenendeOfDayOfWeek(day, mtbtr).Subtract(buchungen[0].Zeit.TimeOfDay);
+
+                                Arbeitszeit -= Pausendauer;
+                            }
+                            else
+                            {
+                                Arbeitszeit = new TimeSpan(0);
                             }
                         }
                     }
 
                 }
-                else
-                {
-                    pauseberechnet = true;
-                }
-            }
-            else
-            {
-                pauseberechnet = true;
-            }
-
-            if (!pauseberechnet)
-            {
-                //Wenn nicht: Zeit, die letze Buchung nach Pausenbeginn liegt, als Pausendauer abziehen
-                TimeSpan Pausendauer = buchungen.LastOrDefault().Zeit.TimeOfDay.Subtract(GetPausenbeginnOfDayOfWeek(day, mtbtr));
-
-                Arbeitszeit -= Pausendauer;
             }
 
             Überstunden = Arbeitszeit - GetSollArbeitszeit(day, mtbtr);
@@ -208,26 +252,42 @@ namespace TimeChip_App
             {
                 TimeSpan oldÜberstunden = new TimeSpan(tag.Arbeitszeit.Ticks - GetSollArbeitszeit(day, mtbtr).Ticks);
 
-                mtbtr.Überstunden -= oldÜberstunden;
-                mtbtr.Überstunden += Überstunden;
+                if (!timespanBerechnung)
+                {
+                    mtbtr.Überstunden -= oldÜberstunden;
+
+                }
+                if(tag.Status == 0)
+                {
+                    mtbtr.Überstunden += Überstunden;
+                }
 
                 DataProvider.UpdateMitarbeiter(mtbtr);
 
-                return DataProvider.InsertAusgewerteterTag(day, mtbtr.Mitarbeiternummer, Arbeitszeit, tag.Status);
+                DataProvider.UpdateAusgewerteterTag(day, mtbtr.ID, Arbeitszeit, tag.Status);
+
+                DataProvider.Log("Nicht die erste Berechnung von " + mtbtr.Log() + " mit Arbeitszeit von " + Arbeitszeit + " und Überstunden von " + Überstunden, 1);
+
+                return DataProvider.SelectAusgewerteterTag(day, mtbtr.ID);
             }
             mtbtr.Überstunden += Überstunden;
 
-            return new ClsAusgewerteter_Tag(1, mtbtr.Mitarbeiternummer, Arbeitszeit, day, tag.Status);
+            DataProvider.Log(day.ToString("d") +  " Arbeitszeit: " + Arbeitszeit + " Überstunden: " + Überstunden, 1);
+
+            return new ClsAusgewerteter_Tag(1, mtbtr.ID, Arbeitszeit, day, tag.Status);
         }
 
         /// <summary>
         /// Berechnet bei etwaiger Statusänderung eines Tages die Änderung in den Überstunden bzw. beim verbleibenden Urlaub eines Mitarbeiters
         /// </summary>
-        /// <param name="tag">Der Tag, dessen Status geändert wird</param>
+        /// <param name="tag">Der Tag, dessen Status geändert wurde</param>
         /// <param name="alterStatus">Der Wert des Status vor der Änderung; 0 = Zeitausgleich, 1 = Krank, 2 = Schule, 3 = Urlaub</param>
         public static void TagesStatusÄnderung(ClsAusgewerteter_Tag tag, int alterStatus)
         {
-            ClsMitarbeiter mitarbeiter = FrmHaupt.Mitarbeiterliste.ToList().Find(x => x.Mitarbeiternummer.Equals(tag.MitarbeiterNummer));
+            DataProvider.Log("Tagesstatusänderung von " + tag.ID + " von " + alterStatus + " zu " + tag.Status, 2);
+            ClsMitarbeiter mitarbeiter = FrmHaupt.Mitarbeiterliste.ToList().Find(x => x.ID.Equals(tag.MtbtrID));
+            List<ClsAbzpMtbtr> abzpMtbtrs = DataProvider.SelectAbzpMtbtr(mitarbeiter);
+            GetAbzpofDate(ref mitarbeiter, tag.Date, abzpMtbtrs);
             TimeSpan Überstunden = tag.Arbeitszeit - GetSollArbeitszeit(tag.Date, mitarbeiter);
             //Status Codes:
             //0 = Zeitausgleich
@@ -293,6 +353,8 @@ namespace TimeChip_App
             }
             DataProvider.UpdateMitarbeiter(mitarbeiter);
             DataProvider.UpdateAusgewerteterTag(tag);
+
+            DataProvider.Log("Nach Tagesstatusänderung Überstunden: " + mitarbeiter.Überstunden + " Urlaub: " + mitarbeiter.Urlaub, 2); 
         }
 
 
@@ -359,6 +421,24 @@ namespace TimeChip_App
         }
 
         /// <summary>
+        /// Sucht das Arbeitszeitprofil, das ein Mitarbeiter zu einem bestimmten Datum gehabt hat
+        /// </summary>
+        /// <param name="mtbtr">Der Mitarbeiter dessen Abzp gesucht und geändert wird</param>
+        /// <param name="date"></param>
+        /// <param name="abzpMtbtrs">Eine Liste aller abzpMtbtrs Objekte eines bestimmten Mitarbeiters</param>
+        public static void GetAbzpofDate(ref ClsMitarbeiter mtbtr, DateTime date, List<ClsAbzpMtbtr> abzpMtbtrs)
+        {
+            DataProvider.Log("GetAbzpofDate von " + mtbtr.Vorname + " " + mtbtr.Nachname + " an " + date, 2);
+            List<ClsAbzpMtbtr> startvor = abzpMtbtrs.FindAll(x=>x.Startdate.CompareTo(date)<0);
+            List<ClsAbzpMtbtr> endnach = startvor.FindAll(x=>x.Enddate.CompareTo(date)>0);
+
+            if(endnach.Count != 0)
+            {
+                mtbtr.Arbeitszeitprofil = DlgArbeitszeitprofile.ArbeitsprofilListe.Find(x => x.ID.Equals(endnach[0].AbzpID));
+            }
+        }
+
+        /// <summary>
         /// Ruft die Arbeitszeit ab, die mitarbeiter an date laut Arbeitszeitprofil zu arbeiten hat
         /// </summary>
         /// <param name="date"></param>
@@ -366,6 +446,7 @@ namespace TimeChip_App
         /// <returns></returns>
         public static TimeSpan GetSollArbeitszeit(DateTime date, ClsMitarbeiter mitarbeiter)
         {
+            DataProvider.Log("GetSollArbeitszeit von " + mitarbeiter.Log() + " an " +date, 2);
             FeiertagLogic feiertage = FeiertagLogic.GetInstance(date.Year);
 
             if (feiertage.isFeiertag(date))
@@ -401,6 +482,7 @@ namespace TimeChip_App
         /// <returns></returns>
         private static TimeSpan GetSollPausendauer(DateTime date, ClsMitarbeiter mitarbeiter)
         {
+            DataProvider.Log("GetSollPausendauer von " + mitarbeiter.Log() + " an " + date, 2);
             switch (date.DayOfWeek)
             {
                 case DayOfWeek.Monday:
@@ -430,6 +512,7 @@ namespace TimeChip_App
         /// <returns></returns>
         private static TimeSpan GetPausenbeginnOfDayOfWeek(DateTime date, ClsMitarbeiter mitarbeiter)
         {
+            DataProvider.Log("GetPausenbeginn von " + mitarbeiter.Log() + " an " + date, 2);
             switch (date.DayOfWeek)
             {
                 case DayOfWeek.Monday:
@@ -457,6 +540,7 @@ namespace TimeChip_App
         /// <returns></returns>
         private static TimeSpan GetPausenendeOfDayOfWeek(DateTime date, ClsMitarbeiter mitarbeiter)
         {
+            DataProvider.Log("GetPausenende von " + mitarbeiter.Log() + " an " + date, 2);
             switch (date.DayOfWeek)
             {
                 case DayOfWeek.Monday:
@@ -486,6 +570,7 @@ namespace TimeChip_App
         /// <returns></returns>
         private static TimeSpan GetArbeitsbeginnOfDayOfWeek(DateTime date, ClsMitarbeiter mitarbeiter)
         {
+            DataProvider.Log("GetArbeitsbeginn von " + mitarbeiter.Log() + " an " + date, 2 );
             switch (date.DayOfWeek)
             {
                 case DayOfWeek.Monday:
@@ -515,6 +600,7 @@ namespace TimeChip_App
         /// <returns></returns>
         private static TimeSpan GetArbeitsendeOfDayOfWeek(DateTime date, ClsMitarbeiter mitarbeiter)
         {
+            DataProvider.Log("GetArbeitsende von " + mitarbeiter.Log() + " an " + date, 2);
             switch (date.DayOfWeek)
             {
                 case DayOfWeek.Monday:
@@ -544,6 +630,7 @@ namespace TimeChip_App
         /// <returns></returns>
         private static bool GetPauseOfDayOfWeek(DateTime date, ClsMitarbeiter mitarbeiter)
         {
+            DataProvider.Log("GetPause von " + mitarbeiter.Log() + " an " + date, 2);
             switch (date.DayOfWeek)
             {
                 case DayOfWeek.Monday:

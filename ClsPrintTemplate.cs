@@ -7,7 +7,7 @@ namespace TimeChip_App
         string m_printTemplate;
         public ClsPrintTemplate(string Mitarbeiter, string Monat)
         {
-            m_printTemplate = "<html><style>table, th, td {  border:1px solid black;border-collapse: collapse;}td{  text-align: center; font-size: 11px; height:25px }table{table-layout:fixed; width: 100%; margin:0;}</style>  <body><h1>" + Mitarbeiter + "</h1><h2>" + Monat + "</h2><table><tr><th style='width: 10%'>Tag</th><th>Buchungen</th><th style='width: 10%'>Soll</th><th style='width: 10%'>Ist</th><th style='width: 10%'>Status</th><th style='width: 15%'>Ueberstunden</th><th style='width: 10%'>Monat</th></tr>";
+            m_printTemplate = "<html><style>table, th, td {  border:1px solid black;border-collapse: collapse;}td{  text-align: center; font-size: 11px; height:25px }table{table-layout:fixed; width: 100%; margin:0;}</style>  <body><h1>" + Mitarbeiter + "</h1><h2>" + Monat + "</h2><table><tr><th style='width:10%'>Tag</th><th style='width:10%'>Buchungen</th><th style='width:10%'>Soll</th><th style='width:10%'>Ist</th><th style='width:13%'>Status</th><th style='width:15%'>Überstunden</th><th style='width:10%'>Monat</th></tr>";
         }
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace TimeChip_App
         /// <returns>Die mit Daten gefüllte Monatsübersicht als HTML-String</returns>
         public string GetDoc(string GesSoll, string GesIst, string GesMonatÜberstunden, string GesÜberstunden, string Urlaub)
         {
-            m_printTemplate += "<tr /><tr><td /><td /><th>Soll</th><th>Ist</th><th>Ueberstunden</th><th>Gesamt</th><th>Urlaub</th></tr>";
+            m_printTemplate += "<tr /><tr><td /><td /><th>Soll</th><th>Ist</th><th>Überstunden</th><th>Gesamt</th><th>Urlaub</th></tr>";
             m_printTemplate += "<tr><th>Gesamt</th><td /><td>" + GesSoll + "</td><td>" + GesIst + "</td><td>" + GesMonatÜberstunden + "</td><td>" + GesÜberstunden + "</td><td>" + Urlaub + "</td></tr>";
             
             m_printTemplate += "</table></body></html>";

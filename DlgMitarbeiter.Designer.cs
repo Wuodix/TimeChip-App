@@ -47,6 +47,8 @@ namespace TimeChip_App
             this.m_tbxUrlaub = new System.Windows.Forms.TextBox();
             this.m_tbxÜberstunden = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
+            this.m_lbxFinger = new System.Windows.Forms.ListBox();
+            this.m_btnDeleteFinger = new System.Windows.Forms.Button();
             this.clsArbeitsprofilBindingSource = new System.Windows.Forms.BindingSource(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.clsArbeitsprofilBindingSource)).BeginInit();
             this.SuspendLayout();
@@ -67,7 +69,7 @@ namespace TimeChip_App
             this.label2.AllowDrop = true;
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(9, 81);
+            this.label2.Location = new System.Drawing.Point(9, 69);
             this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(91, 22);
@@ -76,7 +78,7 @@ namespace TimeChip_App
             // 
             // m_tbxVorname
             // 
-            this.m_tbxVorname.Location = new System.Drawing.Point(243, 78);
+            this.m_tbxVorname.Location = new System.Drawing.Point(243, 66);
             this.m_tbxVorname.Margin = new System.Windows.Forms.Padding(2);
             this.m_tbxVorname.Multiline = true;
             this.m_tbxVorname.Name = "m_tbxVorname";
@@ -85,7 +87,7 @@ namespace TimeChip_App
             // 
             // m_tbxNachname
             // 
-            this.m_tbxNachname.Location = new System.Drawing.Point(243, 127);
+            this.m_tbxNachname.Location = new System.Drawing.Point(243, 98);
             this.m_tbxNachname.Margin = new System.Windows.Forms.Padding(2);
             this.m_tbxNachname.Multiline = true;
             this.m_tbxNachname.Name = "m_tbxNachname";
@@ -97,7 +99,7 @@ namespace TimeChip_App
             this.label3.AllowDrop = true;
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(9, 130);
+            this.label3.Location = new System.Drawing.Point(9, 101);
             this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(105, 22);
@@ -107,7 +109,7 @@ namespace TimeChip_App
             // m_cmbxAProfil
             // 
             this.m_cmbxAProfil.FormattingEnabled = true;
-            this.m_cmbxAProfil.Location = new System.Drawing.Point(243, 270);
+            this.m_cmbxAProfil.Location = new System.Drawing.Point(243, 225);
             this.m_cmbxAProfil.Margin = new System.Windows.Forms.Padding(2);
             this.m_cmbxAProfil.Name = "m_cmbxAProfil";
             this.m_cmbxAProfil.Size = new System.Drawing.Size(194, 21);
@@ -118,7 +120,7 @@ namespace TimeChip_App
             this.label4.AllowDrop = true;
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(10, 267);
+            this.label4.Location = new System.Drawing.Point(10, 222);
             this.label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(146, 22);
@@ -127,7 +129,7 @@ namespace TimeChip_App
             // 
             // m_dtpArbeitsb
             // 
-            this.m_dtpArbeitsb.Location = new System.Drawing.Point(243, 302);
+            this.m_dtpArbeitsb.Location = new System.Drawing.Point(243, 257);
             this.m_dtpArbeitsb.Margin = new System.Windows.Forms.Padding(2);
             this.m_dtpArbeitsb.Name = "m_dtpArbeitsb";
             this.m_dtpArbeitsb.Size = new System.Drawing.Size(194, 20);
@@ -138,7 +140,7 @@ namespace TimeChip_App
             this.label5.AllowDrop = true;
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(10, 302);
+            this.label5.Location = new System.Drawing.Point(9, 257);
             this.label5.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(132, 22);
@@ -172,7 +174,7 @@ namespace TimeChip_App
             // m_btnAddFinger
             // 
             this.m_btnAddFinger.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.m_btnAddFinger.Location = new System.Drawing.Point(14, 343);
+            this.m_btnAddFinger.Location = new System.Drawing.Point(13, 312);
             this.m_btnAddFinger.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnAddFinger.Name = "m_btnAddFinger";
             this.m_btnAddFinger.Size = new System.Drawing.Size(220, 31);
@@ -184,7 +186,7 @@ namespace TimeChip_App
             // m_btnAddCard
             // 
             this.m_btnAddCard.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.m_btnAddCard.Location = new System.Drawing.Point(14, 389);
+            this.m_btnAddCard.Location = new System.Drawing.Point(14, 361);
             this.m_btnAddCard.Margin = new System.Windows.Forms.Padding(2);
             this.m_btnAddCard.Name = "m_btnAddCard";
             this.m_btnAddCard.Size = new System.Drawing.Size(220, 31);
@@ -198,7 +200,7 @@ namespace TimeChip_App
             this.label1.AllowDrop = true;
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(9, 232);
+            this.label1.Location = new System.Drawing.Point(9, 187);
             this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(69, 22);
@@ -207,7 +209,7 @@ namespace TimeChip_App
             // 
             // m_tbxUrlaub
             // 
-            this.m_tbxUrlaub.Location = new System.Drawing.Point(379, 232);
+            this.m_tbxUrlaub.Location = new System.Drawing.Point(379, 187);
             this.m_tbxUrlaub.Margin = new System.Windows.Forms.Padding(2);
             this.m_tbxUrlaub.Multiline = true;
             this.m_tbxUrlaub.Name = "m_tbxUrlaub";
@@ -216,7 +218,7 @@ namespace TimeChip_App
             // 
             // m_tbxÜberstunden
             // 
-            this.m_tbxÜberstunden.Location = new System.Drawing.Point(379, 200);
+            this.m_tbxÜberstunden.Location = new System.Drawing.Point(379, 155);
             this.m_tbxÜberstunden.Margin = new System.Windows.Forms.Padding(2);
             this.m_tbxÜberstunden.Multiline = true;
             this.m_tbxÜberstunden.Name = "m_tbxÜberstunden";
@@ -228,12 +230,32 @@ namespace TimeChip_App
             this.label6.AllowDrop = true;
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(9, 200);
+            this.label6.Location = new System.Drawing.Point(9, 155);
             this.label6.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(123, 22);
             this.label6.TabIndex = 15;
             this.label6.Text = "Überstunden:";
+            // 
+            // m_lbxFinger
+            // 
+            this.m_lbxFinger.FormattingEnabled = true;
+            this.m_lbxFinger.Location = new System.Drawing.Point(243, 295);
+            this.m_lbxFinger.Name = "m_lbxFinger";
+            this.m_lbxFinger.Size = new System.Drawing.Size(194, 95);
+            this.m_lbxFinger.TabIndex = 16;
+            // 
+            // m_btnDeleteFinger
+            // 
+            this.m_btnDeleteFinger.Font = new System.Drawing.Font("Arial", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.m_btnDeleteFinger.Location = new System.Drawing.Point(243, 395);
+            this.m_btnDeleteFinger.Margin = new System.Windows.Forms.Padding(2);
+            this.m_btnDeleteFinger.Name = "m_btnDeleteFinger";
+            this.m_btnDeleteFinger.Size = new System.Drawing.Size(194, 31);
+            this.m_btnDeleteFinger.TabIndex = 17;
+            this.m_btnDeleteFinger.Text = "Finger löschen";
+            this.m_btnDeleteFinger.UseVisualStyleBackColor = true;
+            this.m_btnDeleteFinger.Click += new System.EventHandler(this.BtnDeleteFinger_Click);
             // 
             // clsArbeitsprofilBindingSource
             // 
@@ -244,6 +266,8 @@ namespace TimeChip_App
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(446, 487);
+            this.Controls.Add(this.m_btnDeleteFinger);
+            this.Controls.Add(this.m_lbxFinger);
             this.Controls.Add(this.m_tbxÜberstunden);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.m_tbxUrlaub);
@@ -265,6 +289,7 @@ namespace TimeChip_App
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "DlgMitarbeiter";
             this.Text = "Neu";
+            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.DlgMitarbeiter_MouseMove);
             ((System.ComponentModel.ISupportInitialize)(this.clsArbeitsprofilBindingSource)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -291,5 +316,7 @@ namespace TimeChip_App
         private System.Windows.Forms.TextBox m_tbxUrlaub;
         private System.Windows.Forms.TextBox m_tbxÜberstunden;
         private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.ListBox m_lbxFinger;
+        private System.Windows.Forms.Button m_btnDeleteFinger;
     }
 }

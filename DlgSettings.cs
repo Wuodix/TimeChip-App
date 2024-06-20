@@ -37,6 +37,8 @@ namespace TimeChip_App
             m_tbxDatabase.Text = m_connectionString[3];
             m_tbxUID.Text = m_connectionString[5];
             m_tbxPass.Text = m_connectionString[7];
+            m_tbxArduinoIP.Text = DataProvider.ReadArduinoIP();
+            m_tbxLogLevel.Text = Settings.Default.LogLevel.ToString();
 
             m_dtpBerechnungsdate.Value = DataProvider.ReadBerechnungsdate().Date;
 
@@ -55,6 +57,8 @@ namespace TimeChip_App
         public string UID { get { return m_tbxUID.Text;} }
         public string Password { get { return m_tbxPass.Text; } }
         public DateTime Berechnungsdate { get {  return m_dtpBerechnungsdate.Value.Date; } }
+        public string ArduinoIP { get { return m_tbxArduinoIP.Text; }}
+        public int LogLevel { get { return Convert.ToInt16(m_tbxLogLevel.Text); } }
 
         private void BtnOK_Click(object sender, EventArgs e)
         {
@@ -85,6 +89,30 @@ namespace TimeChip_App
             }
 
             if(verändert == false && m_dtpBerechnungsdate.Value.Date != Settings.Default.Berechnungsdate)
+            {
+                verändert = true;
+            }
+
+            if(verändert == false && m_tbxArduinoIP.Text != DataProvider.ReadArduinoIP())
+            {
+                verändert = true;
+            }
+
+            try
+            {
+                if (Convert.ToInt16(m_tbxLogLevel.Text) < 0 || Convert.ToInt16(m_tbxLogLevel.Text) > 5)
+                {
+                    MessageBox.Show("Als Log Level muss eine Zahl von inkl. 0 bis inkl. 5 eingegeben werden", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+            }
+            catch
+            {
+                MessageBox.Show("Als Log Level muss eine Zahl von inkl. 0 bis inkl. 5 eingegeben werden", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (verändert == false && Settings.Default.LogLevel != Convert.ToInt32(m_tbxLogLevel.Text))
             {
                 verändert = true;
             }
