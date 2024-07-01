@@ -53,6 +53,7 @@ jobs:
     strategy:
       matrix:
         configuration: [Release]
+        targetPlatform: [x86]
 
     runs-on: windows-latest  # For a list of available runner types, refer to
                              # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
@@ -97,9 +98,10 @@ jobs:
       
     # Restore the application to populate the obj folder with RuntimeIdentifiers
     - name: Restore the application
-      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration /p:RestorePackagesConfig=true
+      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration /p:RestorePackagesConfig=true /p:RuntimeIdentifier=$env:RuntimeIdentifier
       env:
         Configuration: ${{ matrix.configuration }}
+        RuntimeIdentifier: win-${{ matrix.targetplatform }}
 
     - name: Decode the pfx
       run: |
@@ -109,13 +111,14 @@ jobs:
 
     # Create the app package by building and packaging the Windows Application Packaging project
     - name: Create the app package
-      run: msbuild $env:Wap_Project_Path /p:Configuration=$env:Configuration /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }} /p:AppxBundle=$env:Appx_Bundle /p:SignAssembly=true /p:AssemblyOriginatorKeyFile=Verpackungsprojekt\key.snk /p:AppxBundlePlatforms=$env:Appx_Bundle_Platforms /p:PackageCertificateThumbprint=""
+      run: msbuild $env:Wap_Project_Path /p:Platform==$env:TargetPlatform /p:Configuration=$env:Configuration /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }} /p:AppxBundle=$env:Appx_Bundle /p:SignAssembly=true /p:AssemblyOriginatorKeyFile=Verpackungsprojekt\key.snk /p:AppxBundlePlatforms=$env:Appx_Bundle_Platforms /p:PackageCertificateThumbprint=""
       env:
         Appx_Bundle: Always
         Appx_Bundle_Platforms: x86
         Appx_Package_Build_Mode: StoreUpload
         Configuration: ${{ matrix.configuration }}
-
+        TargetPlatform: ${{matrix.targetPlatform}}
+        
     # Remove the pfx
     - name: Remove the pfx
       run: Remove-Item -path $env:Wap_Project_Directory\GitHubActionsWorkflow.pfx
