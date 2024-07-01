@@ -100,11 +100,17 @@ jobs:
       uses: microsoft/setup-msbuild@v1.1
       
     # Restore the application to populate the obj folder with RuntimeIdentifiers
-    - name: Restore the application
+    - name: Restore the application with msbuild
       run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration /p:RestorePackagesConfig=true /p:RuntimeIdentifier=$env:RuntimeIdentifier
       env:
         Configuration: ${{ matrix.configuration }}
         RuntimeIdentifier: win-${{ matrix.targetplatform }}
+
+    - name: Restore the app with Nuget
+      run: nuget restore $env:Solution_Name /p:RuntimeIdentifier=$env:RuntimeIdentifier
+      env:
+        RuntimeIdentifier: win-${{ matrix.targetplatform }}
+        
 
     - name: Decode the pfx
       run: |
