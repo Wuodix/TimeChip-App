@@ -120,7 +120,7 @@ jobs:
 
     # Create the app package by building and packaging the Windows Application Packaging project
     - name: Create the app package
-      run: msbuild $env:Wap_Project_Path /p:UapAppxPackageBuildMode=$env:BuildMode /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }} /p:AppxBundle=$env:Appx_Bundle /p:SignAssembly=true /p:AssemblyOriginatorKeyFile=Verpackungsprojekt\key.snk /p:AppxBundlePlatforms=$env:Appx_Bundle_Platforms /p:PackageCertificateThumbprint=""
+      run: msbuild $env:Solution_Name /p:UapAppxPackageBuildMode=$env:BuildMode /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }} /p:AppxBundle=$env:Appx_Bundle /p:SignAssembly=true /p:AssemblyOriginatorKeyFile=Verpackungsprojekt\key.snk /p:AppxBundlePlatforms=$env:Appx_Bundle_Platforms /p:PackageCertificateThumbprint=""
       env:
         Appx_Bundle: Always
         Appx_Bundle_Platforms: x86
