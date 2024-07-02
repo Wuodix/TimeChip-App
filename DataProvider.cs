@@ -1,20 +1,12 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
 using MySql.Data.MySqlClient;
-using MySqlX.XDevAPI.Relational;
-using Org.BouncyCastle.Asn1.Esf;
 using TimeChip_App.Properties;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace TimeChip_App
 {
