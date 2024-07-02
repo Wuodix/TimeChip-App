@@ -53,6 +53,7 @@ jobs:
     strategy:
       matrix:
         configuration: [Release]
+        targetPlatform: [x64]
 
     runs-on: windows-latest  # For a list of available runner types, refer to
                              # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
@@ -61,10 +62,13 @@ jobs:
       Solution_Name: TimeChip_App.sln                      # Replace with your solution name, i.e. MyWpfApp.sln.
       Wap_Project_Directory: Verpackungsprojekt    # Replace with the Wap project directory relative to the solution, i.e. MyWpfApp.Package.
       Wap_Project_Path: Verpackungsprojekt\Verpackungsprojekt.wapproj                 # Replace with the path to your Wap project, i.e. MyWpf.App.Package\MyWpfApp.Package.wapproj.
+      App_Packages_Archive: AppPackages.zip
+      App_Packages_Directory: AppPackages
+      Actions_Allow_Unsecure_Commands: true
       
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
     
@@ -94,12 +98,19 @@ jobs:
     # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v1.1
+
+    - name: Setup Dotnet
+      uses: actions/setup-dotnet@v4.0.0
+      with:
+        dotnet-version: '8.0.x'
       
     # Restore the application to populate the obj folder with RuntimeIdentifiers
-    - name: Restore the application
-      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration /p:RestorePackagesConfig=true
+    - name: Restore the application with msbuild
+      run: msbuild $env:Wap_Project_Path /t:Restore /p:Configuration=$env:Configuration /p:RestorePackagesConfig=true /p:RuntimeIdentifier=$env:RuntimeIdentifier
       env:
         Configuration: ${{ matrix.configuration }}
+        RuntimeIdentifier: win-${{ matrix.targetplatform }}
+        
 
     - name: Decode the pfx
       run: |
@@ -109,20 +120,22 @@ jobs:
 
     # Create the app package by building and packaging the Windows Application Packaging project
     - name: Create the app package
-      run: msbuild $env:Wap_Project_Path /p:Configuration=$env:Configuration /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }} /p:AppxBundle=$env:Appx_Bundle /p:SignAssembly=true /p:AssemblyOriginatorKeyFile=Verpackungsprojekt\key.snk /p:AppxBundlePlatforms=$env:Appx_Bundle_Platforms /p:PackageCertificateThumbprint=""
+      run: msbuild $env:Wap_Project_Path /p:UapAppxPackageBuildMode=$env:BuildMode /p:Platform=$env:TargetPlatform /p:Configuration=$env:Configuration /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }} /p:AppxBundle=$env:Appx_Bundle /p:SignAssembly=true /p:AssemblyOriginatorKeyFile=Verpackungsprojekt\key.snk /p:AppxBundlePlatforms=$env:Appx_Bundle_Platforms /p:PackageCertificateThumbprint=""
       env:
         Appx_Bundle: Always
         Appx_Bundle_Platforms: x86
-        Appx_Package_Build_Mode: StoreUpload
+        Build_Mode: SideloadOnly
         Configuration: ${{ matrix.configuration }}
-
+        TargetPlatform: ${{matrix.targetPlatform}}
+        
     # Remove the pfx
     - name: Remove the pfx
       run: Remove-Item -path $env:Wap_Project_Directory\GitHubActionsWorkflow.pfx
 
-    # Upload the MSIX package: https://github.com/marketplace/actions/upload-a-build-artifact
-    - name: Upload build artifacts
+    - name: Upload Build Artifacts
       uses: actions/upload-artifact@v4.3.3
       with:
-        name: MSIX Package
-        path: ${{ env.Wap_Project_Directory }}
+        # Artifact name
+        name: MSIX Bundle
+        # A file, directory or wildcard pattern that describes what to upload
+        path: Verpackungsprojekt\AppPackages
