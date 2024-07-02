@@ -103,6 +103,9 @@ jobs:
       uses: actions/setup-dotnet@v4.0.0
       with:
         dotnet-version: '8.0.x'
+
+    - name: Add Net Core Package
+      run: dotnet add package Microsoft.NETCore.App.Runtime.win-x86 --version 8.0.6
       
     # Restore the application to populate the obj folder with RuntimeIdentifiers
     - name: Restore the application with msbuild
